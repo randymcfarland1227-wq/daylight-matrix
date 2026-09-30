@@ -4,7 +4,7 @@ A personal daily app for food, training, and body awareness. Choose what to do, 
 
 Logs stay on this device. There is no account wall.
 
-Live site: https://randymcfarland1227-wq.github.io/daylight-matrix/
+Live site: https://randymcfarland1227-wq.github.io/
 
 ## Run locally
 
