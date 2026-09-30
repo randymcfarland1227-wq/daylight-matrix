@@ -36,6 +36,10 @@ const HOTSPOTS: Record<string, Hotspot> = {
 
 export type BodyCallout = { regionId: string; text: string };
 
+function publicFile(path: string) {
+  return `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+}
+
 export function BodyPreview({ onOpen }: { onOpen: () => void }) {
   return (
     <button
@@ -44,7 +48,7 @@ export function BodyPreview({ onOpen }: { onOpen: () => void }) {
       className="tap grid size-16 place-items-center overflow-hidden rounded-2xl bg-stage"
       aria-label="Open Body"
     >
-      <img src="/body-front.jpg" alt="" className="h-14 w-10 object-cover object-[center_18%]" />
+      <img src={publicFile("body-front.jpg")} alt="" className="h-14 w-10 object-cover object-[center_18%]" />
     </button>
   );
 }
@@ -69,7 +73,7 @@ export function AnatomyStage({
   onSelect: (id: string) => void;
 }) {
   const regions = REGIONS.filter((region) => region.view === view && HOTSPOTS[region.id]);
-  const src = view === "front" ? "/body-front.jpg" : "/body-back.jpg";
+  const src = publicFile(view === "front" ? "body-front.jpg" : "body-back.jpg");
   return (
     <div className="overflow-hidden rounded-2xl bg-stage text-canvas">
       <div className="relative mx-auto aspect-[2/3] w-full max-w-xs">
