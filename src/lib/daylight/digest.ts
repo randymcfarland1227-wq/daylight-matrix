@@ -122,6 +122,22 @@ export function buildDigest(input: DigestInput): string {
   L.push(`Sub-parts with little or no direct work in the plan: ${underSubs.length ? underSubs.join(", ") : "none"}.`);
   L.push("");
 
+  const extraLines: string[] = [];
+  for (const session of input.sessions) {
+    if (session.localDate < win.from || session.localDate > win.to) continue;
+    for (const e of session.extras ?? []) {
+      const slot = e.slotId ? session.snapshot.find((x) => x.id === e.slotId) : null;
+      const replaced = slot ? nameOf(slot.exerciseId) : null;
+      const dose = [e.sets ? `${e.sets} sets` : null, e.reps ? `${e.reps} reps` : null, e.load != null ? `@${e.load}${input.units}` : null, e.minutes ? `${e.minutes} min` : null].filter(Boolean).join(", ");
+      const muscles = (e.muscles ?? []).map((m) => muscleName(m)).join(", ");
+      extraLines.push(`- (${session.localDate}) ${e.kind === "swap" ? "Swapped" : "Did something else"}: ${e.name || "unnamed"}${replaced ? ` instead of ${replaced}` : ""}${dose ? ` · ${dose}` : ""}${muscles ? ` · muscles: ${muscles}` : ""}${e.note ? ` · ${e.note.replace(/\s+/g, " ").trim()}` : ""}`);
+    }
+  }
+  L.push(`## Off-plan work and swaps (last 30 days, ${extraLines.length})`);
+  if (!extraLines.length) L.push("(none)");
+  extraLines.forEach((l) => L.push(l));
+  L.push("");
+
   L.push(`## Flagged for the next plan (${flagged.length})`);
   if (!flagged.length) L.push("(none flagged)");
   flagged.forEach((n) => {

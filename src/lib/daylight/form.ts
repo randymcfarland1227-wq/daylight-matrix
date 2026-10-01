@@ -1,4 +1,4 @@
-import { exerciseById } from "./exercises";
+import { exerciseById, exercises } from "./exercises";
 
 /**
  * Form guide per exercise. GENERAL EDUCATION, written for this app. It is not from the PDF and not medical advice.
@@ -1124,4 +1124,28 @@ export function demoUrl(exerciseId: string, customName?: string): string {
   const name = customName ?? exerciseById(exerciseId)?.name ?? exerciseId;
   const q = `${name} proper form tutorial`.replace(/[()]/g, "");
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+}
+
+/** Best catalog match for free text ("lat pull down" -> Lat Pulldown). Used to suggest muscle credit for off-plan work. */
+export function findExerciseByName(text: string): string | null {
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  const q = norm(text);
+  if (q.length < 4) return null;
+  const compact = q.replace(/ /g, "");
+  let best: { id: string; score: number } | null = null;
+  for (const e of exercises) {
+    const n = norm(e.name);
+    const nc = n.replace(/ /g, "");
+    let score = 0;
+    if (nc === compact) score = 100;
+    else if (nc.includes(compact)) score = 60 + compact.length;
+    else if (compact.includes(nc)) score = 50 + nc.length;
+    else {
+      const words = q.split(" ").filter((w) => w.length > 2);
+      const hit = words.filter((w) => n.includes(w)).length;
+      if (words.length && hit === words.length) score = 30 + hit * 5;
+    }
+    if (score > (best?.score ?? 0)) best = { id: e.id, score };
+  }
+  return best && best.score >= 35 ? best.id : null;
 }

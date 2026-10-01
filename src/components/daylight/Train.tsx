@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, Flag, Info, ListChecks, Pencil, Play, PlayCircle, Plus, Repeat2, Shuffle, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
 import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
@@ -20,6 +20,22 @@ export function Train() {
   const tab = useDaylight((s) => s.trainingTab);
   const setTab = useDaylight((s) => s.setTrainingTab);
   const norm: TrainingTab = (["session", "week", "moves", "pt", "plan"] as string[]).includes(tab) ? tab : "session";
+  const gymDefault = useDaylight((s) => s.gymDefault);
+  const gymAutoSkip = useDaylight((s) => s.gymAutoSkip);
+  const trainDay = useDaylight((s) => s.trainDay);
+  const view = useDaylight((s) => s.view);
+  const setGymMode = useDaylight((s) => s.setGymMode);
+  const planVersions = useDaylight((s) => s.planVersions);
+  const sessions = useDaylight((s) => s.sessions);
+  const todayIdx = new Date().getDay();
+  const todayDay = dayTemplate(activePlan(planVersions, localDate()), todayIdx);
+  const todaySession = sessions.find((x) => x.localDate === localDate() && x.weekday === todayIdx);
+  // Default entry: the Train tab opens straight into gym mode for today's scheduled session.
+  const auto = view === "training" && norm === "session" && gymDefault && !gymAutoSkip && trainDay === todayIdx && todayDay.scheduled && todaySession?.status !== "finished";
+  useEffect(() => {
+    if (auto) setGymMode(todayIdx);
+  }, [auto, setGymMode, todayIdx]);
+  if (auto) return null;
   return (
     <div>
       <Segmented

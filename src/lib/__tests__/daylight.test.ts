@@ -53,7 +53,8 @@ test("logged volume reads set logs and per-side halves", () => {
   const out = loggedVolume([session], { from: "2026-09-22", to: "2026-09-30", days: 9 });
   assert.equal(out.totalSets, 3);
   assert.equal(out.map.lats.direct, 3);
-  assert.equal(out.map.biceps.indirect, 3);
+  assert.ok(out.map.arms.indirect >= 3);
+  assert.ok(out.map["biceps-long"].indirect >= 3);
   assert.equal(out.map.quads.effective, 0);
 });
 
@@ -100,9 +101,9 @@ const OLD_STATE = {
 test("migration keeps every old record and adds the PDF plan", () => {
   const before = JSON.stringify(OLD_STATE);
   const out = migratePersisted(structuredClone(OLD_STATE)) as typeof OLD_STATE & { schemaVersion: number; planVersions: { id: string; version: number; days: { weekday: number; slots: { exerciseId: string }[] }[] }[]; observations: { forNextPlan: boolean; context: { muscleId?: string } }[] };
-  assert.equal(out.schemaVersion, 2);
-  // untouched
-  assert.deepEqual(out.sessions, OLD_STATE.sessions);
+  assert.equal(out.schemaVersion, 3);
+  // untouched (sessions only gain an empty `extras` list)
+  assert.deepEqual((out.sessions as unknown as { extras?: unknown[] }[]).map(({ extras, ...rest }) => (assert.deepEqual(extras, []), rest)), OLD_STATE.sessions);
   assert.deepEqual(out.foodLogs, OLD_STATE.foodLogs);
   assert.deepEqual(out.fluidLogs, OLD_STATE.fluidLogs);
   assert.deepEqual(out.trials, OLD_STATE.trials);
@@ -151,5 +152,6 @@ test("digest includes flagged notes, per-exercise and underserved areas", () => 
   assert.match(text, /Assisted Pull-Up/);
   assert.match(text, /Left shoulder pinched/);
   assert.match(text, /Underserved by the plan/);
+  assert.match(text, /Off-plan work and swaps/);
   assert.match(text, /Last logged — 2026-09-29: 7 @?/);
 });

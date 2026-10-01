@@ -6,10 +6,13 @@ import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { GYM_TAGS, STARTER_PURPOSE } from "@/lib/daylight/types";
-import { MUSCLES, muscleName } from "@/lib/daylight/muscles";
+import { muscleName } from "@/lib/daylight/muscles";
 import { exercises } from "@/lib/daylight/exercises";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { Button, Chip, Sheet, cn, haptic } from "./ui";
+import { FormSheet } from "./FormGuide";
+import { DidElseSheet, SwapMoveSheet } from "./MoveSheets";
+import { MusclePicker } from "./MusclePicker";
 
 export function Overlays() {
   const overlay = useDaylight((s) => s.overlay);
@@ -27,6 +30,12 @@ export function Overlays() {
       return <RepeatMeal mealId={overlay.mealId} onClose={close} />;
     case "finish":
       return <Finish weekday={overlay.weekday} onClose={close} />;
+    case "form":
+      return <FormSheet key={overlay.exerciseId} exerciseId={overlay.exerciseId} onClose={close} />;
+    case "swap-move":
+      return <SwapMoveSheet weekday={overlay.weekday} slotId={overlay.slotId} onClose={close} />;
+    case "did-else":
+      return <DidElseSheet weekday={overlay.weekday} slotId={overlay.slotId} onClose={close} />;
     case "move":
       return <AddMove exerciseId={overlay.exerciseId} onClose={close} />;
     case "trial":
@@ -166,13 +175,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
           </div>
           <div>
             <p className="eyebrow mb-1">Muscle</p>
-            <div className="flex flex-wrap gap-1.5">
-              {MUSCLES.map((m) => (
-                <Chip key={m.id} active={muscleId === m.id} tone="teal" onClick={() => setMuscleId(muscleId === m.id ? undefined : m.id)}>
-                  {m.name}
-                </Chip>
-              ))}
-            </div>
+            <MusclePicker multi={false} value={muscleId ? [muscleId] : []} onChange={(v) => setMuscleId(v[v.length - 1])} />
           </div>
         </div>
       ) : null}

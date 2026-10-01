@@ -160,6 +160,8 @@ type Data = {
   gymDefault: boolean;
   /** Full-screen gym mode for this weekday. Not persisted. */
   gymMode: { weekday: number } | null;
+  /** Set after leaving gym mode so the Train tab shows the overview instead of re-opening it. Not persisted. */
+  gymAutoSkip: boolean;
   rest: { endsAt: number; total: number } | null;
   restDefault: number;
   toast: { id: number; text: string } | null;
@@ -195,7 +197,7 @@ type LogSetInput = {
   side?: Side;
 };
 
-export type BulkAdjust = { reps?: number | null; load?: number | null; assist?: number | null; seconds?: number | null; distance?: string | null };
+export type BulkAdjust = { sets?: number; reps?: number | null; load?: number | null; assist?: number | null; seconds?: number | null; distance?: string | null };
 export type ExtraInput = {
   slotId: string | null;
   kind: "swap" | "other";
@@ -375,6 +377,7 @@ const seed = (): Data => ({
   openSlotId: null,
   openExerciseId: null,
   gymMode: null,
+  gymAutoSkip: false,
   gymDefault: true,
   rest: null,
   restDefault: 90,
@@ -402,8 +405,8 @@ export const useDaylight = create<Data & Actions>()(
   persist(
     (set, get) => ({
       ...seed(),
-      setView: (view) => set({ view }),
-      setTrainingTab: (trainingTab) => set({ trainingTab, view: "training" }),
+      setView: (view) => set({ view, gymAutoSkip: view === "training" ? get().gymAutoSkip : false }),
+      setTrainingTab: (trainingTab) => set({ trainingTab, view: "training", gymAutoSkip: true }),
       setOverlay: (overlay) => set({ overlay }),
       patchDraft: (patch) => set({ drafts: { ...get().drafts, ...patch } }),
       adoptPurpose: (text) => {
@@ -570,11 +573,10 @@ export const useDaylight = create<Data & Actions>()(
       setGymDefault: (gymDefault) => set(saved({ gymDefault })),
       setGymMode: (weekday) => {
         if (weekday == null) {
-          set({ gymMode: null, rest: null });
+          set({ gymMode: null, rest: null, gymAutoSkip: true });
           return;
         }
-        get().startSession(weekday, weekday !== new Date().getDay());
-        set({ gymMode: { weekday }, trainDay: weekday, view: "training", trainingTab: "session", overlay: null });
+        set({ gymMode: { weekday }, gymAutoSkip: false, trainDay: weekday, view: "training", trainingTab: "session", overlay: null });
       },
       bulkComplete: (weekday, slotIds, adjust) => {
         const today = localDate();
@@ -594,7 +596,7 @@ export const useDaylight = create<Data & Actions>()(
           const exerciseId = session.chosenExercise[slotId] ?? slot.exerciseId;
           const def = prescribedDefaults(slot, exerciseById(exerciseId)?.kind ?? "strength");
           const prev = lastSet(get().sessions, exerciseId, sid)?.set;
-          const planned = slot.sets ?? 1;
+          const planned = adjust?.sets ?? slot.sets ?? 1;
           const have = new Set(session.logs.filter((l) => l.prescriptionId === slotId && l.status === "done").map((l) => l.setIndex));
           for (let i = 0; i < planned; i += 1) {
             if (have.has(i)) continue;
@@ -1304,7 +1306,7 @@ export const useDaylight = create<Data & Actions>()(
   ),
 );
 
-const EPHEMERAL = new Set(["gymMode", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};

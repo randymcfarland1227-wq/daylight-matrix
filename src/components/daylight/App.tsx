@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDaylight } from "@/lib/daylight/store";
 import { Body } from "./Body";
 import { Food } from "./Food";
+import { GymMode } from "./GymMode";
 import { Learn } from "./Learn";
 import { Notes } from "./Notes";
 import { Overlays } from "./Overlays";
@@ -14,6 +15,7 @@ export function DaylightApp() {
   const [ready, setReady] = useState(false);
   const view = useDaylight((state) => state.view);
   const theme = useDaylight((state) => state.theme);
+  const gymMode = useDaylight((state) => state.gymMode);
 
   useEffect(() => {
     void Promise.resolve(useDaylight.persist.rehydrate()).finally(() => setReady(true));
@@ -56,6 +58,7 @@ export function DaylightApp() {
   }, [view]);
 
   if (!ready) return <Opening />;
+  if (gymMode) return <GymMode key={gymMode.weekday} weekday={gymMode.weekday} />;
   return (
     <Shell>
       <div key={view} className="animate-rise">

@@ -53,7 +53,7 @@ export function Settings() {
       <Card>
         <h2 className="font-display text-xl">Look</h2>
         <div className="mt-2">
-          <Segmented<ThemeChoice> label="Theme" value={s.theme} onChange={s.setTheme} options={[{ id: "auto", label: "Auto" }, { id: "light", label: "Daylight" }, { id: "dark", label: "Dusk" }]} />
+          <Segmented<ThemeChoice> label="Theme" value={s.theme} onChange={s.setTheme} options={[{ id: "dark", label: "Dusk (dark)" }, { id: "light", label: "Daylight (light)" }, { id: "auto", label: "Match device" }]} />
         </div>
       </Card>
 
