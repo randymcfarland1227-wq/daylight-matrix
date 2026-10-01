@@ -33,6 +33,19 @@ export function DaylightApp() {
 
   useEffect(() => {
     if (!ready) return;
+    // Home-screen shortcuts: ./?go=training | note | food
+    const go = new URLSearchParams(location.search).get("go");
+    const st = useDaylight.getState();
+    if (go === "training") {
+      st.setTrainDay(new Date().getDay());
+      st.setView("training");
+    } else if (go === "food") st.setView("food");
+    else if (go === "note") st.setOverlay({ type: "note" });
+    if (go) history.replaceState(null, "", location.pathname);
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return;
     if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
       navigator.serviceWorker.register("./sw.js").catch(() => undefined);
     }

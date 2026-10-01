@@ -5,9 +5,9 @@ import { DAY_STYLE } from "@/lib/daylight/theme";
 import { MUSCLES, muscleName, type MuscleId } from "@/lib/daylight/muscles";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
-import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, plannedVolume, statusFor } from "@/lib/daylight/volume";
+import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, statusFor } from "@/lib/daylight/volume";
 import { doneSetCount, slotLogs } from "@/lib/daylight/logic";
-import { DAY_KIND_LABEL, dayKind, fuelingNote, isUseSoon } from "@/lib/daylight/foodplan";
+import { DAY_KIND_LABEL, fuelingNote, isUseSoon } from "@/lib/daylight/foodplan";
 import { BodyFigure, heatColor } from "./BodyFigure";
 import { ProteinWaterRings, useFoodNumbers } from "./Food";
 import { Badge, Button, Card, Eyebrow, Ring, cn } from "./ui";
@@ -42,7 +42,6 @@ export function Today() {
   const pct = totals.target ? totals.done / totals.target : 0;
   const muscles = dayMuscles({ ...day, slots }).filter((m) => m.weight >= 0.5).slice(0, 6);
 
-  const planned = useMemo(() => plannedVolume(plan), [plan]);
   const heat = useMemo(() => heatSnapshot(s.sessions, plan, 7, today), [s.sessions, plan, today]);
   const target = s.weeklyTarget;
   const under = MUSCLES.filter((m) => {
@@ -95,7 +94,7 @@ export function Today() {
                 </p>
               </div>
               <Ring value={pct} size={72} stroke={8} color="#f6b24f" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
-                <span className="font-display text-lg text-white">{totals.done}/{totals.target}</span>
+                <span className="font-display text-lg text-white">{fmt(totals.done)}/{Math.ceil(totals.target)}</span>
               </Ring>
             </div>
             <div className="relative mt-3 flex flex-wrap gap-1.5">

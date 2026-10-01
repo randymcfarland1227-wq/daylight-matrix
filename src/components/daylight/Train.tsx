@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronDown, Dumbbell, Flag, Info, ListChecks, Pencil, Plus, Repeat2, SkipForward, Timer, Trash2, Undo2, Check, X } from "lucide-react";
+import { CalendarDays, ChevronDown, Dumbbell, Flag, Info, ListChecks, Pencil, Plus, Repeat2, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
 import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { exerciseById } from "@/lib/daylight/exercises";

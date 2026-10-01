@@ -1,6 +1,6 @@
 # Daylight Matrix — overhaul plan (branch `overhaul`)
 
-Status: in progress. This file is updated at the end of the work with final results and the publish steps.
+Status: **built, verified locally, NOT published.** Branch `overhaul`. Nothing has been pushed to `main` of either repo.
 
 ## 1. Findings on the current build (main @ 7827c49)
 
@@ -39,15 +39,46 @@ Dose notes: the PDF writes ranges with hyphens (`3x12-15`); the app shows them w
 * New modules in `src/lib/daylight/`: `exercises.ts` (catalog + muscle weights + back-friendliness + suggestions), `muscles.ts` (muscle groups), `plan.ts` (PDF plan), `volume.ts` (planned/logged sets per muscle), `digest.ts` (plan-builder text), `migrate.ts`.
 * New UI in `src/components/daylight/`: shell with bottom tabs (Today · Train · Body · Food · Notes) + global one-tap note FAB, SVG body (`BodyFigure.tsx`), muscle explorer / heat / grow views, session screen with day switcher, food hub, notes hub with digest, PWA manifest + service worker + icons, light/dark theme.
 
-## 4. Task list
+## 4. Task list (all done)
 
 - [x] Read PDF, audit plan.ts, write this document
-- [ ] Phase 1 data: exercise catalog + muscle weights, full PDF plan, volume engine, migration, digest, unit tests
-- [ ] Phase 2 store: new actions (logSet, notes, water, food plan), versioned persist, backup
-- [ ] Phase 3 UI: design system, shell, Today, Train/session, Body (explore/heat/grow), Notes, Food, More
-- [ ] Phase 4 PWA: manifest, icons, service worker, self-hosted fonts
-- [ ] Phase 5 verification: typecheck, lint, build:pages, Playwright (390x844 + desktop), migration from a real old-build state
-- [ ] Phase 6 deploy prep: `/workspace/daylight-overhaul-dist`, publish steps below
+- [x] Phase 1 data: exercise catalog + muscle weights, full PDF plan, volume engine, migration, digest, unit tests (`npm run test:daylight`, 8 tests)
+- [x] Phase 2 store: new actions (logSet, notes, water, food plan), versioned persist (v2), backup/restore
+- [x] Phase 3 UI: design system, shell, Today, Train/session, Body (explore/heat/grow), Notes + digest, Food, Settings
+- [x] Phase 4 PWA: relative manifest, icons (192/512/maskable/apple-touch), service worker (network-first HTML), self-hosted fonts
+- [x] Phase 5 verification: typecheck, `build:pages`, Playwright/Chrome (390x844 + 1280x800), migration from a real old-build state
+- [x] Phase 6 deploy prep: `/workspace/daylight-overhaul-dist` (contains `.nojekyll`), publish steps below
 
-## 5. Deploy (not done automatically)
-See the "Publishing" section at the end of this file (filled in at the end of the work).
+## 5. Verification results
+
+* `npm run typecheck` clean. `npx eslint src` has no errors in the new code (the one existing error is in `src/lib/app-data/client.server.ts`, untouched, template code). `npm run test:daylight` 8/8.
+* `npm run build:pages` produces `dist/client` with relative paths (`./assets/...`, `./manifest.webmanifest`). Served from the *root* of a static server (python `http.server`) it loads with zero console errors. (TanStack emits `modulepreload` hrefs like `/./assets/x.js`; from a site root that resolves to `/assets/x.js`, which is the case for `randymcfarland1227-wq.github.io`.)
+* Playwright (system Chrome) walkthrough on 390x844 touch viewport + 1280x800: Today dashboard; Train opens on today's weekday; expand a move, log a set (steppers), rest timer starts after a main-lift set; finish summary; quick note (tags, text, for-next-plan flag) from the floating pencil; Today reacts to logged sets (progress ring, heat snapshot, flagged-notes banner); heat map reacts to logged sets (7/14/30 day window, planned fallback when empty); Grow an area (Adductors -> plan moves + labeled suggestions with back-friendly flag); digest copied to clipboard contains the plan, the note and underserved areas; food log + water; suggest week -> prep list -> add to shopping list; pantry; reload persistence (sessions/sets/notes/food/water/meal plan/shopping all survive); dark mode; desktop sidebar layouts.
+* **Migration test (real):** the *old* build (`main`, built in a git worktree) was loaded in Chrome with a seeded old-format `{state, version: 0}` blob (sessions with logs, a note with a legacy `regionId`, trial, food/fluid logs, inventory, meals, shopping, prep, goals, PT notes, custom plan v2 with a custom slot, kg units, protein goal 150). The blob the old build persisted was then loaded in the new build: sessions, food/fluid logs, trials, goals, PT notes, shopping, prep, purpose, units and protein goal are byte-identical; both old plan versions are kept untouched and the PDF plan is appended as a new version (custom slot carried over); the note gains `forNextPlan:false` and `muscleId:"delt-rear"`; starter pantry/meals are appended after existing rows; `daylight-matrix-v1.pre-v2-backup` equals the old raw string; a second reload does not re-migrate or duplicate; restoring an old `{daylight:1}` backup JSON through Settings works (and migrates). Also covered by unit tests (idempotence, no mutation of input).
+
+## 6. Publishing (NOT executed; needs Randy's OK)
+
+The live site is a separate repo containing only the built output. To publish:
+
+```bash
+cd /workspace/dm-daylight-matrix
+git checkout overhaul && git pull
+npm install
+npm run build:pages            # -> dist/client  (a ready copy is also in /workspace/daylight-overhaul-dist)
+
+cd /workspace/dm-randymcfarland1227-wq.github.io
+git pull
+rsync -a --delete --exclude .git /workspace/dm-daylight-matrix/dist/client/ ./
+touch .nojekyll                # keep it; rsync --delete would remove it otherwise
+git add -A
+git commit -m "Daylight Matrix overhaul (source: daylight-matrix@overhaul)"
+git push origin main
+```
+
+GitHub Pages redeploys in about a minute. Randy's data is in his browser's localStorage under the same key (`daylight-matrix-v1`) and the same origin, so the first load of the new version migrates it in place (a raw copy is kept under `daylight-matrix-v1.pre-v2-backup`). Suggest he taps Settings -> Download backup *before* the first open of the new version if he is on his phone with the old one.
+
+Rollback: `git revert HEAD && git push` in the live repo restores the old static files. Data written by the new version stays in localStorage; the old build ignores the added fields, but any notes/sessions logged after the upgrade would only show in the old UI where it understands them, so prefer fixing forward and export a backup first.
+
+Screenshots: `docs/screenshots/` (also in `/workspace/daylight-shots/`).
+
+Note: the first load after publishing may be served by the browser cache; the new service worker is network-first for HTML so a refresh picks up the new build.

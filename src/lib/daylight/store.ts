@@ -1140,7 +1140,8 @@ export const useDaylight = create<Data & Actions>()(
           // Old (daylight: 1) backups have no schemaVersion, so they run through the same migration as old localStorage.
           const data = migratePersisted(parsed.daylight >= 2 ? { schemaVersion: SCHEMA_VERSION, ...parsed.data } : parsed.data);
           if (parsed.customNames) saveCustomNames(parsed.customNames);
-          set(saved({ ...(data as Partial<Data>), overlay: null, undo: null, rest: null }));
+          const { view: _view, trainingTab: _tab, ...restored } = data as Partial<Data>;
+          set(saved({ ...restored, overlay: null, undo: null, rest: null }));
           return "Backup restored on this device.";
         } catch {
           return "Couldn’t read that file. Your current records are still here.";
