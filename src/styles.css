@@ -16,6 +16,7 @@
   --color-forest-deep: var(--forest-deep);
   --color-on-forest: var(--on-forest);
   --color-sun: var(--sun);
+  --color-on-sun: var(--on-sun);
   --color-copper: var(--copper);
   --color-copper-deep: var(--copper-deep);
   --color-teal: var(--teal);
@@ -30,50 +31,53 @@
 }
 
 :root {
-  --canvas: #f7f0e3;
-  --surface: #fffaf1;
-  --surface-2: #f0e6d3;
-  --ink: #1b2824;
-  --ink-soft: #46544e;
-  --ink-faint: #75827b;
-  --line: #e3d7bf;
-  --forest: #2d6753;
-  --forest-deep: #1d4739;
-  --on-forest: #fffaf1;
-  --sun: #f0a032;
-  --copper: #c4602b;
-  --copper-deep: #8f4219;
-  --teal: #1f8a9a;
-  --danger: #b3342b;
-  --day: #2d6753;
-  --muscle-idle: #e6dcc6;
-  --muscle-stroke: #fffaf1;
-  --body-skin: #d9ccb2;
-  --sky-a: #fde7b0;
-  --sky-b: #f7f0e3;
+  /* Light variant: bone paper, warm charcoal ink, one amber accent. */
+  --canvas: #efe9dd;
+  --surface: #f8f4ec;
+  --surface-2: #e7dfd0;
+  --ink: #221e18;
+  --ink-soft: #4e473b;
+  --ink-faint: #625a4b;
+  --line: #d8cfbd;
+  --forest: #3b352b;          /* primary action: warm charcoal */
+  --forest-deep: #2a251d;
+  --on-forest: #f6f1e6;
+  --sun: #b9822f;             /* the single accent: muted amber (fills only; use copper-deep for text) */
+  --on-sun: #1d1508;
+  --copper: #9c5b3a;
+  --copper-deep: #7d4528;
+  --teal: #3f6a77;            /* desaturated blue-teal for info / underserved */
+  --danger: #a84a40;
+  --day: #3b352b;
+  --muscle-idle: #d8d0bf;
+  --muscle-stroke: #f3eee3;
+  --body-skin: #cbc1ac;
+  --body-edge: #a79d88;
   color-scheme: light;
 }
 .dark {
-  --canvas: #0d1714;
-  --surface: #15231f;
-  --surface-2: #1c2e29;
-  --ink: #f3ebda;
-  --ink-soft: #b8c4bc;
-  --ink-faint: #8a988f;
-  --line: #29403a;
-  --forest: #62b898;
-  --forest-deep: #86d1b3;
-  --on-forest: #0d1714;
-  --sun: #f6b24f;
-  --copper: #ee8a52;
-  --copper-deep: #f3a97c;
-  --teal: #55c1d2;
-  --danger: #f2877d;
-  --muscle-idle: #263a34;
-  --muscle-stroke: #15231f;
-  --body-skin: #1f322c;
-  --sky-a: #2b3b2f;
-  --sky-b: #0d1714;
+  /* Dark (default): warm charcoal, soft bone text, muted amber accent. */
+  --canvas: #161411;
+  --surface: #201d18;
+  --surface-2: #2a2620;
+  --ink: #eee6d6;
+  --ink-soft: #bdb4a2;
+  --ink-faint: #9a9282;
+  --line: #36312a;
+  --forest: #d9cdb2;          /* primary action: soft sand */
+  --forest-deep: #eadfc6;
+  --on-forest: #1b1813;
+  --sun: #cf9c55;
+  --on-sun: #1d1508;
+  --copper: #c58660;
+  --copper-deep: #d9a07c;
+  --teal: #7ba3ae;
+  --danger: #e0877d;
+  --day: #d9cdb2;
+  --muscle-idle: #342f27;
+  --muscle-stroke: #1d1a15;
+  --body-skin: #2b2721;
+  --body-edge: #47403a;
   color-scheme: dark;
 }
 
@@ -153,13 +157,13 @@
 @layer components {
   .card {
     @apply rounded-[1.25rem] border border-line bg-surface;
-    box-shadow: 0 1px 0 rgb(0 0 0 / 0.02), 0 8px 24px -16px rgb(60 40 10 / 0.18);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 10px 28px -18px rgb(30 20 5 / 0.28);
   }
-  .dark .card { box-shadow: 0 8px 24px -16px rgb(0 0 0 / 0.6); }
+  .dark .card { box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 28px -18px rgb(0 0 0 / 0.7); }
   .field {
     @apply min-h-12 w-full rounded-xl border border-line bg-canvas px-3 text-base text-ink outline-none transition-colors;
   }
-  .field:focus { border-color: var(--forest); box-shadow: 0 0 0 3px color-mix(in srgb, var(--forest) 25%, transparent); }
+  .field:focus { border-color: var(--sun); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sun) 25%, transparent); }
   .eyebrow { @apply text-xs font-bold uppercase tracking-[0.14em] text-ink-soft; }
   .tap { transition: transform 140ms ease-out, background-color 160ms, color 160ms, border-color 160ms, opacity 160ms; }
   .tap:active:not(:disabled) { transform: scale(0.96); }
@@ -177,8 +181,9 @@
 /* Body figure */
 .muscle { cursor: pointer; outline: none; }
 .muscle path { transition: fill 420ms ease, opacity 300ms ease, stroke 200ms; stroke: var(--muscle-stroke); stroke-width: 1.1; vector-effect: non-scaling-stroke; }
-.muscle:hover path, .muscle:focus-visible path { stroke: var(--ink); stroke-width: 1.8; }
-.muscle[data-selected="true"] path { stroke: var(--ink); stroke-width: 2.6; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sun) 70%, transparent)); }
+.muscle:hover path, .muscle:focus-visible path { stroke: var(--ink); stroke-width: 1.6; }
+.muscle:hover path:first-child { filter: brightness(1.12); }
+.muscle[data-selected="true"] path { stroke: var(--ink); stroke-width: 2.2; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sun) 60%, transparent)); }
 .muscle[data-dim="true"] path { opacity: 0.32; }
 .muscle[data-under="true"] path { stroke: var(--teal); stroke-width: 2.2; stroke-dasharray: 5 3; animation: pulse-ring 2.2s ease-in-out infinite; }
 .muscle[data-selected="true"][data-under="true"] path { stroke: var(--ink); stroke-dasharray: none; animation: none; }

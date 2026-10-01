@@ -180,6 +180,7 @@ export function doneSetCount(session: WorkoutSession, slot: Prescription): numbe
 export function slotFinished(session: WorkoutSession, slot: Prescription): boolean {
   const logs = slotLogs(session, slot.id);
   if (logs.some((log) => log.status === "skipped" && log.setIndex === -1)) return true;
+  if ((session.extras ?? []).some((e) => e.slotId === slot.id)) return true;
   const planned = slot.sets ?? 1;
   return doneSetCount(session, slot) >= planned;
 }
@@ -260,4 +261,24 @@ export function setSummary(log: SetLog): string {
   if (log.side === "left") bits.push("L");
   if (log.side === "right") bits.push("R");
   return bits.join(" · ") || "done";
+}
+
+/** What "done as prescribed" logs for a slot: first number of the rep range, hold seconds, minutes or distance label. */
+export function prescribedDefaults(slot: Prescription, kind: string): { reps: number | null; seconds: number | null; distance: string | null } {
+  const label = `${slot.durationLabel ?? ""} ${slot.repLabel}`.toLowerCase();
+  const first = (s: string) => {
+    const m = s.match(/\d+(?:\.\d+)?/);
+    return m ? parseFloat(m[0]) : null;
+  };
+  if (kind === "strength" || kind === "activation") return { reps: first(slot.repLabel), seconds: null, distance: null };
+  if (kind === "timed") {
+    const n = first(slot.durationLabel ?? slot.repLabel);
+    return { reps: null, seconds: n != null ? Math.round(n) : null, distance: null };
+  }
+  if (kind === "mobility" || kind === "cardio") {
+    const n = first(label);
+    return { reps: null, seconds: n != null ? Math.round(n * 60) : null, distance: null };
+  }
+  if (kind === "distance") return { reps: null, seconds: null, distance: slot.durationLabel ?? slot.repLabel ?? null };
+  return { reps: first(slot.repLabel), seconds: null, distance: null };
 }

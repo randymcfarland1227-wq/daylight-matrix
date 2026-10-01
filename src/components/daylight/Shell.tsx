@@ -63,7 +63,7 @@ export function Shell({ children }: { children: ReactNode }) {
             </button>
           ))}
         </nav>
-        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sun px-3 font-bold text-[#2a1c05]">
+        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sun px-3 font-bold text-on-sun">
           <PenLine className="size-5" /> Quick note
         </button>
         <button
@@ -94,7 +94,7 @@ export function Shell({ children }: { children: ReactNode }) {
         type="button"
         onClick={quickNote}
         aria-label="Quick note"
-        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-sun text-[#2a1c05] shadow-[0_10px_30px_-8px_rgba(196,96,43,.7)] md:hidden"
+        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-sun text-on-sun shadow-[0_10px_30px_-8px_rgba(196,96,43,.7)] md:hidden"
       >
         <PenLine className="size-6" strokeWidth={2.2} />
       </button>

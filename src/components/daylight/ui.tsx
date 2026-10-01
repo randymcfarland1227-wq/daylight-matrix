@@ -30,7 +30,7 @@ export function Button({
         size === "md" && "min-h-12 px-4 text-base",
         size === "lg" && "min-h-14 px-6 text-lg",
         tone === "primary" && "bg-forest text-on-forest hover:bg-forest-deep",
-        tone === "sun" && "bg-sun text-[#2a1c05] hover:brightness-95",
+        tone === "sun" && "bg-sun text-on-sun hover:brightness-95",
         tone === "soft" && "bg-surface-2 text-ink hover:brightness-95",
         tone === "ghost" && "px-2 text-forest hover:bg-surface-2",
         tone === "outline" && "border border-line bg-surface text-ink hover:bg-surface-2",
@@ -57,7 +57,7 @@ export function Chip({
   tone?: "forest" | "sun" | "teal";
   title?: string;
 }) {
-  const on = tone === "sun" ? "bg-sun text-[#2a1c05] border-sun" : tone === "teal" ? "bg-teal text-white border-teal" : "bg-forest text-on-forest border-forest";
+  const on = tone === "sun" ? "bg-sun text-on-sun border-sun" : tone === "teal" ? "bg-teal text-on-forest border-teal" : "bg-forest text-on-forest border-forest";
   return (
     <button
       type="button"
@@ -143,7 +143,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
-      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-[#0b1411]/55 backdrop-blur-[2px]" onClick={onClose} />
+      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-[#0c0a08]/60 backdrop-blur-[2px]" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}

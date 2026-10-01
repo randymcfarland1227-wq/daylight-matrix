@@ -8,13 +8,16 @@ import type { Observation, PlanVersion } from "./types";
  * Persisted-state schema.
  *  1 (zustand version 0): the first public build. No `schemaVersion` field.
  *  2: overhaul. Adds the full PDF plan version, notes flags, muscle ids, water/meal-plan/waste data, theme.
+ *  3: round 2. Two-level muscle model (groups + sub-parts), session `extras` (swaps / off-plan work), dark default theme.
+ *     Stored muscle ids from v2 are NOT rewritten; `resolveMuscle` understands them.
  *
  * Rules: never remove or retype an existing field. Only add. Old plan versions, sessions, logs, notes,
  * trials, food and inventory stay exactly as stored. Idempotent: running it twice changes nothing.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 export const STORAGE_KEY = "daylight-matrix-v1";
 export const BACKUP_KEY = "daylight-matrix-v1.pre-v2-backup";
+export const BACKUP_KEY_V3 = "daylight-matrix-v1.pre-v3-backup";
 export const NOTES_MIRROR_KEY = "daylight-notes-mirror";
 
 type AnyRec = Record<string, unknown>;
@@ -35,6 +38,26 @@ export function migratePersisted(input: unknown, now = localDate()): AnyRec {
   const state: AnyRec = { ...input };
   const from = typeof state.schemaVersion === "number" ? state.schemaVersion : 1;
   if (from >= SCHEMA_VERSION) return state;
+  if (from < 2) migrateToV2(state, now);
+  migrateToV3(state);
+  state.schemaVersion = SCHEMA_VERSION;
+  return state;
+}
+
+/** v2 -> v3. Additive only. */
+function migrateToV3(state: AnyRec) {
+  // Round 2 made the look dark by default. "auto" was only ever the untouched default, so move it to "dark";
+  // an explicit "light" or "dark" choice is kept.
+  if (state.theme === undefined || state.theme === "auto") state.theme = "dark";
+  // Sessions get an (empty) extras list so the new UI never has to guess.
+  if (Array.isArray(state.sessions)) {
+    state.sessions = (state.sessions as AnyRec[]).map((sess) => (Array.isArray(sess.extras) ? sess : { ...sess, extras: [] }));
+  }
+  // Stored note muscle ids (old 24-region ids, v2 flat ids) are kept as they are; resolveMuscle() maps them at read time.
+}
+
+/** 1 -> 2: first overhaul. */
+function migrateToV2(state: AnyRec, now: string) {
 
   // ---- plan versions: keep every old version, append the complete PDF plan as the newest ----
   const old = Array.isArray(state.planVersions) ? (state.planVersions as PlanVersion[]) : [];
@@ -93,8 +116,6 @@ export function migratePersisted(input: unknown, now = localDate()): AnyRec {
   // Old body-map settings no longer exist; drop them so they cannot confuse the new map.
   for (const key of ["bodyLayer", "bodyWindow", "selectedRegionId", "highlightedExerciseId"]) delete state[key];
 
-  state.schemaVersion = SCHEMA_VERSION;
-  return state;
 }
 
 export { SEED_INVENTORY, SEED_MEALS };

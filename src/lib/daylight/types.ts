@@ -112,6 +112,25 @@ export type SetLog = {
   at: string;
 };
 
+/** Something done instead of (or in addition to) a prescribed move: a swapped-in custom move, a different flow, cardio, abs... */
+export type ExtraLog = {
+  id: string;
+  /** Prescription this replaced, if any. */
+  slotId: string | null;
+  kind: "swap" | "other";
+  name: string;
+  /** Catalog move this resembles, if picked. Its muscle weights are used when no muscles are chosen. */
+  exerciseId?: string;
+  sets: number | null;
+  reps: string | null;
+  load: number | null;
+  minutes: number | null;
+  note: string;
+  /** Sub-part or group ids Randy says this hit (primary weight). Empty = infer from exerciseId or count nothing. */
+  muscles: string[];
+  at: string;
+};
+
 export type WorkoutSession = {
   id: string;
   planVersionId: string;
@@ -126,6 +145,8 @@ export type WorkoutSession = {
   snapshot: Prescription[];
   chosenExercise: Record<string, string>;
   logs: SetLog[];
+  /** Off-plan work done in this session. Counted in the heat map when muscles are known. */
+  extras?: ExtraLog[];
   /** Slot index the runner is showing. Does not advance by itself at the end of an exercise. */
   focusSlot: number;
   note: string;
@@ -336,6 +357,9 @@ export type Overlay =
   | { type: "log-drink" }
   | { type: "repeat-meal"; mealId: string }
   | { type: "finish"; weekday: number }
+  | { type: "swap-move"; weekday: number; slotId: string }
+  | { type: "did-else"; weekday: number; slotId: string | null }
+  | { type: "form"; exerciseId: string }
   | { type: "move"; exerciseId: string }
   | { type: "trial"; observationId: string }
   | { type: "apply"; trialId: string }

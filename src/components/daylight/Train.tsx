@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronDown, Dumbbell, Flag, Info, ListChecks, Pencil, Plus, Repeat2, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
+import { CalendarDays, ChevronDown, Flag, Info, ListChecks, Pencil, Play, PlayCircle, Plus, Repeat2, Shuffle, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
 import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { exerciseById } from "@/lib/daylight/exercises";
@@ -14,6 +14,7 @@ import { muscleName } from "@/lib/daylight/muscles";
 import { Badge, Button, Card, Chip, Eyebrow, PageHead, Ring, Segmented, Stepper, cn, haptic, useNow } from "./ui";
 import { MuscleChips, useGoToMuscle } from "./MuscleChips";
 import { Moves, PlanEditor, PtBoard } from "./TrainExtras";
+import { MoveThumb } from "./MoveArt";
 
 export function Train() {
   const tab = useDaylight((s) => s.trainingTab);
@@ -69,7 +70,7 @@ export function DaySwitcher({ value, onChange, plan }: { value: number; onChange
           >
             <span className="text-[0.7rem] uppercase tracking-wider opacity-80">{st.short}</span>
             <span className="text-base">{day?.scheduled ? day.slots.length : "–"}</span>
-            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-sun text-[#2a1c05]" : "bg-sun/80 text-[#2a1c05]")}>today</span> : null}
+            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-sun text-on-sun" : "bg-sun/80 text-on-sun")}>today</span> : null}
           </button>
         );
       })}
@@ -136,6 +137,13 @@ function SessionScreen() {
     <div>
       <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
 
+      {day.psa ? (
+        <section className="mt-4 rounded-[1.25rem] border border-copper/40 bg-copper/10 p-4" data-testid="day-psa" aria-label="Day PSA">
+          <Eyebrow className="text-copper-deep">{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
+          <p className="mt-1 font-display text-lg leading-snug">{day.psa}</p>
+        </section>
+      ) : null}
+
       <section className="animate-rise relative mt-4 overflow-hidden rounded-[1.5rem] p-5 text-white" style={{ background: `linear-gradient(135deg, ${st.color}, ${st.deep})` }}>
         <svg className="pointer-events-none absolute -right-8 -top-10 size-52 opacity-[0.13]" viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r="22" fill="#fff" />
@@ -153,13 +161,13 @@ function SessionScreen() {
               {slots.filter((s) => !s.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} planned sets
             </p>
           </div>
-          <Ring value={pct} size={76} stroke={8} color="#f6b24f" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
+          <Ring value={pct} size={76} stroke={8} color="#e2b672" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
             <span className="font-display text-xl text-white">{Math.round(pct * 100)}%</span>
           </Ring>
         </div>
         <div className="relative mt-3 flex flex-wrap gap-1.5" aria-label="Muscles worked today">
           {muscles.map((m) => (
-            <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-white/90 text-[#1b2824]" : "border border-white/50 text-white")}>
+            <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-white/90 text-[#1d1a15]" : "border border-white/50 text-white")}>
               {muscleName(m.id)}
             </button>
           ))}
@@ -168,13 +176,16 @@ function SessionScreen() {
           <p className="relative mt-3 rounded-xl bg-black/20 px-3 py-2 text-sm">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
         ) : null}
         {finished ? <p className="relative mt-3 rounded-xl bg-black/20 px-3 py-2 text-sm font-bold">Finished. Logging another set re-opens it.</p> : null}
+        <Button size="lg" tone="sun" className="relative mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
+          <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume in gym mode" : "Start gym mode"}
+        </Button>
       </section>
 
       <div className="mt-5 space-y-6">
         {blocks.map((block, bi) => (
           <section key={block.id} aria-label={block.label}>
             <div className="mb-2 flex items-center gap-2 px-1">
-              <span className="grid size-6 place-items-center rounded-full bg-sun text-xs font-extrabold text-[#2a1c05]">{bi + 1}</span>
+              <span className="grid size-6 place-items-center rounded-full bg-sun text-xs font-extrabold text-on-sun">{bi + 1}</span>
               <h2 className="font-display text-xl">{block.label}</h2>
               {block.id === "activation" ? <Badge tone="teal">back-friendly start</Badge> : null}
             </div>
@@ -192,6 +203,7 @@ function SessionScreen() {
             {block.id === "finisher" && day.sectionPsa?.finisher ? <p className="mt-2 px-1 text-sm italic text-ink-soft">PSA: {day.sectionPsa.finisher}</p> : null}
           </section>
         ))}
+        <ExtrasList weekday={weekday} session={session} />
         {day.reminders.length ? (
           <ul className="space-y-1 px-1 text-sm text-ink-soft">
             {day.reminders.map((r) => (
@@ -199,18 +211,15 @@ function SessionScreen() {
             ))}
           </ul>
         ) : null}
-        {day.psa ? (
-          <section className="rounded-[1.25rem] border border-copper/30 bg-copper/10 p-4">
-            <Eyebrow className="text-copper-deep">Day PSA · from your PDF</Eyebrow>
-            <p className="mt-1 font-display text-lg leading-snug">{day.psa}</p>
-          </section>
-        ) : null}
       </div>
 
       <div className="safe-bottom sticky bottom-[4.9rem] z-10 mt-6 md:bottom-4">
         <div className="flex gap-2 rounded-2xl border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note
+          </Button>
+          <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
+            <Shuffle className="size-4" /> Else
           </Button>
           <Button className="flex-[2]" tone={totals.done > 0 ? "sun" : "outline"} onClick={() => state.setOverlay({ type: "finish", weekday })}>
             <Flag className="size-4" /> {finished ? "Summary" : "Finish session"}
@@ -239,6 +248,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
     ? `${slot.sets}${slot.setsMax ? `–${slot.setsMax}` : ""} × ${slot.repLabel}${slot.perSide ? " / side" : ""}`
     : slot.durationLabel ?? slot.repLabel;
   const notes = state.observations.filter((o) => o.context.exerciseId === exerciseId);
+  const replaced = session ? (session.extras ?? []).filter((e) => e.slotId === slot.id) : [];
 
   return (
     <article className={cn("card overflow-hidden transition-colors", complete && "border-forest/50 bg-forest/5", skipped && "opacity-60")}>
@@ -248,14 +258,17 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
         aria-expanded={open}
         onClick={() => state.setOpenSlot(open ? null : slot.id, open ? null : exerciseId)}
       >
-        <span className={cn("grid size-11 shrink-0 place-items-center rounded-2xl text-lg font-extrabold transition-colors", complete ? "check-pop bg-forest text-on-forest" : "bg-surface-2 text-ink-soft")}>
-          {complete ? <Check className="size-6" strokeWidth={3} /> : skipped ? <SkipForward className="size-5" /> : <Dumbbell className="size-5" />}
+        <span className="relative shrink-0">
+          <MoveThumb exerciseId={exerciseId} size={56} />
+          {complete ? <span className="check-pop absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-forest text-on-forest"><Check className="size-4" strokeWidth={3} /></span> : null}
+          {skipped ? <span className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-surface-2 text-ink-soft"><SkipForward className="size-3.5" /></span> : null}
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-display text-[1.12rem] leading-tight">{name}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-ink-soft">
             <span className="font-bold text-ink">{dose || "Open"}</span>
             {slot.optional ? <Badge>optional</Badge> : null}
+            {replaced.length ? <Badge tone="sun">swapped: {replaced[0]!.name}</Badge> : null}
             {slot.alternatives.length ? <Badge tone="sun">or {slot.alternatives.length} swap</Badge> : null}
             {ex?.back === "caution" ? <Badge tone="copper">back: go easy</Badge> : null}
             {noteCount ? <Badge tone="teal">{noteCount} note{noteCount > 1 ? "s" : ""}</Badge> : null}
@@ -273,9 +286,20 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
 
       {open ? (
         <div className="animate-rise border-t border-line px-3.5 pb-4 pt-3">
+          <div className="mb-3 flex flex-wrap gap-2">
+            <Button tone="sun" size="sm" data-testid="open-form" onClick={() => state.setOverlay({ type: "form", exerciseId })}>
+              <PlayCircle className="size-4" /> Form guide &amp; demo
+            </Button>
+            <Button tone="soft" size="sm" onClick={() => state.setOverlay({ type: "swap-move", weekday, slotId: slot.id })}>
+              <Shuffle className="size-4" /> Swap move
+            </Button>
+            <Button tone="soft" size="sm" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: slot.id })}>
+              I did something else
+            </Button>
+          </div>
           {slot.sourceCue ? (
             <div className="rounded-xl bg-sun/20 p-3">
-              <Eyebrow className="text-copper-deep">Form · from your PDF</Eyebrow>
+              <Eyebrow className="text-copper-deep">Your plan cue · from your PDF</Eyebrow>
               <p className="mt-0.5 text-base font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
             </div>
           ) : null}
@@ -558,5 +582,49 @@ function WeekScreen() {
         ))}
       </ul>
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------- Off-plan / swapped work */
+
+export function ExtrasList({ weekday, session }: { weekday: number; session: WorkoutSession | null }) {
+  const state = useDaylight();
+  const extras = session?.extras ?? [];
+  return (
+    <section aria-label="Off-plan and swapped work">
+      <div className="mb-2 flex items-center gap-2 px-1">
+        <Shuffle className="size-5 text-ink-soft" />
+        <h2 className="font-display text-xl">Off-plan &amp; swaps</h2>
+      </div>
+      {extras.length ? (
+        <ul className="space-y-2" data-testid="extras-list">
+          {extras.map((e) => {
+            const slot = e.slotId ? session!.snapshot.find((x) => x.id === e.slotId) : null;
+            return (
+              <li key={e.id} className="card flex items-start gap-3 p-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">{e.name}</p>
+                  <p className="text-sm text-ink-soft">
+                    {e.kind === "swap" ? "Swapped" : "Did something else"}
+                    {slot ? ` instead of ${exerciseLabel(slot.exerciseId)}` : ""}
+                    {[e.sets ? `${e.sets} sets` : null, e.reps ? `${e.reps} reps` : null, e.load != null ? `@ ${e.load}` : null, e.minutes ? `${e.minutes} min` : null].filter(Boolean).map((x) => ` · ${x}`).join("")}
+                  </p>
+                  {e.muscles.length ? <p className="text-xs text-ink-faint">Counts toward: {e.muscles.map((m) => muscleName(m)).join(", ")}</p> : e.exerciseId ? <p className="text-xs text-ink-faint">Counts like {exerciseLabel(e.exerciseId)}</p> : <p className="text-xs text-ink-faint">No muscles chosen, so it is not counted on the heat map.</p>}
+                  {e.note ? <p className="mt-0.5 text-sm">{e.note}</p> : null}
+                </div>
+                <button type="button" aria-label={`Remove ${e.name}`} className="tap grid size-9 place-items-center rounded-full text-ink-faint hover:bg-surface-2" onClick={() => state.removeExtra(e.id)}>
+                  <Trash2 className="size-4" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="px-1 text-sm text-ink-soft">Skipped a move and did something else? Log it, and it will count on the body map if you pick the muscles.</p>
+      )}
+      <Button tone="outline" size="sm" className="mt-2" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
+        <Plus className="size-4" /> I did something else
+      </Button>
+    </section>
   );
 }

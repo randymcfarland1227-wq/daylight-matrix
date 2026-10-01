@@ -1,6 +1,6 @@
 import { WEEKDAY_NAMES, localDate } from "./dates";
 import { exerciseById } from "./exercises";
-import { MUSCLES, muscleName } from "./muscles";
+import { GROUPS, SUBS, subInfo, muscleName, targetFor, type MuscleId } from "./muscles";
 import { dayBlocks } from "./plan";
 import type { Observation, PlanVersion, WorkoutSession } from "./types";
 import { fmt, loggedVolume, plannedVolume, statusFor, STATUS_LABEL, windowFor } from "./volume";
@@ -107,17 +107,19 @@ export function buildDigest(input: DigestInput): string {
   const logged = loggedVolume(input.sessions, win);
   L.push(`## Weekly sets per muscle area (weighted: primary 1, secondary 0.5, minor 0.25; my target ${input.weeklyTarget}/week)`);
   L.push("Planned = the plan as written. Logged = actual, last 30 days averaged to a week" + (logged.totalSets ? "." : " (nothing logged yet)."));
-  const rows = MUSCLES.map((m) => {
+  const rows = [...GROUPS.flatMap((g) => [g as { id: MuscleId; name: string }, ...g.subs.map((sid) => subInfo(sid)!)])].map((m) => {
     const p = planned[m.id];
     const l = logged.map[m.id];
-    const st = statusFor(p, 1, input.weeklyTarget);
+    const st = statusFor(p, 1, targetFor(m.id, input.weeklyTarget));
     const lw = logged.totalSets ? `${fmt(Math.round((l.effective / (30 / 7)) * 10) / 10)}` : "–";
     return { m, line: `- ${m.name}: planned ${fmt(Math.round(p.effective * 10) / 10)} (direct ${fmt(Math.round(p.direct * 10) / 10)}), logged ${lw} · ${STATUS_LABEL[st]}` };
   });
   rows.forEach((r) => L.push(r.line));
-  const under = MUSCLES.filter((m) => ["none", "indirect", "low"].includes(statusFor(planned[m.id], 1, input.weeklyTarget))).map((m) => m.name);
+  const under = GROUPS.filter((m) => ["none", "indirect", "low"].includes(statusFor(planned[m.id], 1, targetFor(m.id, input.weeklyTarget)))).map((m) => m.name);
+  const underSubs = SUBS.filter((m) => ["none", "indirect"].includes(statusFor(planned[m.id], 1, targetFor(m.id, input.weeklyTarget)))).map((m) => m.name);
   L.push("");
-  L.push(`Underserved by the plan as written: ${under.length ? under.join(", ") : "none"}.`);
+  L.push(`Underserved by the plan as written (muscle groups): ${under.length ? under.join(", ") : "none"}.`);
+  L.push(`Sub-parts with little or no direct work in the plan: ${underSubs.length ? underSubs.join(", ") : "none"}.`);
   L.push("");
 
   L.push(`## Flagged for the next plan (${flagged.length})`);

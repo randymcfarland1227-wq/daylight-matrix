@@ -23,7 +23,7 @@ export function DaylightApp() {
     const apply = () => {
       const dark = theme === "dark" || (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.classList.toggle("dark", dark);
-      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0d1714" : "#f7f0e3");
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#161411" : "#efe9dd");
     };
     apply();
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

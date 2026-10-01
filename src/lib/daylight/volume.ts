@@ -1,8 +1,8 @@
 import { shiftDate } from "./dates";
 import { exerciseById, volumeFactorFor } from "./exercises";
-import { MUSCLE_IDS, type MuscleId } from "./muscles";
+import { GROUPS, MUSCLE_IDS, groupOfSub, isGroup, resolveMuscle, type GroupId, type MuscleId, type SubId } from "./muscles";
 import { dayBlocks } from "./plan";
-import type { DayTemplate, PlanVersion, Prescription, WorkoutSession } from "./types";
+import type { DayTemplate, ExtraLog, PlanVersion, Prescription, WorkoutSession } from "./types";
 
 export type MuscleHit = {
   exerciseId: string;
@@ -38,27 +38,49 @@ function emptyMap(): VolumeMap {
   return map;
 }
 
+/** Weight of an exercise for any id: sub-part weight, or for a group the largest weight among its sub-parts. */
+export function weightFor(muscles: Partial<Record<string, number>> | undefined, id: string): number {
+  if (!muscles) return 0;
+  if (!isGroup(id)) return muscles[id] ?? 0;
+  let best = 0;
+  for (const g of GROUPS) if (g.id === id) for (const sub of g.subs) best = Math.max(best, muscles[sub] ?? 0);
+  return best;
+}
+
+function bump(map: VolumeMap, mid: MuscleId, ex: { id: string; name: string }, weight: number, sets: number, factor: number, day: number | null, alt: boolean) {
+  const cell = map[mid];
+  if (!cell) return;
+  if (!alt) {
+    cell.effective += sets * weight * factor;
+    if (weight >= 1) cell.direct += sets * factor;
+    else cell.indirect += sets * factor;
+  }
+  let hit = cell.hits.find((h) => h.exerciseId === ex.id);
+  if (!hit) {
+    hit = { exerciseId: ex.id, name: ex.name, weight, role: roleOf(weight), sets: 0, days: [], alt };
+    cell.hits.push(hit);
+  }
+  if (!alt) hit.alt = false;
+  if (!alt) hit.sets += sets;
+  if (day != null && !hit.days.includes(day)) hit.days.push(day);
+}
+
 function addHit(map: VolumeMap, exerciseId: string, sets: number, day: number | null, alt = false) {
   const ex = exerciseById(exerciseId);
   if (!ex?.muscles || sets <= 0) return;
-  const factor = volumeFactorFor(ex);
-  for (const [mid, weight] of Object.entries(ex.muscles) as [MuscleId, number][]) {
-    const cell = map[mid];
-    if (!cell) continue;
-    if (!alt) {
-      cell.effective += sets * weight * factor;
-      if (weight >= 1) cell.direct += sets * factor;
-      else cell.indirect += sets * factor;
-    }
-    let hit = cell.hits.find((h) => h.exerciseId === exerciseId);
-    if (!hit) {
-      hit = { exerciseId, name: ex.name, weight, role: roleOf(weight), sets: 0, days: [], alt };
-      cell.hits.push(hit);
-    }
-    if (!alt) hit.alt = false;
-    if (!alt) hit.sets += sets;
-    if (day != null && !hit.days.includes(day)) hit.days.push(day);
+  addWeights(map, { id: ex.id, name: ex.name }, ex.muscles, sets, volumeFactorFor(ex), day, alt);
+}
+
+/** Adds one exercise-worth of sets to every sub-part it touches and to the groups those belong to. */
+export function addWeights(map: VolumeMap, ex: { id: string; name: string }, muscles: Partial<Record<string, number>>, sets: number, factor: number, day: number | null, alt = false) {
+  const groupMax = new Map<GroupId, number>();
+  for (const [mid, weight] of Object.entries(muscles) as [SubId, number][]) {
+    if (!map[mid] || !weight) continue;
+    bump(map, mid, ex, weight, sets, factor, day, alt);
+    const g = groupOfSub(mid);
+    groupMax.set(g, Math.max(groupMax.get(g) ?? 0, weight));
   }
+  for (const [g, weight] of groupMax) bump(map, g, ex, weight, sets, factor, day, alt);
 }
 
 export function plannedSets(slot: Prescription): number {
@@ -92,6 +114,32 @@ export function windowFor(days: number, today: string): LoggedWindow {
   return { from: shiftDate(today, -(days - 1)), to: today, days };
 }
 
+/** Sets an off-plan log counts for: its sets, else 1 when it has minutes or a name. */
+export function extraSets(extra: ExtraLog): number {
+  return extra.sets && extra.sets > 0 ? extra.sets : 1;
+}
+
+/** Off-plan work counts only when Randy chose muscles, or picked a catalog move (its mapping is used). */
+export function addExtra(map: VolumeMap, extra: ExtraLog, sets: number, weekday: number | null) {
+  const label = { id: `extra:${extra.id}`, name: extra.name || "Something else" };
+  const chosen = (extra.muscles ?? []).map((id) => resolveMuscle(id)).filter(Boolean) as NonNullable<ReturnType<typeof resolveMuscle>>[];
+  if (chosen.length) {
+    const w: Record<string, number> = {};
+    for (const c of chosen) {
+      if (c.id === c.group && !c.sub && isGroup(c.id)) {
+        // a whole group was picked: spread over its sub-parts
+        for (const g of GROUPS) if (g.id === c.group) for (const sub of g.subs) w[sub] = 1;
+      } else {
+        w[c.sub ?? c.id] = 1;
+      }
+    }
+    addWeights(map, label, w, sets, 1, weekday);
+    return;
+  }
+  const ex = extra.exerciseId ? exerciseById(extra.exerciseId) : undefined;
+  if (ex?.muscles) addWeights(map, { id: ex.id, name: extra.name || ex.name }, ex.muscles, sets, volumeFactorFor(ex), weekday);
+}
+
 /** A logged set is one done SetLog. Left/right halves of a per-side exercise count half each. */
 export function loggedVolume(sessions: WorkoutSession[], win: LoggedWindow): { map: VolumeMap; totalSets: number } {
   const map = emptyMap();
@@ -107,6 +155,11 @@ export function loggedVolume(sessions: WorkoutSession[], win: LoggedWindow): { m
       const sets = slot.perSide && (log.side === "left" || log.side === "right") ? 0.5 : 1;
       totalSets += sets;
       addHit(map, exerciseId, sets, weekday);
+    }
+    for (const extra of session.extras ?? []) {
+      const n = extraSets(extra);
+      totalSets += n;
+      addExtra(map, extra, n, weekday);
     }
   }
   sortHits(map);
@@ -157,13 +210,17 @@ export function heatSnapshot(sessions: WorkoutSession[], plan: PlanVersion, days
   return { map: plannedVolume(plan), source: "planned", windowDays: 7, weeklyFactor: 1, totalSets: 0 };
 }
 
-export function dayMuscles(day: DayTemplate): { id: MuscleId; weight: number }[] {
+/** Muscles a day works. `level` "group" (default) rolls sub-parts into their group using the largest weight. */
+export function dayMuscles(day: DayTemplate, level: "group" | "sub" = "group"): { id: MuscleId; weight: number }[] {
   const totals: Partial<Record<MuscleId, number>> = {};
   for (const slot of day.slots) {
     if (slot.optional) continue;
     const ex = exerciseById(slot.exerciseId);
     if (!ex?.muscles || volumeFactorFor(ex) === 0) continue;
-    for (const [id, w] of Object.entries(ex.muscles) as [MuscleId, number][]) totals[id] = Math.max(totals[id] ?? 0, w);
+    for (const [sid, w] of Object.entries(ex.muscles) as [SubId, number][]) {
+      const id = level === "group" ? groupOfSub(sid) : sid;
+      totals[id] = Math.max(totals[id] ?? 0, w);
+    }
   }
   return Object.entries(totals)
     .map(([id, weight]) => ({ id: id as MuscleId, weight: weight! }))
@@ -194,7 +251,7 @@ export function suggestionsFor(muscle: MuscleId, planExerciseIds: Set<string>, l
   for (const id of EXERCISE_IDS()) ids.add(id);
   for (const id of ids) {
     const ex = exerciseById(id);
-    const w = ex?.muscles?.[muscle];
+    const w = weightFor(ex?.muscles, muscle);
     if (!ex || !w || w < 0.5) continue;
     if (!ex.extra) continue; // suggestions are moves that are not already scheduled in the PDF plan
     if (planExerciseIds.has(id)) continue;

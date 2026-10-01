@@ -2,10 +2,12 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { localDate, localTime } from "./dates";
 import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, SEED_SHOPPING, SEED_STARTER_INVENTORY, SEED_STARTER_MEALS } from "./food-seed";
-import { SCHEMA_VERSION, STORAGE_KEY, BACKUP_KEY, migratePersisted } from "./migrate";
-import { newId } from "./logic";
+import { SCHEMA_VERSION, STORAGE_KEY, BACKUP_KEY, BACKUP_KEY_V3, migratePersisted } from "./migrate";
+import { exerciseById } from "./exercises";
+import { lastSet, newId, prescribedDefaults } from "./logic";
 import { activePlan, dayTemplate, seedPlan } from "./plan";
 import type {
+  ExtraLog,
   ActivityLog,
   AdjustmentTrial,
   AppView,
@@ -154,6 +156,10 @@ type Data = {
   trainDay: number;
   openSlotId: string | null;
   openExerciseId: string | null;
+  /** Open the Train tab straight into gym mode for today. Persisted. */
+  gymDefault: boolean;
+  /** Full-screen gym mode for this weekday. Not persisted. */
+  gymMode: { weekday: number } | null;
   rest: { endsAt: number; total: number } | null;
   restDefault: number;
   toast: { id: number; text: string } | null;
@@ -189,6 +195,20 @@ type LogSetInput = {
   side?: Side;
 };
 
+export type BulkAdjust = { reps?: number | null; load?: number | null; assist?: number | null; seconds?: number | null; distance?: string | null };
+export type ExtraInput = {
+  slotId: string | null;
+  kind: "swap" | "other";
+  name: string;
+  exerciseId?: string;
+  sets?: number | null;
+  reps?: string | null;
+  load?: number | null;
+  minutes?: number | null;
+  note?: string;
+  muscles?: string[];
+};
+
 type Actions = {
   setView: (view: AppView) => void;
   setTrainingTab: (tab: TrainingTab) => void;
@@ -206,6 +226,11 @@ type Actions = {
   removeLog: (logId: string) => void;
   undoLast: () => void;
   chooseVariant: (weekday: number, prescriptionId: string, exerciseId: string) => void;
+  setGymMode: (weekday: number | null) => void;
+  setGymDefault: (value: boolean) => void;
+  bulkComplete: (weekday: number, slotIds: string[], adjust?: BulkAdjust) => number;
+  addExtra: (weekday: number, input: ExtraInput) => string | null;
+  removeExtra: (id: string) => void;
   startRest: (seconds?: number) => void;
   clearRest: () => void;
   setRestDefault: (seconds: number) => void;
@@ -338,7 +363,7 @@ const seed = (): Data => ({
   heatWindow: 14,
   selectedMuscleId: null,
   schemaVersion: SCHEMA_VERSION,
-  theme: "auto",
+  theme: "dark",
   waterGoal: 96,
   proteinGoalRest: null,
   weeklyTarget: 10,
@@ -349,6 +374,8 @@ const seed = (): Data => ({
   trainDay: new Date().getDay(),
   openSlotId: null,
   openExerciseId: null,
+  gymMode: null,
+  gymDefault: true,
   rest: null,
   restDefault: 90,
   toast: null,
@@ -539,6 +566,108 @@ export const useDaylight = create<Data & Actions>()(
             ),
           }),
         );
+      },
+      setGymDefault: (gymDefault) => set(saved({ gymDefault })),
+      setGymMode: (weekday) => {
+        if (weekday == null) {
+          set({ gymMode: null, rest: null });
+          return;
+        }
+        get().startSession(weekday, weekday !== new Date().getDay());
+        set({ gymMode: { weekday }, trainDay: weekday, view: "training", trainingTab: "session", overlay: null });
+      },
+      bulkComplete: (weekday, slotIds, adjust) => {
+        const today = localDate();
+        let session = get().sessions.find((x) => x.localDate === today && x.weekday === weekday);
+        if (!session) {
+          get().startSession(weekday, weekday !== new Date().getDay());
+          session = get().sessions.find((x) => x.localDate === today && x.weekday === weekday);
+        }
+        if (!session) return 0;
+        const sid = session.id;
+        const units = get().units;
+        const before = session.logs;
+        const added: SetLog[] = [];
+        for (const slotId of slotIds) {
+          const slot = session.snapshot.find((item) => item.id === slotId);
+          if (!slot) continue;
+          const exerciseId = session.chosenExercise[slotId] ?? slot.exerciseId;
+          const def = prescribedDefaults(slot, exerciseById(exerciseId)?.kind ?? "strength");
+          const prev = lastSet(get().sessions, exerciseId, sid)?.set;
+          const planned = slot.sets ?? 1;
+          const have = new Set(session.logs.filter((l) => l.prescriptionId === slotId && l.status === "done").map((l) => l.setIndex));
+          for (let i = 0; i < planned; i += 1) {
+            if (have.has(i)) continue;
+            const base = {
+              prescriptionId: slotId,
+              setIndex: i,
+              status: "done" as const,
+              reps: adjust && "reps" in adjust ? adjust.reps ?? null : def.reps,
+              load: adjust && "load" in adjust ? adjust.load ?? null : prev?.load ?? null,
+              loadUnit: units,
+              assistance: adjust && "assist" in adjust ? adjust.assist ?? null : prev?.assistance ?? null,
+              assistanceUnit: units,
+              seconds: adjust && "seconds" in adjust ? adjust.seconds ?? null : def.seconds,
+              distance: adjust && "distance" in adjust ? adjust.distance ?? null : def.distance,
+              at: new Date().toISOString(),
+            };
+            if (slot.perSide) {
+              added.push({ id: newId(), side: "left", ...base }, { id: newId(), side: "right", ...base });
+            } else {
+              added.push({ id: newId(), side: "na", ...base });
+            }
+          }
+        }
+        if (!added.length) return 0;
+        const reopened = session.status === "finished";
+        set(
+          saved({
+            sessions: get().sessions.map((item) => (item.id === sid ? { ...item, logs: [...item.logs, ...added], status: "active", finishedAt: reopened ? null : item.finishedAt } : item)),
+            activeSessionId: get().activeSessionId && get().activeSessionId !== sid && !reopened ? get().activeSessionId : sid,
+            undo: { kind: "set", sessionId: sid, logs: before, focusSlot: session.focusSlot, label: "Sets logged" },
+          }),
+        );
+        return new Set(added.map((l) => `${l.prescriptionId}:${l.setIndex}`)).size;
+      },
+      addExtra: (weekday, input) => {
+        const today = localDate();
+        let session = get().sessions.find((x) => x.localDate === today && x.weekday === weekday);
+        if (!session) {
+          get().startSession(weekday, weekday !== new Date().getDay());
+          session = get().sessions.find((x) => x.localDate === today && x.weekday === weekday);
+        }
+        if (!session) return null;
+        const name = input.name.trim();
+        if (!name && !input.exerciseId) return null;
+        const extra: ExtraLog = {
+          id: newId(),
+          slotId: input.slotId,
+          kind: input.kind,
+          name: name || (input.exerciseId ? exerciseById(input.exerciseId)?.name ?? "Something else" : "Something else"),
+          exerciseId: input.exerciseId,
+          sets: input.sets ?? null,
+          reps: input.reps?.trim() || null,
+          load: input.load ?? null,
+          minutes: input.minutes ?? null,
+          note: (input.note ?? "").trim(),
+          muscles: input.muscles ?? [],
+          at: new Date().toISOString(),
+        };
+        const sid = session.id;
+        const reopened = session.status === "finished";
+        set(
+          saved({
+            sessions: get().sessions.map((item) =>
+              item.id === sid ? { ...item, extras: [...(item.extras ?? []), extra], status: "active", finishedAt: reopened ? null : item.finishedAt } : item,
+            ),
+            activeSessionId: get().activeSessionId ?? sid,
+            overlay: null,
+          }),
+        );
+        return extra.id;
+      },
+      removeExtra: (id) => {
+        set(saved({ sessions: get().sessions.map((s) => ((s.extras ?? []).some((e) => e.id === id) ? { ...s, extras: (s.extras ?? []).filter((e) => e.id !== id) } : s)) }));
       },
       startRest: (seconds) => {
         const total = seconds ?? get().restDefault;
@@ -1138,7 +1267,7 @@ export const useDaylight = create<Data & Actions>()(
             return "That file is not a Daylight backup.";
           }
           // Old (daylight: 1) backups have no schemaVersion, so they run through the same migration as old localStorage.
-          const data = migratePersisted(parsed.daylight >= 2 ? { schemaVersion: SCHEMA_VERSION, ...parsed.data } : parsed.data);
+          const data = migratePersisted(parsed.daylight >= 2 ? { schemaVersion: parsed.daylight, ...parsed.data } : parsed.data);
           if (parsed.customNames) saveCustomNames(parsed.customNames);
           const { view: _view, trainingTab: _tab, ...restored } = data as Partial<Data>;
           set(saved({ ...restored, overlay: null, undo: null, rest: null }));
@@ -1160,6 +1289,11 @@ export const useDaylight = create<Data & Actions>()(
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) localStorage.setItem(BACKUP_KEY, raw);
           }
+          // A second raw copy taken just before the round-2 (v3) migration, once.
+          if (!localStorage.getItem(BACKUP_KEY_V3)) {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) localStorage.setItem(BACKUP_KEY_V3, raw);
+          }
         } catch {
           /* storage full or blocked: the migration itself does not depend on it */
         }
@@ -1170,7 +1304,7 @@ export const useDaylight = create<Data & Actions>()(
   ),
 );
 
-const EPHEMERAL = new Set(["overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["gymMode", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};

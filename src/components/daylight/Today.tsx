@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ArrowRight, Droplets, Flag, Footprints, PenLine, Play, Utensils } from "lucide-react";
 import { WEEKDAY_NAMES, localDate, prettyDate, shiftDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
-import { MUSCLES, muscleName, type MuscleId } from "@/lib/daylight/muscles";
+import { GROUPS, muscleName, targetFor, type MuscleId } from "@/lib/daylight/muscles";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, statusFor } from "@/lib/daylight/volume";
@@ -44,11 +44,11 @@ export function Today() {
 
   const heat = useMemo(() => heatSnapshot(s.sessions, plan, 7, today), [s.sessions, plan, today]);
   const target = s.weeklyTarget;
-  const under = MUSCLES.filter((m) => {
-    const x = statusFor(heat.map[m.id], heat.weeklyFactor, target);
+  const under = GROUPS.filter((m) => {
+    const x = statusFor(heat.map[m.id], heat.weeklyFactor, targetFor(m.id, target));
     return x === "none" || x === "indirect" || x === "low";
   });
-  const fill = (id: MuscleId) => heatColor(heatLevel(heat.map[id], heat.weeklyFactor, target));
+  const fill = (id: MuscleId) => heatColor(heatLevel(heat.map[id], heat.weeklyFactor, targetFor(id, target)));
 
   const weekSessions = s.sessions.filter((x) => x.localDate >= shiftDate(today, -6));
   const doneToday = session?.status === "finished";
@@ -93,23 +93,34 @@ export function Today() {
                   {slots.filter((x) => !x.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} sets
                 </p>
               </div>
-              <Ring value={pct} size={72} stroke={8} color="#f6b24f" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
+              <Ring value={pct} size={72} stroke={8} color="#e2b672" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
                 <span className="font-display text-lg text-white">{fmt(totals.done)}/{Math.ceil(totals.target)}</span>
               </Ring>
             </div>
             <div className="relative mt-3 flex flex-wrap gap-1.5">
               {muscles.map((m) => (
-                <span key={m.id} className={cn("rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-white/90 text-[#1b2824]" : "border border-white/50")}>
+                <span key={m.id} className={cn("rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-white/90 text-[#1d1a15]" : "border border-white/50")}>
                   {muscleName(m.id)}
                 </span>
               ))}
             </div>
             {day.psa ? <p className="relative mt-3 line-clamp-2 rounded-xl bg-black/20 px-3 py-2 text-sm">PSA: {day.psa}</p> : null}
-            <Button size="lg" tone="sun" className="relative mt-4 w-full" onClick={open}>
-              <Play className="size-5" fill="currentColor" />
-              {doneToday ? "Review session" : session && totals.done > 0 ? "Resume session" : "Start with PT activation"}
-              <ArrowRight className="size-5" />
-            </Button>
+            {doneToday ? (
+              <Button size="lg" tone="sun" className="relative mt-4 w-full" onClick={open}>
+                <Play className="size-5" fill="currentColor" /> Review session <ArrowRight className="size-5" />
+              </Button>
+            ) : (
+              <div className="relative mt-4 grid gap-2">
+                <Button size="lg" tone="sun" className="w-full" data-testid="start-gym" onClick={() => s.setGymMode(wd)}>
+                  <Play className="size-5" fill="currentColor" />
+                  {session && totals.done > 0 ? "Resume in gym mode" : "Start gym mode"}
+                  <ArrowRight className="size-5" />
+                </Button>
+                <button type="button" className="tap rounded-xl py-1.5 text-sm font-bold text-white/85 underline-offset-2 hover:underline" onClick={open}>
+                  Open the full session overview
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -170,7 +181,7 @@ export function Today() {
           <div className="mt-1 grid grid-cols-[auto_1fr] items-center gap-3">
             <button type="button" className="flex w-[148px] gap-0.5" onClick={go("body", () => s.setBody({ bodyMode: "heat" }))} aria-label="Open the heat map">
               {(["front", "back"] as const).map((v) => (
-                <BodyFigure key={v} view={v} className="h-auto w-1/2" fill={fill} selected={null} onSelect={() => {}} interactive={false} />
+                <BodyFigure key={v} view={v} level="group" className="h-auto w-1/2" fill={fill} selected={null} onSelect={() => {}} interactive={false} />
               ))}
             </button>
             <div>
