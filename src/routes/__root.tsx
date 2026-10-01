@@ -12,7 +12,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
       { name: "description", content: "Decide what to eat, follow your movement plan, and adjust from what you notice." },
-      { name: "theme-color", content: "#F5F2EB" },
+      { name: "theme-color", content: "#f3f7f6" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: `${import.meta.env.BASE_URL}favicon.svg` },
@@ -21,7 +21,7 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: `${import.meta.env.BASE_URL}__grok/icon-180.png` },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;520;600;700&display=swap",
       },
     ],
   }),

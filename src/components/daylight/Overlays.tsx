@@ -5,9 +5,11 @@ import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayTemplate, exerciseById } from "@/lib/daylight/plan";
 import { chosenExerciseId } from "@/lib/daylight/logic";
 import { lessonsForExercise } from "@/lib/daylight/learn";
+import { regionById } from "@/lib/daylight/body";
 import { useDaylight } from "@/lib/daylight/store";
 import { STARTER_PURPOSE } from "@/lib/daylight/types";
 import { Button, Drawer, inputClass } from "./ui";
+import { BodyFigure } from "./BodyFigure";
 import { localDate } from "@/lib/daylight/dates";
 
 export function Overlays() {
@@ -229,6 +231,45 @@ function Finish({ onClose }: { onClose: () => void }) {
   );
 }
 
+function SessionNote({
+  sessionDate,
+  exerciseId,
+  sessionId,
+  onClose,
+}: {
+  sessionDate: string;
+  exerciseId: string;
+  sessionId: string;
+  onClose: () => void;
+}) {
+  const addObservation = useDaylight((s) => s.addObservation);
+  const [note, setNote] = useState("");
+  const [regionId, setRegionId] = useState<string | null>(null);
+  const region = regionId ? regionById(regionId) : undefined;
+  return (
+    <div>
+      <BodyFigure compact selectedId={regionId} highlighted={regionId ? [regionId] : []} onSelect={setRegionId} />
+      <p className="mt-2 text-base text-ink-soft">{region ? `Attached to ${region.name}.` : "Tap a muscle if this note belongs to one."}</p>
+      <textarea className={`${inputClass} mt-2 min-h-24 py-2`} value={note} onChange={(event) => setNote(event.target.value)} aria-label="What did you notice?" />
+      <Button
+        className="mt-3"
+        onClick={() => {
+          const id = addObservation(note, {
+            date: sessionDate,
+            time: localTime(),
+            exerciseId,
+            sessionId,
+            ...(regionId ? { regionId } : {}),
+          });
+          if (id) onClose();
+        }}
+      >
+        Save note
+      </Button>
+    </div>
+  );
+}
+
 function SessionDetail({
   type,
   onClose,
@@ -238,7 +279,6 @@ function SessionDetail({
 }) {
   const state = useDaylight();
   const session = state.sessions.find((item) => item.id === state.activeSessionId);
-  const [note, setNote] = useState("");
   if (!session) return null;
   const slot = session.snapshot[session.focusSlot];
   const exerciseId = slot ? chosenExerciseId(slot, session.chosenExercise) : "";
@@ -303,23 +343,7 @@ function SessionDetail({
         </ol>
       ) : null}
       {type === "session-note" ? (
-        <div>
-          <textarea className={`${inputClass} min-h-24 py-2`} value={note} onChange={(event) => setNote(event.target.value)} aria-label="What did you notice?" />
-          <Button
-            className="mt-3"
-            onClick={() => {
-              const id = state.addObservation(note, {
-                date: session.localDate,
-                time: localTime(),
-                exerciseId,
-                sessionId: session.id,
-              });
-              if (id) onClose();
-            }}
-          >
-            Save note
-          </Button>
-        </div>
+        <SessionNote sessionDate={session.localDate} exerciseId={exerciseId} sessionId={session.id} onClose={onClose} />
       ) : null}
     </Drawer>
   );

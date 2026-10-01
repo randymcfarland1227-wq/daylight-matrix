@@ -45,10 +45,10 @@ export function BodyPreview({ onOpen }: { onOpen: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      className="tap grid size-16 place-items-center overflow-hidden rounded-2xl bg-stage"
+      className="tap grid size-16 place-items-center rounded-2xl border border-line bg-surface text-sm font-semibold text-ink"
       aria-label="Open Body"
     >
-      <img src={publicFile("body-front.jpg")} alt="" className="h-14 w-10 object-cover object-[center_18%]" />
+      Body
     </button>
   );
 }

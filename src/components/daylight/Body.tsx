@@ -6,7 +6,8 @@ import { exerciseLabel } from "@/lib/daylight/names";
 import { PT_REFERENCES, UNSCHEDULED, activePlan, dayTemplate, exerciseById } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import type { PlanVersion } from "@/lib/daylight/types";
-import { AnatomyStage, LayerSwitch, type BodyCallout } from "./BodyMap";
+import { BodyFigure } from "./BodyFigure";
+import { LayerSwitch } from "./BodyMap";
 import { Button } from "./ui";
 
 type Scope = "all" | number;
@@ -60,7 +61,7 @@ export function Body() {
       if (mapping.role === "primary" || !current) planned[mapping.regionId] = mapping.role;
     }
   }
-  const felt = state.observations.map((item) => item.context.regionId).filter((id): id is string => Boolean(id));
+  const feltRegions = state.observations.map((item) => item.context.regionId).filter((id): id is string => Boolean(id));
   const selected = state.selectedRegionId ? regionById(state.selectedRegionId) : undefined;
   const cell = selected ? coverage[selected.id] : undefined;
   const onThisView = Object.keys(planned).filter((id) => regionById(id)?.view === state.bodyView);
@@ -71,7 +72,6 @@ export function Body() {
   );
   const placed = roster.filter((item) => item.muscles);
   const unplaced = roster.filter((item) => !item.muscles);
-  const callouts: BodyCallout[] = buildCallouts(state.bodyView, painting, state.highlightedExerciseId);
 
   return (
     <main>
@@ -112,14 +112,10 @@ export function Body() {
 
       <div className="mt-4 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start md:gap-6">
         <div>
-          <AnatomyStage
+          <BodyFigure
             view={state.bodyView}
-            layer={state.bodyLayer}
             selectedId={state.selectedRegionId}
-            counts={counts}
-            planned={planned}
-            felt={felt}
-            callouts={state.bodyLayer === "planned" ? callouts : []}
+            highlighted={[...Object.keys(planned), ...feltRegions]}
             onSelect={(selectedRegionId) => state.setBody({ selectedRegionId, highlightedExerciseId: null })}
           />
           {state.bodyLayer === "planned" && onThisView.length === 0 && onOtherView ? (
@@ -147,7 +143,7 @@ export function Body() {
               ))}
             </dl>
           ) : null}
-          {state.bodyLayer === "felt" ? <p className="mt-3 text-base text-ink-soft">Copper marks a region you attached to a note.</p> : null}
+          {state.bodyLayer === "felt" ? <p className="mt-3 text-base text-ink-soft">A marked region is one you attached to a note.</p> : null}
         </div>
 
         <section className="mt-5 md:mt-0" aria-label="Exercises">
@@ -232,43 +228,6 @@ export function Body() {
       </div>
     </main>
   );
-}
-
-function buildCallouts(view: "front" | "back", items: RosterItem[], highlightedId: string | null): BodyCallout[] {
-  const source = highlightedId ? items.filter((item) => item.id === highlightedId) : items;
-  const named = source.filter((item) => item.muscles);
-  if (!highlightedId && named.length > 5) return [];
-  const short: Record<string, string> = {
-    ppt: "Pelvic tilt",
-    "bird-dog": "Bird dog",
-    "bracing-marches": "Bracing",
-    "assisted-pullup": "Pull-up",
-    "neutral-pullup": "Neutral pull-up",
-    clamshell: "Clamshells",
-    pallof: "Pallof",
-    "band-walks": "Band walks",
-    "suitcase-carry": "Carry",
-    "pt-shoulder-flexion": "Shoulder flexion",
-    plank: "Plank",
-    "battle-rope-squat": "Rope squats",
-    "seated-pigeon": "Pigeon",
-    "single-leg-stand": "Single-leg stand",
-  };
-  const byRegion = new Map<string, string[]>();
-  for (const item of named) {
-    const primary = MAPPINGS.find(
-      (mapping) => mapping.exerciseId === item.id && mapping.role === "primary" && regionById(mapping.regionId)?.view === view,
-    );
-    if (!primary) continue;
-    const names = byRegion.get(primary.regionId) ?? [];
-    const label = short[item.id] ?? item.name;
-    if (!names.includes(label)) names.push(label);
-    byRegion.set(primary.regionId, names);
-  }
-  return [...byRegion.entries()].map(([regionId, names]) => ({
-    regionId,
-    text: names.length > 2 ? `${names[0]} +${names.length - 1}` : names.join(", "),
-  }));
 }
 
 function ScopeChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {

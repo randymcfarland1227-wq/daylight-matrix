@@ -56,8 +56,8 @@ export function Panel({
     <section className="rounded-2xl border border-line bg-surface px-4 py-4 md:px-5">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          {kicker ? <p className="text-base text-copper-deep">{kicker}</p> : null}
-          <h2 className="text-2xl leading-tight text-ink">{title}</h2>
+          {kicker ? <p className="text-xs font-semibold uppercase tracking-[0.14em] text-forest">{kicker}</p> : null}
+          <h2 className="text-xl leading-tight text-ink">{title}</h2>
         </div>
         {action}
       </div>

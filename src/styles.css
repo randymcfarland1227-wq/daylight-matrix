@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #f5f2eb;
-  --color-surface: #fbf9f4;
-  --color-ink: #172421;
-  --color-ink-soft: #3c4b46;
-  --color-forest: #426757;
-  --color-forest-deep: #2b463c;
-  --color-copper: #be7654;
-  --color-copper-deep: #8d5340;
-  --color-line: #e0d9cc;
-  --color-stage: #172421;
-  --color-stage-lift: #24332e;
-  --color-heat-0: #31423d;
-  --color-heat-1: #6e8f7e;
-  --color-heat-2: #b7cfc2;
-  --color-heat-3: #f3f7f4;
-  --color-legend-0: #d9d3c7;
-  --color-legend-1: #9db5a6;
-  --color-legend-2: #426757;
-  --color-legend-3: #1e3a30;
-  --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
-  --font-display: "Fraunces", "Iowan Old Style", Palatino, serif;
+  --color-canvas: #f3f7f6;
+  --color-surface: #ffffff;
+  --color-ink: #122028;
+  --color-ink-soft: #4a5d68;
+  --color-forest: #0c7c74;
+  --color-forest-deep: #095e58;
+  --color-copper: #0c7c74;
+  --color-copper-deep: #0b6a78;
+  --color-line: #d5e3e1;
+  --color-stage: #e7eef0;
+  --color-stage-lift: #0c7c74;
+  --color-heat-0: #d5e3e1;
+  --color-heat-1: #8fd0c8;
+  --color-heat-2: #1aa79c;
+  --color-heat-3: #f7fffd;
+  --color-legend-0: #e4eeec;
+  --color-legend-1: #9fd4cc;
+  --color-legend-2: #0c7c74;
+  --color-legend-3: #084842;
+  --font-sans: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
   --radius-card: 0.875rem;
 }
 
@@ -49,7 +49,8 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.03em;
     text-wrap: balance;
   }
   p {

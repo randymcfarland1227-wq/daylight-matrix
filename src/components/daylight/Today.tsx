@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { localDate, prettyDate, todayLabel } from "@/lib/daylight/dates";
 import { progressLabel } from "@/lib/daylight/logic";
 import { exerciseLabel } from "@/lib/daylight/names";
@@ -6,7 +6,8 @@ import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { chosenExerciseId } from "@/lib/daylight/logic";
 import { useDaylight } from "@/lib/daylight/store";
 import { Button, Panel } from "./ui";
-import { BodyPreview } from "./BodyMap";
+import { BodyFigure } from "./BodyFigure";
+import { regionById } from "@/lib/daylight/body";
 
 export function Today() {
   const state = useDaylight();
@@ -23,7 +24,7 @@ export function Today() {
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
           <p className="text-base text-ink-soft">Today · {prettyDate(today)}</p>
-          <h1 className="text-4xl leading-none text-ink">Daylight</h1>
+          <h1 className="text-3xl leading-none text-ink">Daylight</h1>
         </div>
         <Button tone="quiet" onClick={() => state.setView("history")}>
           History
@@ -36,7 +37,15 @@ export function Today() {
         <Panel
           kicker="Training"
           title={active && active.localDate !== today ? active.name : day.scheduled ? day.name : "No session scheduled"}
-          action={<BodyPreview onOpen={() => state.setView("body")} />}
+          action={
+            <button
+              type="button"
+              onClick={() => state.setView("body")}
+              className="tap min-h-11 rounded-xl border border-line bg-surface px-3 text-sm font-semibold"
+            >
+              Open body
+            </button>
+          }
         >
           {active && active.localDate !== today ? (
             <>
@@ -163,49 +172,75 @@ function PurposeLine() {
 
 function NotesCard() {
   const observations = useDaylight((s) => s.observations);
+  const sessions = useDaylight((s) => s.sessions);
   const addObservation = useDaylight((s) => s.addObservation);
-  const updateObservation = useDaylight((s) => s.updateObservation);
-  const saveStatus = useDaylight((s) => s.saveStatus);
   const setView = useDaylight((s) => s.setView);
   const today = localDate();
-  const existing = observations.find((item) => item.context.date === today && !item.context.exerciseId && !item.context.mealId);
-  const [text, setText] = useState(existing?.text ?? "");
-  const [status, setStatus] = useState(saveStatus);
+  const [text, setText] = useState("");
+  const [regionId, setRegionId] = useState<string | null>(null);
+  const region = regionId ? regionById(regionId) : undefined;
 
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      const trimmed = text.trim();
-      if (!trimmed) {
-        if (existing) updateObservation(existing.id, "");
-        return;
-      }
-      if (existing) {
-        if (existing.text !== trimmed) updateObservation(existing.id, trimmed);
-      } else {
-        addObservation(trimmed, { date: today, time: new Date().toTimeString().slice(0, 5) });
-      }
-      setStatus("Saved on this device");
-    }, 450);
-    return () => window.clearTimeout(handle);
-  }, [text, existing, today, addObservation, updateObservation]);
+  const notes = [
+    ...observations.map((item) => ({
+      id: item.id,
+      text: item.text,
+      when: item.context.date === today ? item.context.time : item.context.date,
+      where: item.context.regionId ? regionById(item.context.regionId)?.name ?? "Muscle" : item.context.exerciseId ? "This lift" : "General",
+    })),
+    ...sessions
+      .filter((session) => session.note.trim())
+      .map((session) => ({
+        id: `session-${session.id}`,
+        text: session.note,
+        when: session.localDate,
+        where: session.name,
+      })),
+  ];
 
   return (
     <Panel kicker="Notes" title="What did you notice?">
-      <textarea
-        value={text}
-        onChange={(event) => {
-          setText(event.target.value);
-          setStatus("Saving…");
-        }}
-        rows={3}
-        className="min-h-24 w-full rounded-xl border border-line bg-canvas px-3 py-3 text-base text-ink"
-        aria-label="What did you notice?"
-      />
-      <div className="mt-2 flex flex-wrap items-center gap-3">
-        <p className="text-base text-ink-soft">{text.trim() ? status : "A note saves when it has words."}</p>
-        <Button tone="quiet" onClick={() => setView("review")}>
-          Review observations
-        </Button>
+      <div className="grid gap-4 md:grid-cols-[16rem_minmax(0,1fr)] md:items-start">
+        <BodyFigure compact selectedId={regionId} highlighted={regionId ? [regionId] : []} onSelect={setRegionId} />
+        <div>
+          <p className="text-base text-ink-soft">
+            {region ? `Note for ${region.name}.` : "Tap a muscle, or leave this as a general note."}
+          </p>
+          <textarea
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            rows={3}
+            className="mt-2 min-h-24 w-full rounded-xl border border-line bg-canvas px-3 py-3 text-base text-ink"
+            aria-label="What did you notice?"
+          />
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <Button
+              onClick={() => {
+                const id = addObservation(text, {
+                  date: today,
+                  time: new Date().toTimeString().slice(0, 5),
+                  ...(regionId ? { regionId } : {}),
+                });
+                if (id) setText("");
+              }}
+            >
+              Add note
+            </Button>
+            <Button tone="quiet" onClick={() => setView("review")}>
+              Review observations
+            </Button>
+          </div>
+          <ul className="mt-4 divide-y divide-line" aria-label="All notes">
+            {notes.length === 0 ? <li className="py-3 text-base text-ink-soft">Nothing logged yet.</li> : null}
+            {notes.map((note) => (
+              <li key={note.id} className="py-3">
+                <p className="text-sm font-semibold text-forest">
+                  {note.where} · {note.when}
+                </p>
+                <p className="text-base">{note.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Panel>
   );
