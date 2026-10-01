@@ -41,7 +41,7 @@ export const MUSCLES: MuscleInfo[] = [
   { id: "biceps", name: "Biceps", blurb: "Front of the upper arm. Curls, and any pulling move.", region: "Upper body", views: ["front"] },
   { id: "triceps", name: "Triceps", blurb: "Back of the upper arm. Pressdowns, extensions, presses.", region: "Upper body", views: ["back"] },
   { id: "forearms", name: "Forearms / grip", blurb: "Grip and wrist muscles. Carries and heavy pulls load them.", region: "Upper body", views: ["front", "back"] },
-  { id: "traps", name: "Upper traps", blurb: "The slope from neck to shoulder. Shrugs and carries.", region: "Upper body", views: ["back"] },
+  { id: "traps", name: "Upper traps", blurb: "The slope from neck to shoulder. Shrugs and carries.", region: "Upper body", views: ["back", "front"] },
   { id: "mid-back", name: "Mid-back / lower traps", blurb: "Between and under the shoulder blades. Rows and Y-raises.", region: "Upper body", views: ["back"] },
   { id: "lats", name: "Lats", blurb: "The wide muscle down the side of the back. Pull-ups, pulldowns.", region: "Upper body", views: ["back"] },
   { id: "rotator-cuff", name: "Rotator cuff", blurb: "Small muscles that steady the shoulder joint. External rotation work.", region: "Upper body", views: ["back"] },

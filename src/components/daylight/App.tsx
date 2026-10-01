@@ -3,29 +3,57 @@ import { useDaylight } from "@/lib/daylight/store";
 import { Body } from "./Body";
 import { Food } from "./Food";
 import { Learn } from "./Learn";
+import { Notes } from "./Notes";
 import { Overlays } from "./Overlays";
-import { Goals, History, Review } from "./Review";
+import { Settings } from "./Settings";
 import { Opening, Shell } from "./Shell";
 import { Today } from "./Today";
-import { Training } from "./Training";
+import { Train } from "./Train";
 
 export function DaylightApp() {
   const [ready, setReady] = useState(false);
   const view = useDaylight((state) => state.view);
+  const theme = useDaylight((state) => state.theme);
+
   useEffect(() => {
     void Promise.resolve(useDaylight.persist.rehydrate()).finally(() => setReady(true));
   }, []);
+
+  useEffect(() => {
+    const apply = () => {
+      const dark = theme === "dark" || (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", dark);
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0d1714" : "#f7f0e3");
+    };
+    apply();
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!ready) return;
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => undefined);
+    }
+  }, [ready]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [view]);
+
   if (!ready) return <Opening />;
   return (
     <Shell>
-      {view === "today" ? <Today /> : null}
-      {view === "training" ? <Training /> : null}
-      {view === "food" ? <Food /> : null}
-      {view === "body" ? <Body /> : null}
-      {view === "learn" ? <Learn /> : null}
-      {view === "review" ? <Review /> : null}
-      {view === "history" ? <History /> : null}
-      {view === "goals" ? <Goals /> : null}
+      <div key={view} className="animate-rise">
+        {view === "today" ? <Today /> : null}
+        {view === "training" ? <Train /> : null}
+        {view === "body" ? <Body /> : null}
+        {view === "food" ? <Food /> : null}
+        {view === "notes" ? <Notes /> : null}
+        {view === "learn" ? <Learn /> : null}
+        {view === "settings" || view === "history" || view === "goals" || view === "review" ? <Settings /> : null}
+      </div>
       <Overlays />
     </Shell>
   );

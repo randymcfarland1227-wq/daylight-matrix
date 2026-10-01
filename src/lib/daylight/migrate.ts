@@ -88,6 +88,11 @@ export function migratePersisted(input: unknown, now = localDate()): AnyRec {
   // An open session from the old build keeps its snapshot and logs; it simply shows up in the new session screen.
   if (isObj(state.drafts)) state.drafts = { ...state.drafts };
 
+  const OLD_VIEW: Record<string, string> = { review: "notes", history: "settings", goals: "settings" };
+  if (typeof state.view === "string" && OLD_VIEW[state.view]) state.view = OLD_VIEW[state.view];
+  // Old body-map settings no longer exist; drop them so they cannot confuse the new map.
+  for (const key of ["bodyLayer", "bodyWindow", "selectedRegionId", "highlightedExerciseId"]) delete state[key];
+
   state.schemaVersion = SCHEMA_VERSION;
   return state;
 }

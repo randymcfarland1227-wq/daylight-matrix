@@ -1,4 +1,4 @@
-import { exerciseById } from "./plan";
+import { exerciseById } from "./exercises";
 import type {
   FoodLog,
   InventoryItem,
@@ -234,4 +234,30 @@ export function formatSeconds(total: number): string {
   const minutes = Math.floor(safe / 60);
   const seconds = safe % 60;
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+/** Most recent done set for an exercise outside the given session. */
+export function lastSet(sessions: WorkoutSession[], exerciseId: string, excludeSessionId: string): { set: SetLog; date: string } | null {
+  for (const session of sessions.slice().reverse()) {
+    if (session.id === excludeSessionId) continue;
+    for (const slot of session.snapshot) {
+      if (chosenExerciseId(slot, session.chosenExercise) !== exerciseId) continue;
+      const done = slotLogs(session, slot.id).filter((log) => log.status === "done");
+      const last = done[done.length - 1];
+      if (last) return { set: last, date: session.localDate };
+    }
+  }
+  return null;
+}
+
+export function setSummary(log: SetLog): string {
+  const bits: string[] = [];
+  if (log.reps != null) bits.push(`${log.reps}`);
+  if (log.load != null) bits.push(`${bits.length ? "× " : ""}${log.load} ${log.loadUnit}`);
+  if (log.assistance != null) bits.push(`assist ${log.assistance}`);
+  if (log.seconds != null) bits.push(log.seconds >= 120 ? `${Math.round(log.seconds / 60)} min` : `${log.seconds}s`);
+  if (log.distance) bits.push(log.distance);
+  if (log.side === "left") bits.push("L");
+  if (log.side === "right") bits.push("R");
+  return bits.join(" · ") || "done";
 }

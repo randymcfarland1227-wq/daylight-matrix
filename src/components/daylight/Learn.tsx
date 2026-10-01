@@ -19,7 +19,7 @@ export function Learn() {
     <main className="max-w-2xl">
       <h1 className="text-4xl">Learn</h1>
       <p className="mt-2 text-base text-ink-soft">Short notes for this plan. General education stays separate from the PDF and from any clinician note.</p>
-      <Button tone="quiet" className="mt-2" onClick={() => setAll((value) => !value)}>
+      <Button tone="ghost" className="mt-2" onClick={() => setAll((value) => !value)}>
         {all ? "Show plan lessons" : "Browse all"}
       </Button>
       {open ? (

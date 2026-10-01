@@ -331,23 +331,16 @@ export type BodyMode = "plan" | "heat" | "grow";
 export type BodyLayer = "planned" | "completed" | "felt";
 
 export type Overlay =
-  | { type: "more" }
-  | { type: "log-food" }
+  | { type: "note"; exerciseId?: string; muscleId?: string; weekday?: number; forNextPlan?: boolean; kind?: "gym" | "food" | "general"; mealId?: string }
+  | { type: "log-food"; slot?: "breakfast" | "lunch" | "dinner" | "snack" }
   | { type: "log-drink" }
   | { type: "repeat-meal"; mealId: string }
-  | { type: "choose-meal" }
-  | { type: "how" }
-  | { type: "why" }
-  | { type: "session-note" }
-  | { type: "exercise-list" }
-  | { type: "change-exercise" }
-  | { type: "choose-session" }
+  | { type: "finish"; weekday: number }
+  | { type: "move"; exerciseId: string }
   | { type: "trial"; observationId: string }
   | { type: "apply"; trialId: string }
-  | { type: "finish" }
   | { type: "activity" }
   | { type: "purpose" }
-  | { type: "add-slot"; weekday: number }
   | { type: "goal" }
   | null;
 

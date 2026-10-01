@@ -153,6 +153,7 @@ type Data = {
   /** Day the session screen is showing (0-6). Not persisted across launches. */
   trainDay: number;
   openSlotId: string | null;
+  openExerciseId: string | null;
   rest: { endsAt: number; total: number } | null;
   restDefault: number;
   toast: { id: number; text: string } | null;
@@ -197,9 +198,9 @@ type Actions = {
   setUnits: (units: "lb" | "kg") => void;
   // sessions
   setTrainDay: (weekday: number) => void;
-  setOpenSlot: (id: string | null) => void;
+  setOpenSlot: (id: string | null, exerciseId?: string | null) => void;
   startSession: (weekday: number, chosen: boolean) => void;
-  finishSession: (note: string) => void;
+  finishSession: (note: string, weekday?: number) => void;
   logSet: (weekday: number, slotId: string, input: LogSetInput) => string | null;
   skipSlot: (weekday: number, slotId: string) => void;
   removeLog: (logId: string) => void;
@@ -232,6 +233,7 @@ type Actions = {
   setWaterGoal: (oz: number) => void;
   setMealProtein: (mealId: string, grams: number | null) => void;
   planMeal: (weekday: number, mealId: string) => void;
+  setMealPlanAll: (plan: Record<string, string[]>) => void;
   unplanMeal: (weekday: number, mealId: string) => void;
   addSavedMeal: (meal: { name: string; ingredientNames: string[]; proteinGrams: number | null; minutes: number | null; noCook: boolean }) => void;
   togglePin: (mealId: string) => void;
@@ -346,6 +348,7 @@ const seed = (): Data => ({
   waste: [],
   trainDay: new Date().getDay(),
   openSlotId: null,
+  openExerciseId: null,
   rest: null,
   restDefault: 90,
   toast: null,
@@ -383,7 +386,7 @@ export const useDaylight = create<Data & Actions>()(
       },
       setUnits: (units) => set(saved({ units })),
       setTrainDay: (trainDay) => set({ trainDay, openSlotId: null }),
-      setOpenSlot: (openSlotId) => set({ openSlotId }),
+      setOpenSlot: (openSlotId, openExerciseId = null) => set({ openSlotId, openExerciseId }),
       startSession: (weekday, chosen) => {
         const state = get();
         const today = localDate();
@@ -405,16 +408,18 @@ export const useDaylight = create<Data & Actions>()(
           }),
         );
       },
-      finishSession: (note) => {
+      finishSession: (note, weekday) => {
         const state = get();
-        const id = state.activeSessionId;
+        const today = localDate();
+        const byDay = weekday != null ? state.sessions.find((s) => s.localDate === today && s.weekday === weekday) : undefined;
+        const id = byDay?.id ?? state.activeSessionId;
         if (!id) return;
         set(
           saved({
             sessions: state.sessions.map((session) =>
               session.id === id ? { ...session, status: "finished", finishedAt: new Date().toISOString(), note: note.trim() || session.note } : session,
             ),
-            activeSessionId: null,
+            activeSessionId: state.activeSessionId === id ? null : state.activeSessionId,
             overlay: null,
             rest: null,
           }),
@@ -695,7 +700,7 @@ export const useDaylight = create<Data & Actions>()(
           set(
             saved({
               trials: [{ ...trial, status: "revised", historyNote: note.trim() || trial.historyNote }, revision, ...state.trials.filter((item) => item.id !== id)],
-              overlay: { type: "trial", observationId: trial.observationId },
+              overlay: { type: "trial", observationId: trial.observationId } as Overlay,
               drafts: { ...state.drafts, trialChange: trial.change, trialHelpful: trial.helpful, trialKind: trial.kind, trialDate: "" },
             }),
           );
@@ -834,6 +839,7 @@ export const useDaylight = create<Data & Actions>()(
         if (cur.includes(mealId)) return;
         set(saved({ mealPlan: { ...get().mealPlan, [key]: [...cur, mealId] } }));
       },
+      setMealPlanAll: (mealPlan) => set(saved({ mealPlan })),
       unplanMeal: (weekday, mealId) => {
         const key = String(weekday);
         set(saved({ mealPlan: { ...get().mealPlan, [key]: (get().mealPlan[key] ?? []).filter((id) => id !== mealId) } }));
@@ -1163,7 +1169,7 @@ export const useDaylight = create<Data & Actions>()(
   ),
 );
 
-const EPHEMERAL = new Set(["overlay", "undo", "toast", "rest", "openSlotId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};
