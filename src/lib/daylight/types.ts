@@ -1,3 +1,10 @@
+import type { MuscleId } from "./muscles";
+
+export type BackFlag = "friendly" | "neutral" | "caution";
+
+/** primary = 1, secondary = 0.5, minor/stabiliser = 0.25. Editorial mapping, not EMG data. */
+export type MuscleWeights = Partial<Record<MuscleId, number>>;
+
 export type ExerciseKind =
   | "strength"
   | "activation"
@@ -14,13 +21,27 @@ export type ExerciseDef = {
   kind: ExerciseKind;
   unilateral: boolean;
   usesAssistance?: boolean;
+  /** Muscle weights used for the body map and weekly-volume maths. */
+  muscles?: MuscleWeights;
+  /** How much a logged set counts toward volume. Default: 1 strength, 0.5 activation, 0 mobility/cardio. */
+  volumeFactor?: number;
+  /** Low-back friendliness flag. General characteristic of the movement (support / spinal loading), not medical advice. */
+  back?: BackFlag;
+  backNote?: string;
+  equipment?: string;
+  /** True for catalog suggestions that are not part of the PDF plan. */
+  extra?: boolean;
+  /** Randy's own words from page 2 of the PDF, verbatim. */
+  pdfNote?: string;
+  /** Dose written on the page 2 board, verbatim. */
+  page2Dose?: string;
   /** General education only. Never treated as a PDF cue or a clinical instruction. */
   eduCue?: string;
   eduSource?: string;
   eduReviewed?: string;
 };
 
-export type SlotSection = "activation" | "main" | "cardio" | "mobility" | "pt";
+export type SlotSection = "activation" | "main" | "finisher" | "cardio" | "mobility" | "pt";
 
 export type Alternative = {
   id: string;
@@ -32,6 +53,8 @@ export type Prescription = {
   exerciseId: string;
   alternatives: Alternative[];
   sets: number | null;
+  /** Upper end of a range such as 2-3 sets. `sets` stays the lower end. */
+  setsMax?: number;
   repLabel: string;
   perSide: boolean;
   optional: boolean;
@@ -52,6 +75,12 @@ export type DayTemplate = {
   whySource: string;
   reminders: string[];
   slots: Prescription[];
+  /** Day PSA, copied from the PDF. */
+  psa?: string;
+  /** Inline PSAs printed inside a section cell of the PDF. */
+  sectionPsa?: Partial<Record<SlotSection, string>>;
+  /** Text printed in a section instead of exercises, e.g. "No hard finisher". */
+  sectionNote?: Partial<Record<SlotSection, string>>;
 };
 
 export type PlanVersion = {
@@ -113,19 +142,19 @@ export type ActivityLog = {
   note: string;
 };
 
-export type ObservationTag =
-  | "Felt good"
-  | "Felt difficult"
-  | "Food took too much effort"
-  | "Remember next time";
+export type ObservationTag = string;
 
 export type ObservationContext = {
   date: string;
   time: string;
+  /** Old 24-region body map id, kept so old notes still resolve. */
   regionId?: string;
+  muscleId?: string;
   exerciseId?: string;
   mealId?: string;
   sessionId?: string;
+  /** 0-6, Sunday = 0. */
+  weekday?: number;
 };
 
 export type Observation = {
@@ -136,6 +165,9 @@ export type Observation = {
   context: ObservationContext;
   tags: ObservationTag[];
   status: "open" | "kept" | "reviewed" | "trial";
+  /** Flagged to be handed to whoever builds the next plan. */
+  forNextPlan?: boolean;
+  kind?: "gym" | "food" | "general";
 };
 
 export type TrialStatus = "active" | "ready" | "kept" | "revised" | "ended";
@@ -173,6 +205,8 @@ export type PtReference = {
   discrepancy?: string;
   provider: string;
   userNote: string;
+  /** Randy’s own words from the page 2 board. */
+  pdfNote?: string;
 };
 
 export type InventoryStatus =
@@ -192,6 +226,8 @@ export type InventoryItem = {
   storageLocation: string;
   status: InventoryStatus;
   notes: string;
+  /** Optional date (YYYY-MM-DD) to use it by. Drives the use-soon list. */
+  useBy?: string;
 };
 
 export type Recipe = {
@@ -212,6 +248,8 @@ export type SavedMeal = {
   noCook: boolean;
   ingredientNames: string[];
   pinned: boolean;
+  /** Your own protein number for one serving. Overrides the rough estimate. */
+  proteinGrams?: number | null;
 };
 
 export type PreparedPortion = {
@@ -247,6 +285,7 @@ export type FoodLog = {
   proteinIsEstimate: boolean;
   energyBefore: number | null;
   energyAfter: number | null;
+  slot?: "breakfast" | "lunch" | "dinner" | "snack";
 };
 
 export type FluidLog = {
@@ -273,30 +312,26 @@ export type Goal = {
 
 export type MuscleRole = "primary" | "secondary";
 
-export type MuscleMapping = {
-  exerciseId: string;
-  regionId: string;
-  role: MuscleRole;
-  lateral: boolean;
-  source: string;
-  status: "reviewed" | "pending";
-};
-
 export type AppView =
   | "today"
   | "training"
   | "food"
   | "body"
+  | "notes"
   | "learn"
   | "review"
   | "history"
-  | "goals";
+  | "goals"
+  | "settings";
 
-export type TrainingTab = "week" | "runner" | "pt" | "library" | "editor" | "import";
+export type TrainingTab = "session" | "week" | "moves" | "pt" | "plan";
+
+export type BodyMode = "plan" | "heat" | "grow";
 
 export type BodyLayer = "planned" | "completed" | "felt";
 
 export type Overlay =
+  | { type: "more" }
   | { type: "log-food" }
   | { type: "log-drink" }
   | { type: "repeat-meal"; mealId: string }
@@ -328,6 +363,25 @@ export const OBSERVATION_TAGS: ObservationTag[] = [
   "Food took too much effort",
   "Remember next time",
 ];
+
+/** One-tap tags for the gym note sheet. */
+export const GYM_TAGS: ObservationTag[] = [
+  "Felt good",
+  "Felt difficult",
+  "Too heavy",
+  "Too light",
+  "Go up next time",
+  "Pinch / discomfort",
+  "Swap this",
+  "Add volume",
+  "Good cue",
+  "Machine setup",
+  "Remember next time",
+];
+
+export type WasteEntry = { id: string; name: string; date: string; outcome: "used" | "tossed" };
+
+export type ThemeChoice = "auto" | "light" | "dark";
 
 export const STARTER_PURPOSE =
   "Eat with less effort. Move with more ease. Learn what works for me.";

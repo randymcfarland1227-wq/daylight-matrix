@@ -1,5 +1,3 @@
-import { MAPPINGS, regionById } from "./body";
-import { shiftDate } from "./dates";
 import { exerciseById } from "./plan";
 import type {
   FoodLog,
@@ -200,84 +198,6 @@ export function progressLabel(session: WorkoutSession): string {
   if (!slot.sets) return name;
   if (slotFinished(session, slot)) return `${name}, finished`;
   return `${name}, set ${currentSetNumber(session, slot)} of ${slot.sets}`;
-}
-
-export type CoverageCell = {
-  primary: number;
-  secondary: number;
-  exercises: string[];
-};
-
-export function coverageWindow(window: "today" | "7" | "30", today: string): { from: string; to: string } {
-  if (window === "today") return { from: today, to: today };
-  if (window === "30") return { from: shiftDate(today, -29), to: today };
-  return { from: shiftDate(today, -6), to: today };
-}
-
-function regionTargets(regionId: string, lateral: boolean, side: Side): string[] {
-  const region = regionById(regionId);
-  if (!region) return [];
-  if (!lateral || region.side === "center") return [regionId];
-  if (side === "left") return region.side === "left" ? [regionId] : [];
-  if (side === "right") return region.side === "right" ? [regionId] : [];
-  if (side === "both") return [regionId];
-  return [regionId];
-}
-
-export function strengthCoverage(
-  sessions: WorkoutSession[],
-  from: string,
-  to: string,
-): Record<string, CoverageCell> {
-  const cells: Record<string, CoverageCell> = {};
-  const ensure = (id: string) => {
-    cells[id] ??= { primary: 0, secondary: 0, exercises: [] };
-    return cells[id];
-  };
-  for (const session of sessions) {
-    if (session.localDate < from || session.localDate > to) continue;
-    for (const log of session.logs) {
-      if (log.status !== "done") continue;
-      const slot = session.snapshot.find((item) => item.id === log.prescriptionId);
-      if (!slot) continue;
-      const exerciseId = chosenExerciseId(slot, session.chosenExercise);
-      const exercise = exerciseById(exerciseId);
-      if (!exercise || exercise.kind !== "strength") continue;
-      const name = exercise.name;
-      for (const mapping of MAPPINGS.filter((item) => item.exerciseId === exerciseId && item.status === "reviewed")) {
-        for (const regionId of regionTargets(mapping.regionId, mapping.lateral, log.side)) {
-          const cell = ensure(regionId);
-          if (mapping.role === "primary") cell.primary += 1;
-          else cell.secondary += 1;
-          if (!cell.exercises.includes(name)) cell.exercises.push(name);
-        }
-      }
-    }
-  }
-  return cells;
-}
-
-export function otherActivitySummary(sessions: WorkoutSession[], from: string, to: string) {
-  const buckets: Record<"activation" | "timed" | "cardio" | "mobility" | "distance", string[]> = {
-    activation: [],
-    timed: [],
-    cardio: [],
-    mobility: [],
-    distance: [],
-  };
-  for (const session of sessions) {
-    if (session.localDate < from || session.localDate > to) continue;
-    for (const slot of session.snapshot) {
-      const exerciseId = chosenExerciseId(slot, session.chosenExercise);
-      const exercise = exerciseById(exerciseId);
-      if (!exercise || exercise.kind === "strength") continue;
-      const done = slotLogs(session, slot.id).some((log) => log.status === "done");
-      if (!done) continue;
-      const line = `${exercise.name} · ${session.localDate}`;
-      if (!buckets[exercise.kind].includes(line)) buckets[exercise.kind].push(line);
-    }
-  }
-  return buckets;
 }
 
 export function lastPerformance(

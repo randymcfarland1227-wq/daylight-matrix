@@ -139,6 +139,71 @@ export const SEED_INVENTORY: InventoryItem[] = [
   item("inv-syrup", "Syrup", "Pantry", "Cabinet", "staple"),
 ];
 
+/** Added by the overhaul. Starter ideas with no nutrition claims; edit or delete freely. Amounts stay unchecked. */
+export const SEED_STARTER_INVENTORY: InventoryItem[] = [
+  item("inv-eggs", "Eggs", "Protein", "Fridge", "weekly"),
+  item("inv-rice", "Rice", "Pantry", "Cabinet", "weekly"),
+  item("inv-greek-yogurt", "Greek yogurt", "Dairy", "Fridge", "weekly"),
+  item("inv-protein-powder", "Protein powder", "Pantry", "Cabinet", "staple"),
+  item("inv-milk", "Milk", "Dairy", "Fridge", "weekly"),
+  item("inv-oats", "Oats", "Pantry", "Cabinet", "staple"),
+  item("inv-cheese", "Block cheese", "Dairy", "Fridge", "weekly"),
+  item("inv-tuna", "Tuna pouches", "Protein", "Cabinet", "weekly"),
+];
+
+export const SEED_STARTER_MEALS: SavedMeal[] = [
+  {
+    id: "meal-starter-yogurt-bowl",
+    name: "Greek yogurt + strawberry bowl",
+    recipeId: null,
+    minutes: 3,
+    noCook: true,
+    ingredientNames: ["Greek yogurt", "Strawberries"],
+    pinned: false,
+    proteinGrams: null,
+  },
+  {
+    id: "meal-starter-egg-scramble",
+    name: "Egg scramble + cheese",
+    recipeId: null,
+    minutes: 8,
+    noCook: false,
+    ingredientNames: ["Eggs", "Block cheese", "Olive oil"],
+    pinned: false,
+    proteinGrams: null,
+  },
+  {
+    id: "meal-starter-shake",
+    name: "Protein shake + banana",
+    recipeId: null,
+    minutes: 3,
+    noCook: true,
+    ingredientNames: ["Protein powder", "Milk", "Bananas"],
+    pinned: false,
+    proteinGrams: null,
+  },
+  {
+    id: "meal-starter-chicken-rice",
+    name: "Chicken + rice + green beans",
+    recipeId: null,
+    minutes: 5,
+    noCook: false,
+    ingredientNames: ["Chicken breast", "Rice", "Green beans"],
+    pinned: false,
+    proteinGrams: null,
+  },
+  {
+    id: "meal-starter-tuna-wrap",
+    name: "Tuna wrap",
+    recipeId: null,
+    minutes: 5,
+    noCook: true,
+    ingredientNames: ["Tuna pouches", "Tortillas", "Cucumbers"],
+    pinned: false,
+    proteinGrams: null,
+  },
+];
+
 export const SEED_MEALS: SavedMeal[] = SEED_RECIPES.map((recipe) => ({
   id: `meal-${recipe.id}`,
   name: recipe.name,
@@ -147,6 +212,7 @@ export const SEED_MEALS: SavedMeal[] = SEED_RECIPES.map((recipe) => ({
   noCook: recipe.noCook,
   ingredientNames: recipe.uses,
   pinned: false,
+  proteinGrams: null,
 }));
 
 export const GROCERY_SHEET =

@@ -1,15 +1,18 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { localDate, localTime } from "./dates";
-import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, SEED_SHOPPING } from "./food-seed";
+import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, SEED_SHOPPING, SEED_STARTER_INVENTORY, SEED_STARTER_MEALS } from "./food-seed";
+import { SCHEMA_VERSION, STORAGE_KEY, BACKUP_KEY, migratePersisted } from "./migrate";
 import { newId } from "./logic";
-import { activePlan, dayTemplate, PLAN_V1 } from "./plan";
+import { activePlan, dayTemplate, seedPlan } from "./plan";
 import type {
   ActivityLog,
   AdjustmentTrial,
   AppView,
   AppliedChange,
-  BodyLayer,
+  BodyMode,
+  ThemeChoice,
+  WasteEntry,
   DrinkSize,
   FoodLog,
   Goal,
@@ -131,10 +134,28 @@ type Data = {
   view: AppView;
   trainingTab: TrainingTab;
   bodyView: "front" | "back";
-  bodyLayer: BodyLayer;
-  bodyWindow: "today" | "7" | "30";
-  selectedRegionId: string | null;
-  highlightedExerciseId: string | null;
+  bodyMode: BodyMode;
+  heatWindow: 7 | 14 | 30;
+  selectedMuscleId: string | null;
+  schemaVersion: number;
+  theme: ThemeChoice;
+  /** Fluid ounces per day. Yours to set. */
+  waterGoal: number;
+  /** Optional separate protein number for recovery days. null = use proteinGoal. */
+  proteinGoalRest: number | null;
+  /** Weekly weighted sets you would like each area to reach. Yours to set. */
+  weeklyTarget: number;
+  /** Free text appended to the plan-builder digest (constraints, equipment, goals). */
+  planContext: string;
+  /** weekday "0".."6" -> saved meal ids planned for that day. */
+  mealPlan: Record<string, string[]>;
+  waste: WasteEntry[];
+  /** Day the session screen is showing (0-6). Not persisted across launches. */
+  trainDay: number;
+  openSlotId: string | null;
+  rest: { endsAt: number; total: number } | null;
+  restDefault: number;
+  toast: { id: number; text: string } | null;
   foodSections: { inventory: boolean; recipes: boolean; shopping: boolean; prep: boolean };
   foodNoCook: boolean;
   showAllMeals: boolean;
@@ -150,6 +171,23 @@ type Data = {
   allowExtraTrial: boolean;
 };
 
+type NoteInput = {
+  text: string;
+  tags?: ObservationTag[];
+  forNextPlan?: boolean;
+  kind?: Observation["kind"];
+  context?: Partial<ObservationContext>;
+};
+
+type LogSetInput = {
+  reps?: number | null;
+  load?: number | null;
+  assist?: number | null;
+  seconds?: number | null;
+  distance?: string | null;
+  side?: Side;
+};
+
 type Actions = {
   setView: (view: AppView) => void;
   setTrainingTab: (tab: TrainingTab) => void;
@@ -157,17 +195,27 @@ type Actions = {
   patchDraft: (patch: Partial<Drafts>) => void;
   adoptPurpose: (text: string) => void;
   setUnits: (units: "lb" | "kg") => void;
+  // sessions
+  setTrainDay: (weekday: number) => void;
+  setOpenSlot: (id: string | null) => void;
   startSession: (weekday: number, chosen: boolean) => void;
   finishSession: (note: string) => void;
-  setFocusSlot: (index: number) => void;
-  nextExercise: () => void;
-  markSetDone: () => void;
-  skipExercise: () => void;
+  logSet: (weekday: number, slotId: string, input: LogSetInput) => string | null;
+  skipSlot: (weekday: number, slotId: string) => void;
+  removeLog: (logId: string) => void;
   undoLast: () => void;
-  chooseVariant: (prescriptionId: string, exerciseId: string, savePlan: boolean) => void;
-  startTimer: () => void;
-  stopTimer: () => number | null;
+  chooseVariant: (weekday: number, prescriptionId: string, exerciseId: string) => void;
+  startRest: (seconds?: number) => void;
+  clearRest: () => void;
+  setRestDefault: (seconds: number) => void;
+  showToast: (text: string) => void;
+  // notes
   addObservation: (text: string, context: ObservationContext, tags?: ObservationTag[]) => string | null;
+  addNote: (input: NoteInput) => string | null;
+  updateNote: (id: string, patch: Partial<Pick<Observation, "text" | "tags" | "forNextPlan" | "kind">> & { context?: Partial<ObservationContext> }) => void;
+  deleteNote: (id: string) => void;
+  importNotesJson: (raw: string) => string;
+  exportNotesJson: () => string;
   updateObservation: (id: string, text: string, tags?: ObservationTag[]) => void;
   setObservationStatus: (id: string, status: Observation["status"]) => void;
   createTrial: (observationId: string) => string | null;
@@ -175,28 +223,45 @@ type Actions = {
   applyPrepChange: () => string | null;
   linkPlanVersionToTrial: (trialId: string, beforeName: string, afterName: string, versionId: string) => void;
   revertChange: (id: string) => void;
-  logFood: (input: { food: string; mealId: string | null; protein: number | null; estimate: boolean; preparedId?: string | null }) => void;
+  // food
+  logFood: (input: { food: string; mealId: string | null; protein: number | null; estimate: boolean; preparedId?: string | null; slot?: FoodLog["slot"] }) => void;
   logDrink: () => void;
+  addWater: (oz: number) => void;
   setProteinGoal: (goal: number) => void;
+  setProteinGoalRest: (goal: number | null) => void;
+  setWaterGoal: (oz: number) => void;
+  setMealProtein: (mealId: string, grams: number | null) => void;
+  planMeal: (weekday: number, mealId: string) => void;
+  unplanMeal: (weekday: number, mealId: string) => void;
+  addSavedMeal: (meal: { name: string; ingredientNames: string[]; proteinGrams: number | null; minutes: number | null; noCook: boolean }) => void;
   togglePin: (mealId: string) => void;
   updateInventory: (id: string, patch: Partial<InventoryItem>) => void;
   addInventory: (name: string) => void;
+  resolveUseSoon: (id: string, outcome: "used" | "tossed") => void;
   addShopping: (name: string, quantity: string, source: string) => void;
+  removeShopping: (id: string) => void;
   toggleShopping: (id: string) => void;
   addShoppingToInventory: (id: string) => void;
   addMissingToShopping: (names: string[]) => number;
   setPrepStatus: (id: string, status: "planned" | "done") => void;
+  addPrepTask: (title: string, detail: string) => void;
   addPreparedFromPrep: (id: string) => void;
   logActivity: () => void;
+  // plan editing
   ensureDraft: () => void;
   moveSlot: (weekday: number, index: number, direction: -1 | 1) => void;
   removeSlot: (weekday: number, index: number) => void;
   addSlot: (weekday: number) => void;
+  addExerciseToDraft: (weekday: number, exerciseId: string, sets: number, reps: string) => void;
   savePlanVersion: (trialId?: string | null) => void;
   discardDraft: () => void;
   addGoal: () => void;
   setPtNote: (id: string, note: string) => void;
-  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyLayer" | "bodyWindow" | "selectedRegionId" | "highlightedExerciseId">>) => void;
+  // body / ui
+  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId">>) => void;
+  setTheme: (theme: ThemeChoice) => void;
+  setWeeklyTarget: (n: number) => void;
+  setPlanContext: (text: string) => void;
   toggleFoodSection: (key: keyof Data["foodSections"]) => void;
   setFoodNoCook: (value: boolean) => void;
   setShowAllMeals: (value: boolean) => void;
@@ -245,7 +310,7 @@ const seed = (): Data => ({
   purposeIsProposal: true,
   units: "lb",
   drinkSizes: [],
-  planVersions: [PLAN_V1],
+  planVersions: [seedPlan()],
   planDraft: null,
   sessions: [],
   activeSessionId: null,
@@ -255,22 +320,35 @@ const seed = (): Data => ({
   appliedChanges: [],
   goals: [],
   ptNotes: {},
-  inventory: SEED_INVENTORY,
+  inventory: [...SEED_INVENTORY, ...SEED_STARTER_INVENTORY],
   recipes: SEED_RECIPES,
   shopping: SEED_SHOPPING,
   prep: SEED_PREP,
-  savedMeals: SEED_MEALS,
+  savedMeals: [...SEED_MEALS, ...SEED_STARTER_MEALS],
   prepared: [],
   foodLogs: [],
   fluidLogs: [],
   proteinGoal: 130,
   view: "today",
-  trainingTab: "week",
+  trainingTab: "session",
   bodyView: "front",
-  bodyLayer: "planned",
-  bodyWindow: "7",
-  selectedRegionId: null,
-  highlightedExerciseId: null,
+  bodyMode: "plan",
+  heatWindow: 14,
+  selectedMuscleId: null,
+  schemaVersion: SCHEMA_VERSION,
+  theme: "auto",
+  waterGoal: 96,
+  proteinGoalRest: null,
+  weeklyTarget: 10,
+  planContext:
+    "Low-back sensitivity and pelvic tilt: PT activation comes first each day; prefer back-friendly options. Gym with cables, machines, dumbbells, barbell and a landmine.",
+  mealPlan: {},
+  waste: [],
+  trainDay: new Date().getDay(),
+  openSlotId: null,
+  rest: null,
+  restDefault: 90,
+  toast: null,
   foodSections: { inventory: false, recipes: false, shopping: false, prep: false },
   foodNoCook: false,
   showAllMeals: false,
@@ -304,128 +382,122 @@ export const useDaylight = create<Data & Actions>()(
         set(saved({ purpose, purposeIsProposal: false, overlay: null }));
       },
       setUnits: (units) => set(saved({ units })),
+      setTrainDay: (trainDay) => set({ trainDay, openSlotId: null }),
+      setOpenSlot: (openSlotId) => set({ openSlotId }),
       startSession: (weekday, chosen) => {
         const state = get();
-        if (state.activeSessionId) return;
-        const plan = activePlan(state.planVersions, localDate());
+        const today = localDate();
+        const existing = state.sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        if (existing) {
+          set(saved({ activeSessionId: existing.status === "active" ? existing.id : state.activeSessionId, view: "training", trainingTab: "session", trainDay: weekday, overlay: null }));
+          return;
+        }
+        const plan = activePlan(state.planVersions, today);
         const session = sessionFromDay(plan, weekday, chosen);
-        const day = dayTemplate(plan, weekday);
-        if (!day.scheduled && !chosen) return;
         set(
           saved({
             sessions: [...state.sessions, session],
-            activeSessionId: session.id,
+            activeSessionId: state.activeSessionId ?? session.id,
             view: "training",
-            trainingTab: "runner",
+            trainingTab: "session",
+            trainDay: weekday,
             overlay: null,
-            drafts: { ...state.drafts, side: day.slots[0]?.perSide ? "both" : "na", reps: "", load: "", assist: "", seconds: "", distance: "" },
           }),
         );
       },
       finishSession: (note) => {
         const state = get();
-        if (!state.activeSessionId) return;
+        const id = state.activeSessionId;
+        if (!id) return;
         set(
           saved({
             sessions: state.sessions.map((session) =>
-              session.id === state.activeSessionId
-                ? { ...session, status: "finished", finishedAt: new Date().toISOString(), note: note.trim() || session.note }
-                : session,
+              session.id === id ? { ...session, status: "finished", finishedAt: new Date().toISOString(), note: note.trim() || session.note } : session,
             ),
             activeSessionId: null,
             overlay: null,
-            trainingTab: "week",
-            timerStartedAt: null,
+            rest: null,
           }),
         );
       },
-      setFocusSlot: (index) => {
-        const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
-        if (!session) return;
-        const slot = session.snapshot[index];
-        set({
-          sessions: state.sessions.map((item) => (item.id === session.id ? { ...item, focusSlot: index } : item)),
-          timerSlotId: null,
-          timerStartedAt: null,
-          timerAccumulated: 0,
-          drafts: {
-            ...state.drafts,
-            reps: "",
-            load: "",
-            assist: "",
-            seconds: "",
-            distance: "",
-            side: slot?.perSide ? "both" : "na",
-          },
-        });
-      },
-      nextExercise: () => {
-        const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
-        if (!session) return;
-        const next = Math.min(session.focusSlot + 1, Math.max(session.snapshot.length - 1, 0));
-        get().setFocusSlot(next);
-      },
-      markSetDone: () => {
-        const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
-        if (!session || session.status !== "active") return;
-        const slot = session.snapshot[session.focusSlot];
-        if (!slot) return;
-        const setIndex = slot.sets ? doneCount(session, slot.id) : 0;
-        if (slot.sets && setIndex >= slot.sets) return;
+      logSet: (weekday, slotId, input) => {
+        let state = get();
+        const today = localDate();
+        let session = state.sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        if (!session) {
+          get().startSession(weekday, weekday !== new Date().getDay());
+          state = get();
+          session = state.sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        }
+        if (!session) return null;
+        const slot = session.snapshot.find((item) => item.id === slotId);
+        if (!slot) return null;
+        const side: Side = slot.perSide ? (input.side ?? "both") : "na";
+        const done = session.logs.filter((l) => l.prescriptionId === slotId && l.status === "done");
+        let setIndex = new Set(done.map((l) => l.setIndex)).size;
+        if (slot.perSide && (side === "left" || side === "right")) {
+          const taken = (idx: number) => done.some((l) => l.setIndex === idx && (l.side === side || l.side === "both"));
+          let idx = 0;
+          while (taken(idx)) idx += 1;
+          setIndex = idx;
+        }
         const log: SetLog = {
           id: newId(),
-          prescriptionId: slot.id,
-          setIndex: slot.sets ? setIndex : 0,
-          side: slot.perSide ? state.drafts.side : "na",
+          prescriptionId: slotId,
+          setIndex,
+          side,
           status: "done",
-          reps: numOrNull(state.drafts.reps),
-          load: numOrNull(state.drafts.load),
+          reps: input.reps ?? null,
+          load: input.load ?? null,
           loadUnit: state.units,
-          assistance: numOrNull(state.drafts.assist),
+          assistance: input.assist ?? null,
           assistanceUnit: state.units,
-          seconds: numOrNull(state.drafts.seconds),
-          distance: state.drafts.distance.trim() || null,
+          seconds: input.seconds ?? null,
+          distance: input.distance?.trim() || null,
           at: new Date().toISOString(),
         };
-        const undo: UndoRecord = { kind: "set", sessionId: session.id, logs: session.logs, focusSlot: session.focusSlot, label: "Set marked done" };
+        const reopened = session.status === "finished";
+        const sid = session.id;
         set(
           saved({
-            undo,
-            sessions: state.sessions.map((item) => (item.id === session.id ? { ...item, logs: [...item.logs, log] } : item)),
-            drafts: { ...state.drafts, reps: "", load: "", assist: "", seconds: "", distance: "" },
+            sessions: state.sessions.map((item) =>
+              item.id === sid ? { ...item, logs: [...item.logs, log], status: "active", finishedAt: reopened ? null : item.finishedAt } : item,
+            ),
+            activeSessionId: state.activeSessionId && state.activeSessionId !== sid && !reopened ? state.activeSessionId : sid,
+            undo: { kind: "set", sessionId: sid, logs: session.logs, focusSlot: session.focusSlot, label: "Set logged" },
           }),
         );
+        return log.id;
       },
-      skipExercise: () => {
+      skipSlot: (weekday, slotId) => {
         const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
+        const today = localDate();
+        let session = state.sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        if (!session) {
+          get().startSession(weekday, weekday !== new Date().getDay());
+          session = get().sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        }
         if (!session) return;
-        const slot = session.snapshot[session.focusSlot];
-        if (!slot) return;
+        const sid = session.id;
         const log: SetLog = {
           id: newId(),
-          prescriptionId: slot.id,
+          prescriptionId: slotId,
           setIndex: -1,
           side: "na",
           status: "skipped",
           reps: null,
           load: null,
-          loadUnit: state.units,
+          loadUnit: get().units,
           assistance: null,
-          assistanceUnit: state.units,
+          assistanceUnit: get().units,
           seconds: null,
           distance: null,
           at: new Date().toISOString(),
         };
-        set(
-          saved({
-            undo: { kind: "set", sessionId: session.id, logs: session.logs, focusSlot: session.focusSlot, label: "Exercise skipped" },
-            sessions: state.sessions.map((item) => (item.id === session.id ? { ...item, logs: [...item.logs, log] } : item)),
-          }),
-        );
+        set(saved({ sessions: get().sessions.map((item) => (item.id === sid ? { ...item, logs: [...item.logs, log] } : item)) }));
+      },
+      removeLog: (logId) => {
+        set(saved({ sessions: get().sessions.map((s) => (s.logs.some((l) => l.id === logId) ? { ...s, logs: s.logs.filter((l) => l.id !== logId) } : s)) }));
       },
       undoLast: () => {
         const state = get();
@@ -446,48 +518,35 @@ export const useDaylight = create<Data & Actions>()(
           set(saved({ undo: null, fluidLogs: state.fluidLogs.filter((log) => log.id !== undo.id) }));
         }
       },
-      chooseVariant: (prescriptionId, exerciseId, savePlan) => {
-        const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
+      chooseVariant: (weekday, prescriptionId, exerciseId) => {
+        const today = localDate();
+        let session = get().sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        if (!session) {
+          get().startSession(weekday, weekday !== new Date().getDay());
+          session = get().sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        }
         if (!session) return;
+        const sid = session.id;
         set(
           saved({
-            sessions: state.sessions.map((item) =>
-              item.id === session.id ? { ...item, chosenExercise: { ...item.chosenExercise, [prescriptionId]: exerciseId } } : item,
+            sessions: get().sessions.map((item) =>
+              item.id === sid ? { ...item, chosenExercise: { ...item.chosenExercise, [prescriptionId]: exerciseId } } : item,
             ),
-            overlay: null,
           }),
         );
-        if (!savePlan) return;
-        get().ensureDraft();
-        const draft = get().planDraft;
-        if (!draft) return;
-        const next = clonePlan(draft);
-        for (const day of next.days) {
-          day.slots = day.slots.map((slot) => (slot.id === prescriptionId ? { ...slot, exerciseId } : slot));
-        }
-        set({ planDraft: next });
       },
-      startTimer: () => {
-        const state = get();
-        const session = state.sessions.find((item) => item.id === state.activeSessionId);
-        const slot = session?.snapshot[session.focusSlot];
-        if (!slot) return;
-        if (state.timerStartedAt && state.timerSlotId === slot.id) return;
-        set({ timerSlotId: slot.id, timerStartedAt: new Date().toISOString(), timerAccumulated: state.timerSlotId === slot.id ? state.timerAccumulated : 0 });
+      startRest: (seconds) => {
+        const total = seconds ?? get().restDefault;
+        set({ rest: { endsAt: Date.now() + total * 1000, total } });
       },
-      stopTimer: () => {
-        const state = get();
-        if (!state.timerStartedAt) return null;
-        const extra = Date.now() - new Date(state.timerStartedAt).getTime();
-        const total = state.timerAccumulated + Math.max(0, extra);
-        const seconds = Math.round(total / 1000);
-        set({
-          timerStartedAt: null,
-          timerAccumulated: total,
-          drafts: { ...state.drafts, seconds: String(seconds) },
-        });
-        return seconds;
+      clearRest: () => set({ rest: null }),
+      setRestDefault: (restDefault) => set(saved({ restDefault })),
+      showToast: (text) => {
+        const id = Date.now();
+        set({ toast: { id, text } });
+        setTimeout(() => {
+          if (get().toast?.id === id) set({ toast: null });
+        }, 2600);
       },
       addObservation: (text, context, tags = []) => {
         const trimmed = text.trim();
@@ -504,6 +563,61 @@ export const useDaylight = create<Data & Actions>()(
         };
         set(saved({ observations: [observation, ...get().observations] }));
         return observation.id;
+      },
+      addNote: (input) => {
+        const text = input.text.trim();
+        const tags = input.tags ?? [];
+        if (!text && tags.length === 0) return null;
+        const now = new Date();
+        const ctx = input.context ?? {};
+        const observation: Observation = {
+          id: newId(),
+          text: text || tags.join(", "),
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+          context: { ...ctx, date: ctx.date ?? localDate(now), time: ctx.time ?? localTime(now), weekday: ctx.weekday ?? now.getDay() },
+          tags,
+          status: "open",
+          forNextPlan: Boolean(input.forNextPlan),
+          kind: input.kind ?? (ctx.mealId ? "food" : "gym"),
+        };
+        set(saved({ observations: [observation, ...get().observations] }));
+        return observation.id;
+      },
+      updateNote: (id, patch) => {
+        set(
+          saved({
+            observations: get().observations.map((o) =>
+              o.id === id
+                ? {
+                    ...o,
+                    ...("text" in patch && patch.text !== undefined ? { text: patch.text } : {}),
+                    ...("tags" in patch && patch.tags !== undefined ? { tags: patch.tags } : {}),
+                    ...("forNextPlan" in patch ? { forNextPlan: patch.forNextPlan } : {}),
+                    ...("kind" in patch && patch.kind ? { kind: patch.kind } : {}),
+                    context: { ...o.context, ...(patch.context ?? {}) },
+                    updatedAt: new Date().toISOString(),
+                  }
+                : o,
+            ),
+          }),
+        );
+      },
+      deleteNote: (id) => set(saved({ observations: get().observations.filter((o) => o.id !== id) })),
+      exportNotesJson: () => JSON.stringify({ daylightNotes: 1, exportedAt: new Date().toISOString(), observations: get().observations }, null, 2),
+      importNotesJson: (raw) => {
+        try {
+          const parsed = JSON.parse(raw) as { daylightNotes?: number; observations?: Observation[]; data?: { observations?: Observation[] } };
+          const incoming = parsed.observations ?? parsed.data?.observations;
+          if (!Array.isArray(incoming)) return "That file has no notes in it.";
+          const have = new Set(get().observations.map((o) => o.id));
+          const fresh = incoming.filter((o) => o && typeof o.id === "string" && typeof o.text === "string" && !have.has(o.id));
+          const normalised = migratePersisted({ observations: fresh, planVersions: [{ id: "x", version: 1, days: [] }] }).observations as Observation[];
+          set(saved({ observations: [...get().observations, ...normalised].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) }));
+          return `Added ${fresh.length} note${fresh.length === 1 ? "" : "s"}. ${incoming.length - fresh.length} were already here.`;
+        } catch {
+          return "Couldn’t read that file. Your notes are untouched.";
+        }
       },
       updateObservation: (id, text, tags) => {
         const trimmed = text.trim();
@@ -651,7 +765,7 @@ export const useDaylight = create<Data & Actions>()(
           );
         }
       },
-      logFood: ({ food, mealId, protein, estimate, preparedId }) => {
+      logFood: ({ food, mealId, protein, estimate, preparedId, slot }) => {
         const trimmed = food.trim();
         if (!trimmed) return;
         const entry: FoodLog = {
@@ -664,6 +778,7 @@ export const useDaylight = create<Data & Actions>()(
           proteinIsEstimate: estimate && protein != null,
           energyBefore: null,
           energyAfter: null,
+          slot,
         };
         const state = get();
         set(
@@ -703,7 +818,79 @@ export const useDaylight = create<Data & Actions>()(
           }),
         );
       },
+      addWater: (oz) => {
+        if (!(oz > 0)) return;
+        const entry = { id: newId(), localDate: localDate(), time: localTime(), beverage: "Water", amountOz: oz, sizeId: null };
+        set(saved({ fluidLogs: [...get().fluidLogs, entry], undo: { kind: "fluid", id: entry.id, label: `${oz} oz water logged` } }));
+      },
       setProteinGoal: (proteinGoal) => set(saved({ proteinGoal })),
+      setProteinGoalRest: (proteinGoalRest) => set(saved({ proteinGoalRest })),
+      setWaterGoal: (waterGoal) => set(saved({ waterGoal })),
+      setMealProtein: (mealId, grams) =>
+        set(saved({ savedMeals: get().savedMeals.map((m) => (m.id === mealId ? { ...m, proteinGrams: grams } : m)) })),
+      planMeal: (weekday, mealId) => {
+        const key = String(weekday);
+        const cur = get().mealPlan[key] ?? [];
+        if (cur.includes(mealId)) return;
+        set(saved({ mealPlan: { ...get().mealPlan, [key]: [...cur, mealId] } }));
+      },
+      unplanMeal: (weekday, mealId) => {
+        const key = String(weekday);
+        set(saved({ mealPlan: { ...get().mealPlan, [key]: (get().mealPlan[key] ?? []).filter((id) => id !== mealId) } }));
+      },
+      addSavedMeal: (meal) => {
+        const name = meal.name.trim();
+        if (!name) return;
+        set(
+          saved({
+            savedMeals: [
+              ...get().savedMeals,
+              { id: newId(), name, recipeId: null, minutes: meal.minutes, noCook: meal.noCook, ingredientNames: meal.ingredientNames, pinned: false, proteinGrams: meal.proteinGrams },
+            ],
+          }),
+        );
+      },
+      resolveUseSoon: (id, outcome) => {
+        const state = get();
+        const item = state.inventory.find((i) => i.id === id);
+        if (!item) return;
+        set(
+          saved({
+            waste: [...state.waste, { id: newId(), name: item.name, date: localDate(), outcome }],
+            inventory: state.inventory.map((i) => (i.id === id ? { ...i, status: outcome === "used" ? "fine" : "out", useBy: undefined } : i)),
+            shopping: outcome === "tossed" ? state.shopping : state.shopping,
+          }),
+        );
+      },
+      removeShopping: (id) => set(saved({ shopping: get().shopping.filter((i) => i.id !== id) })),
+      addPrepTask: (title, detail) => {
+        const t = title.trim();
+        if (!t) return;
+        set(saved({ prep: [...get().prep, { id: newId(), title: t, detail, status: "planned" }] }));
+      },
+      addExerciseToDraft: (weekday, exerciseId, sets, reps) => {
+        get().ensureDraft();
+        const draft = get().planDraft;
+        if (!draft) return;
+        const next = clonePlan(draft);
+        const day = next.days.find((item) => item.weekday === weekday);
+        if (!day) return;
+        day.scheduled = true;
+        day.slots.push({
+          id: newId(),
+          exerciseId,
+          alternatives: [],
+          sets,
+          repLabel: reps,
+          perSide: false,
+          optional: false,
+          section: "main",
+          sourceCue: null,
+          why: "Added by you from the library.",
+          whySource: "Your plan edit.",
+        });
+        set(saved({ planDraft: next }));
+      },
       togglePin: (mealId) => {
         const meals = get().savedMeals.map((meal) => (meal.id === mealId ? { ...meal, pinned: !meal.pinned } : meal));
         const pinned = meals.filter((meal) => meal.pinned);
@@ -925,6 +1112,9 @@ export const useDaylight = create<Data & Actions>()(
       },
       setPtNote: (id, note) => set(saved({ ptNotes: { ...get().ptNotes, [id]: note } })),
       setBody: (patch) => set(patch),
+      setTheme: (theme) => set(saved({ theme })),
+      setWeeklyTarget: (weeklyTarget) => set(saved({ weeklyTarget })),
+      setPlanContext: (planContext) => set(saved({ planContext })),
       toggleFoodSection: (key) => set({ foodSections: { ...get().foodSections, [key]: !get().foodSections[key] } }),
       setFoodNoCook: (foodNoCook) => set({ foodNoCook }),
       setShowAllMeals: (showAllMeals) => set({ showAllMeals }),
@@ -932,60 +1122,19 @@ export const useDaylight = create<Data & Actions>()(
       setEditorWeekday: (editorWeekday) => set({ editorWeekday }),
       setAllowExtraTrial: (allowExtraTrial) => set({ allowExtraTrial }),
       exportJson: () => {
-        const state = get();
-        const data: Data = {
-          purpose: state.purpose,
-          purposeIsProposal: state.purposeIsProposal,
-          units: state.units,
-          drinkSizes: state.drinkSizes,
-          planVersions: state.planVersions,
-          planDraft: state.planDraft,
-          sessions: state.sessions,
-          activeSessionId: state.activeSessionId,
-          activities: state.activities,
-          observations: state.observations,
-          trials: state.trials,
-          appliedChanges: state.appliedChanges,
-          goals: state.goals,
-          ptNotes: state.ptNotes,
-          inventory: state.inventory,
-          recipes: state.recipes,
-          shopping: state.shopping,
-          prep: state.prep,
-          savedMeals: state.savedMeals,
-          prepared: state.prepared,
-          foodLogs: state.foodLogs,
-          fluidLogs: state.fluidLogs,
-          proteinGoal: state.proteinGoal,
-          view: state.view,
-          trainingTab: state.trainingTab,
-          bodyView: state.bodyView,
-          bodyLayer: state.bodyLayer,
-          bodyWindow: state.bodyWindow,
-          selectedRegionId: state.selectedRegionId,
-          highlightedExerciseId: state.highlightedExerciseId,
-          foodSections: state.foodSections,
-          foodNoCook: state.foodNoCook,
-          showAllMeals: state.showAllMeals,
-          overlay: null,
-          drafts: state.drafts,
-          timerSlotId: state.timerSlotId,
-          timerStartedAt: state.timerStartedAt,
-          timerAccumulated: state.timerAccumulated,
-          undo: null,
-          saveStatus: state.saveStatus,
-          openLessonId: state.openLessonId,
-          editorWeekday: state.editorWeekday,
-          allowExtraTrial: state.allowExtraTrial,
-        };
-        return JSON.stringify({ daylight: 1, customNames: loadCustomNames(), data }, null, 2);
+        const data = persistable(get());
+        return JSON.stringify({ daylight: SCHEMA_VERSION, exportedAt: new Date().toISOString(), customNames: loadCustomNames(), data }, null, 2);
       },
       importJson: (raw) => {
         try {
-          const parsed = JSON.parse(raw) as { daylight?: number; customNames?: Record<string, string>; data?: Data };
-          if (parsed.daylight !== 1 || !parsed.data?.planVersions?.length) return "That file is not a Daylight backup.";
+          const parsed = JSON.parse(raw) as { daylight?: number; customNames?: Record<string, string>; data?: Record<string, unknown> };
+          if (!parsed.daylight || !parsed.data || !Array.isArray(parsed.data.planVersions) || !parsed.data.planVersions.length) {
+            return "That file is not a Daylight backup.";
+          }
+          // Old (daylight: 1) backups have no schemaVersion, so they run through the same migration as old localStorage.
+          const data = migratePersisted(parsed.daylight >= 2 ? { schemaVersion: SCHEMA_VERSION, ...parsed.data } : parsed.data);
           if (parsed.customNames) saveCustomNames(parsed.customNames);
-          set(saved({ ...parsed.data, overlay: null, undo: null }));
+          set(saved({ ...(data as Partial<Data>), overlay: null, undo: null, rest: null }));
           return "Backup restored on this device.";
         } catch {
           return "Couldn’t read that file. Your current records are still here.";
@@ -993,71 +1142,37 @@ export const useDaylight = create<Data & Actions>()(
       },
     }),
     {
-      name: "daylight-matrix-v1",
+      name: STORAGE_KEY,
+      version: SCHEMA_VERSION,
       skipHydration: true,
-      partialize: (state) => {
-        const {
-          setView: _a,
-          setTrainingTab: _b,
-          setOverlay: _c,
-          patchDraft: _d,
-          adoptPurpose: _e,
-          setUnits: _f,
-          startSession: _g,
-          finishSession: _h,
-          setFocusSlot: _i,
-          nextExercise: _j,
-          markSetDone: _k,
-          skipExercise: _l,
-          undoLast: _m,
-          chooseVariant: _n,
-          startTimer: _o,
-          stopTimer: _p,
-          addObservation: _q,
-          updateObservation: _r,
-          setObservationStatus: _s,
-          createTrial: _t,
-          resolveTrial: _u,
-          applyPrepChange: _v,
-          linkPlanVersionToTrial: _w,
-          revertChange: _x,
-          logFood: _y,
-          logDrink: _z,
-          setProteinGoal: _aa,
-          togglePin: _ab,
-          updateInventory: _ac,
-          addInventory: _ad,
-          addShopping: _ae,
-          toggleShopping: _af,
-          addShoppingToInventory: _ag,
-          addMissingToShopping: _ah,
-          setPrepStatus: _ai,
-          addPreparedFromPrep: _aj,
-          logActivity: _ak,
-          ensureDraft: _al,
-          moveSlot: _am,
-          removeSlot: _an,
-          addSlot: _ao,
-          savePlanVersion: _ap,
-          discardDraft: _aq,
-          addGoal: _ar,
-          setPtNote: _as,
-          setBody: _at,
-          toggleFoodSection: _au,
-          setFoodNoCook: _av,
-          setShowAllMeals: _aw,
-          setOpenLesson: _ax,
-          setEditorWeekday: _ay,
-          setAllowExtraTrial: _az,
-          exportJson: _ba,
-          importJson: _bb,
-          ...data
-        } = state;
-        return data;
+      storage: createJSONStorage(() => localStorage),
+      migrate: (persisted) => {
+        // A one-time copy of whatever the old build had stored, in case anything ever needs recovering.
+        try {
+          if (!localStorage.getItem(BACKUP_KEY)) {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) localStorage.setItem(BACKUP_KEY, raw);
+          }
+        } catch {
+          /* storage full or blocked: the migration itself does not depend on it */
+        }
+        return migratePersisted(persisted) as unknown as Data & Actions;
       },
+      partialize: (state) => persistable(state) as unknown as Data & Actions,
     },
   ),
 );
+
+const EPHEMERAL = new Set(["overlay", "undo", "toast", "rest", "openSlotId", "trainDay", "saveStatus"]);
+
+function persistable(state: Data & Actions): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(state)) {
+    if (typeof value === "function" || EPHEMERAL.has(key)) continue;
+    out[key] = value;
+  }
+  return out;
+}
 
 function doneCount(session: WorkoutSession, prescriptionId: string): number {
   return new Set(session.logs.filter((log) => log.prescriptionId === prescriptionId && log.status === "done").map((log) => log.setIndex)).size;
