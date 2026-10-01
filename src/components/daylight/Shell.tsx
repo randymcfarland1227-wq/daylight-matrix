@@ -17,10 +17,10 @@ const ITEMS: { id: AppView; label: string; icon: typeof SunMedium }[] = [
 export function Logo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#173a30" />
-      <circle cx="16" cy="19" r="7.2" fill="#f0a032" />
-      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#2d6753" />
-      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#f0a032" strokeWidth="1.7" strokeLinecap="round" />
+      <rect width="32" height="32" rx="9" fill="#201c17" />
+      <circle cx="16" cy="19" r="7.2" fill="#cf9c55" />
+      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#4a3f31" />
+      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#cf9c55" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
@@ -94,7 +94,7 @@ export function Shell({ children }: { children: ReactNode }) {
         type="button"
         onClick={quickNote}
         aria-label="Quick note"
-        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-sun text-on-sun shadow-[0_10px_30px_-8px_rgba(196,96,43,.7)] md:hidden"
+        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-sun text-on-sun shadow-[0_10px_30px_-8px_rgba(0,0,0,.5)] md:hidden"
       >
         <PenLine className="size-6" strokeWidth={2.2} />
       </button>

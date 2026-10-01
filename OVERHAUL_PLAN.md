@@ -82,3 +82,30 @@ Rollback: `git revert HEAD && git push` in the live repo restores the old static
 Screenshots: `docs/screenshots/` (also in `/workspace/daylight-shots/`).
 
 Note: the first load after publishing may be served by the browser cache; the new service worker is network-first for HTML so a refresh picks up the new build.
+
+---
+
+# Round 2 (branch `round2`, from `overhaul` @ 67219af)
+
+## What changed
+1. **Form guidance.** `src/lib/daylight/form.ts` holds a structured guide for all 97 catalog moves: numbered steps, base/stance, brace, grip, range of motion, tempo, what you should feel, common mistakes, a back-friendly note, and a `clarify` note where the PDF page 2 is ambiguous. The PDF's own cue stays visible as "Your plan cue · from your PDF". Everything else is badged "General education, not from the PDF".
+2. **Body map.** One shared silhouette (identical head and ears front and back). The main map has 10 group regions. Tapping one opens a sheet (with Full screen) showing its sub-parts (38 in total), the plan moves hitting each, weekly sets (plan / direct / logged), heat status and "grow" ideas. Heat works at both levels. Weights in `exercises.ts` are at sub-part level; the sub-part target is 60% of the group target.
+3. **Reference material.** `moveArt.ts` / `moveArtEngine.ts` draw START and END stick-figure frames for every move (about 70 distinct patterns). There is a "Watch demo" link (a YouTube search for the move name; no specific video URLs are invented). Reachable from the session card, gym mode, the Moves tab, the PT board and the body-map detail.
+4. **Train and gym mode.** PSA is now at the top of the session. Gym mode is a full-screen one-move-at-a-time flow with a one-tap "Done N sets as prescribed", a whole-block PT/activation button, flow mode, a guided timer, a rest strip, adjust steppers, Swap move, and "I did something else" on any slot. The Train overview is unchanged apart from a Start button and an "Off-plan & swaps" list. Gym mode is the default entry for today (Settings toggle turns this off). Off-plan work is counted on the heat map (chosen muscles, a whole group, or inferred from a matched catalog move) and appears in the notes digest.
+5. **Visual.** Warm charcoal/bone with a muted amber accent, dark by default plus a light variant. Weekday colours are muted and varied. No saturated green anywhere (logo, icons, manifest included).
+
+## Migration
+- `SCHEMA_VERSION = 3`. A copy of the stored blob is written to `daylight-matrix-v1.pre-v3-backup` before migrating (the v2 backup key is untouched).
+- Theme `auto` or unset becomes `dark`; an explicit `light` is kept. Each session gets `extras: []`.
+- Stored muscle ids (old 24 region ids and flat v2 ids) are never rewritten. `resolveMuscle` maps them to a group or sub-part at read time.
+- Tested against the v1 fixture, a v2 build of `overhaul` @ 67219af and unit tests in `src/lib/__tests__/round2.test.ts`.
+
+## Publish steps (NOT executed)
+1. `npm run build:pages`
+2. rsync `dist/client/` into a clone of `randymcfarland1227-wq.github.io`, keeping `.nojekyll`
+3. commit and push `main`
+
+A staged build is at `/workspace/daylight-overhaul-dist-r2`.
+
+## Guidance I was unsure about
+Battle Rope Squats (the page-2 picture looks like suspension handles), PPT "bend the kneees", bird dog "kick straight back", seated pigeon "use body weight", plank "Buttt down", single-leg stand (2x10 vs 20 s holds), "3 laps" for carries and band walks, Back-Friendly Mobility Flow (the PDF names no moves), Nordic curl, cable woodchop, reverse hyper, and all tempos and ranges. Side plank art is drawn from the side so it looks like a plank, and it says so.

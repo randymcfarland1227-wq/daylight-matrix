@@ -55,6 +55,13 @@ export function Settings() {
         <div className="mt-2">
           <Segmented<ThemeChoice> label="Theme" value={s.theme} onChange={s.setTheme} options={[{ id: "dark", label: "Dusk (dark)" }, { id: "light", label: "Daylight (light)" }, { id: "auto", label: "Match device" }]} />
         </div>
+        <label className="mt-4 flex min-h-12 cursor-pointer items-center justify-between gap-3 text-sm">
+          <span>
+            <span className="block font-medium">Open Train straight into gym mode</span>
+            <span className="block text-xs text-ink-soft">On training days, the Train tab opens today's session as a focused full-screen flow. The full overview is one tap away.</span>
+          </span>
+          <input type="checkbox" className="size-5 accent-[var(--sun)]" checked={s.gymDefault} onChange={(e) => s.setGymDefault(e.target.checked)} data-testid="gym-default-toggle" />
+        </label>
       </Card>
 
       <Card>

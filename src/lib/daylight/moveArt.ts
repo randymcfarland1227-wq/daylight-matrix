@@ -84,7 +84,7 @@ const P: Record<string, Mk> = {
     props: [],
     a: { hip: [60, 74], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [30, 88], kb: "up", eb: "down" },
     b: { hip: [60, 74], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [30, 88], kb: "up", eb: "down" },
-    hold: true, labels: ["Straight line, hips up", ""],
+    hold: true, labels: ["On one forearm, hips lifted", ""], look: "Drawn from the side, so it looks like a plank: in real life you lie on your side, bottom elbow under shoulder, feet stacked, body one line.",
   }),
   pallof: () => ({
     props: [post(8), pulley([8, 52]), cableH([8, 52])],

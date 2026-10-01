@@ -11,6 +11,7 @@ import { MuscleChips } from "./MuscleChips";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { cn } from "./ui";
+import { MoveThumb } from "./MoveArt";
 
 export function Moves() {
   const state = useDaylight();
@@ -45,9 +46,12 @@ export function Moves() {
         {list.map((e) => (
           <li key={e.id}>
             <Card className="h-full">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-display text-lg leading-tight">{e.name}</h3>
-                {e.extra ? <Badge tone="sun">idea · not in PDF</Badge> : null}
+              <div className="flex items-start gap-3">
+                <MoveThumb exerciseId={e.id} size={56} />
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
+                  <h3 className="font-display text-lg leading-tight">{e.name}</h3>
+                  {e.extra ? <Badge tone="sun">idea · not in PDF</Badge> : null}
+                </div>
               </div>
               <p className="mt-0.5 text-xs text-ink-faint">
                 {e.equipment}
@@ -63,6 +67,9 @@ export function Moves() {
               ) : null}
               {e.pdfNote ? <p className="mt-2 text-sm italic text-copper-deep">“{e.pdfNote}” — your note</p> : null}
               <div className="mt-3 flex flex-wrap gap-2">
+                <Button size="sm" tone="soft" data-testid="moves-form" onClick={() => state.setOverlay({ type: "form", exerciseId: e.id })}>
+                  Form guide &amp; demo
+                </Button>
                 <Button size="sm" tone="soft" onClick={() => state.setOverlay({ type: "note", exerciseId: e.id, kind: "gym" })}>
                   Note
                 </Button>
@@ -83,6 +90,7 @@ export function PtBoard() {
   const notes = useDaylight((s) => s.ptNotes);
   const setPtNote = useDaylight((s) => s.setPtNote);
   const setOpenLesson = useDaylight((s) => s.setOpenLesson);
+  const setOverlay = useDaylight((s) => s.setOverlay);
   return (
     <div>
       <PageHead eyebrow="Page 2 of your PDF" title="PT board" />
@@ -93,7 +101,10 @@ export function PtBoard() {
           return (
             <li key={ref.id}>
               <Card className="h-full">
-                <h3 className="font-display text-lg leading-tight">{ex?.name}</h3>
+                <div className="flex items-center gap-3">
+                  <MoveThumb exerciseId={ref.exerciseId} size={52} />
+                  <h3 className="font-display text-lg leading-tight">{ex?.name}</h3>
+                </div>
                 {ref.pdfNote ? <p className="mt-1 font-display text-lg italic text-copper-deep">“{ref.pdfNote}”</p> : null}
                 <p className="mt-1 text-sm">{ref.parameters}</p>
                 {ref.discrepancy ? <p className="mt-1 rounded-lg bg-sun/20 px-2 py-1 text-sm">{ref.discrepancy}</p> : null}
@@ -101,9 +112,14 @@ export function PtBoard() {
                   <span className="text-xs font-bold uppercase tracking-wider text-ink-soft">Your note</span>
                   <textarea className="field mt-1 min-h-16 py-2" value={notes[ref.id] ?? ""} onChange={(e) => setPtNote(ref.id, e.target.value)} />
                 </label>
-                <Button tone="ghost" size="sm" onClick={() => setOpenLesson(ex?.id ?? null)}>
-                  Learn
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button tone="soft" size="sm" onClick={() => setOverlay({ type: "form", exerciseId: ref.exerciseId })}>
+                    Form guide &amp; demo
+                  </Button>
+                  <Button tone="ghost" size="sm" onClick={() => setOpenLesson(ex?.id ?? null)}>
+                    Learn
+                  </Button>
+                </div>
               </Card>
             </li>
           );
@@ -111,12 +127,18 @@ export function PtBoard() {
         <li>
           <Card className="h-full border-sun/50">
             <Badge tone="sun">featured on page 2</Badge>
-            <h3 className="mt-1 font-display text-lg">Battle Rope Squats</h3>
+            <div className="mt-1 flex items-center gap-3">
+              <MoveThumb exerciseId="battle-rope-squat" size={52} />
+              <h3 className="font-display text-lg">Battle Rope Squats</h3>
+            </div>
             <p className="mt-1 font-display text-lg italic text-copper-deep">“Meta!” · “Oscilate Anchor when needed” · “S Tier”</p>
             <p className="mt-1 text-sm text-ink-soft">{UNSCHEDULED.note}</p>
             <div className="mt-2">
               <MuscleChips exerciseId="battle-rope-squat" />
             </div>
+            <Button className="mt-2" tone="soft" size="sm" onClick={() => setOverlay({ type: "form", exerciseId: "battle-rope-squat" })}>
+              Form guide &amp; demo
+            </Button>
           </Card>
         </li>
       </ul>

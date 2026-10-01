@@ -452,6 +452,8 @@ export const useDaylight = create<Data & Actions>()(
             activeSessionId: state.activeSessionId === id ? null : state.activeSessionId,
             overlay: null,
             rest: null,
+            gymMode: null,
+            gymAutoSkip: true,
           }),
         );
       },
