@@ -10,7 +10,7 @@ import { muscleName } from "@/lib/daylight/muscles";
 import { exercises } from "@/lib/daylight/exercises";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { Button, Chip, Sheet, cn, haptic } from "./ui";
-import { FormSheet } from "./FormGuide";
+import { ExercisePage } from "./ExercisePage";
 import { DidElseSheet, SwapMoveSheet } from "./MoveSheets";
 import { MusclePicker } from "./MusclePicker";
 
@@ -31,7 +31,7 @@ export function Overlays() {
     case "finish":
       return <Finish weekday={overlay.weekday} onClose={close} />;
     case "form":
-      return <FormSheet key={overlay.exerciseId} exerciseId={overlay.exerciseId} onClose={close} />;
+      return <ExercisePage key={overlay.exerciseId} exerciseId={overlay.exerciseId} muscle={overlay.muscle} onClose={close} />;
     case "swap-move":
       return <SwapMoveSheet weekday={overlay.weekday} slotId={overlay.slotId} onClose={close} />;
     case "did-else":
