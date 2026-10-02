@@ -2,13 +2,15 @@ import { useMemo } from "react";
 import { ArrowRight, Droplets, Flag, Footprints, PenLine, Play, Utensils } from "lucide-react";
 import { WEEKDAY_NAMES, localDate, prettyDate, shiftDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
-import { GROUPS, muscleName, targetFor, type MuscleId } from "@/lib/daylight/muscles";
+import { GROUPS, muscleName, targetFor, type AnyMuscleId, type MuscleId } from "@/lib/daylight/muscles";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, statusFor } from "@/lib/daylight/volume";
 import { doneSetCount, slotLogs } from "@/lib/daylight/logic";
 import { DAY_KIND_LABEL, fuelingNote, isUseSoon } from "@/lib/daylight/foodplan";
-import { BodyFigure, heatColor } from "./BodyFigure";
+import { MapFigure } from "./MapFigure";
+import { figureFill, isUnder } from "./Body";
+import { plannedVolume } from "@/lib/daylight/volume";
 import { ProteinWaterRings, useFoodNumbers } from "./Food";
 import { Badge, Button, Card, Eyebrow, Ring, cn } from "./ui";
 
@@ -48,7 +50,8 @@ export function Today() {
     const x = statusFor(heat.map[m.id], heat.weeklyFactor, targetFor(m.id, target));
     return x === "none" || x === "indirect" || x === "low";
   });
-  const fill = (id: MuscleId) => heatColor(heatLevel(heat.map[id], heat.weeklyFactor, targetFor(id, target)));
+  const planned = useMemo(() => plannedVolume(plan), [plan]);
+  const fill = (id: AnyMuscleId) => figureFill("heat", id, planned, heat, target);
 
   const weekSessions = s.sessions.filter((x) => x.localDate >= shiftDate(today, -6));
   const doneToday = session?.status === "finished";
@@ -179,9 +182,9 @@ export function Today() {
             <Badge tone={heat.source === "logged" ? "forest" : "sun"}>{heat.source === "logged" ? "last 7 days" : "plan, no logs yet"}</Badge>
           </div>
           <div className="mt-1 grid grid-cols-[auto_1fr] items-center gap-3">
-            <button type="button" className="flex w-[148px] gap-0.5" onClick={go("body", () => s.setBody({ bodyMode: "heat" }))} aria-label="Open the heat map">
+            <button type="button" className="figure-panel flex w-[168px] gap-0.5 rounded-2xl p-1.5" onClick={go("body", () => s.setBody({ bodyMode: "heat" }))} aria-label="Open the heat map">
               {(["front", "back"] as const).map((v) => (
-                <BodyFigure key={v} view={v} level="group" className="h-auto w-1/2" fill={fill} selected={null} onSelect={() => {}} interactive={false} />
+                <MapFigure key={v} view={v} level="region" className="h-auto w-1/2" fill={fill} interactive={false} />
               ))}
             </button>
             <div>

@@ -118,7 +118,7 @@ export function MoveArt({ exerciseId, className, compact }: { exerciseId: string
         {spec.hold && !spec.labels?.[1] ? null : <Panel spec={spec} pose={spec.b} ghost={spec.a} label={spec.labels?.[1]} tag={spec.hold ? "HOLD" : "END"} />}
       </div>
       {!compact && spec.look ? <p className="px-1 text-xs text-ink-soft"><span className="font-bold text-ink">Look for:</span> {spec.look}</p> : null}
-      <p className="px-1 text-[0.68rem] text-ink-faint">Simplified side-view sketch (general education). Faint limb = the far side. Amber dashed arrow = how the movement travels.</p>
+      {compact ? null : <p className="px-1 text-[0.68rem] text-ink-faint">Simplified side-view sketch (general education). Faint limb = the far side. Amber dashed arrow = how the movement travels.</p>}
     </div>
   );
 }
