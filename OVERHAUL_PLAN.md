@@ -109,3 +109,39 @@ A staged build is at `/workspace/daylight-overhaul-dist-r2`.
 
 ## Guidance I was unsure about
 Battle Rope Squats (the page-2 picture looks like suspension handles), PPT "bend the kneees", bird dog "kick straight back", seated pigeon "use body weight", plank "Buttt down", single-leg stand (2x10 vs 20 s holds), "3 laps" for carries and band walks, Back-Friendly Mobility Flow (the PDF names no moves), Nordic curl, cable woodchop, reverse hyper, and all tempos and ranges. Side plank art is drawn from the side so it looks like a plank, and it says so.
+
+---
+
+# Round 3: MuscleWiki-style map (branch `round3`, built on `round2` @ 0d9a286)
+
+Randy's reaction to round 2's body map: "awful, back-pedal; musclewiki.com does it well, my only addition would be color." Round 3 follows MuscleWiki's UX in his own colours. Nothing from MuscleWiki is copied (no images, video or text): the figure, the move diagrams and the steps are our own.
+
+## What changed
+1. **Map.** Body tab shows a front and a back figure side by side (flat pale chart, dark contour lines). An **Advanced** switch swaps the 18 regions for the sub-muscles (including dashed deep muscles). Modes: Explore, Heat map, Grow an area.
+2. **Colour.** Each muscle group has its own hue (no bright green). Strength of the hue = coverage by the plan (strong = covered, faded = indirect only, pale = untrained, dashed outline = underserved). Heat map is a cold-blue -> cyan -> yellow -> orange -> red ramp relative to the weekly target. Exercise pages use that hue at three strengths for primary / secondary / tertiary.
+3. **Muscle page.** Tap any part of the figure. Breadcrumb, status line (plan vs target, logged vs target), then **"In your plan"** first (days, sets/wk, logged sets, swap options), then **"Other moves that train this"**. Right rail: a figure with only that muscle lit, an Advanced checkbox, tap-to-jump, equipment checkboxes with counts, difficulty cap, "show tertiary" and the role legend. Cards are MuscleWiki-shaped: title bar, difficulty badge, role badge, START/END diagram and the first three steps.
+4. **Exercise page** (full screen, replaces the round-2 form sheet): breadcrumb, title, difficulty + equipment, START/END diagram, "In your plan" box (day PSA, dose, plan cue), quick numbered steps, How to perform (Setup / Performing), common mistakes, a muscle diagram with Primary / Secondary / Tertiary legend and chips, metadata (difficulty, force, mechanic, equipment, grip, sides), tags, "Find a video" link, note button. A link to the matching musclewiki.com page appears only for the ~45 moves whose slug was checked (HTTP 200 and matching title); others get a YouTube search only.
+5. **Move diagrams.** New patterns for side plank (now a side-lying line), cable woodchop, Nordic curl, wall sit and lat pulldown (they used to reuse other moves' art).
+6. **Kept:** gym mode (opens to today's session, PSA first, bulk-complete, guided timer), swap / "did something else" with muscle picking, notes and digest, heat map and underserved list, food, all stored data. Today's mini-figure now uses the new figure.
+
+## Model
+- Three levels: group (10) -> region (`rg-*`, 18) -> sub-muscle. `subsOf(id)` expands any level; `regionOfSub`, `regionInfo`, `isRegion`. Volume and targets exist at all three (`targetFor`: group = target, region = 0.8x, sub = 0.6x).
+- `src/lib/daylight/exmeta.ts` (difficulty, force, mechanic, grip, equipment categories, tags, verified MuscleWiki slugs), `figureColors.ts` (hues, role strengths, ramp), `MapFigure.tsx`, `MusclePage.tsx`, `ExercisePage.tsx`.
+- Removed: `FormGuide.tsx`, `BodyFigure.tsx`.
+
+## Migration
+No schema bump (still 3). `bodyDetail` defaults to `standard` when absent. `selectedMuscleId` is now ephemeral (never saved); if an old blob carries one, `resolveMuscle` maps it to a group or sub-part. Stored muscle ids are unchanged. Verified with the v1 fixture (backups written, sessions and notes kept) and unit tests (`round3.test.ts`).
+
+## Publish steps (NOT executed)
+1. `npm run build:pages`
+2. rsync `dist/client/` into a clone of `randymcfarland1227-wq.github.io`, keeping `.nojekyll`
+3. commit and push `main`
+
+A staged build is at `/workspace/daylight-overhaul-dist-r3`. The live repo has not been touched.
+
+## Known weak spots
+- The figure is a flat stylised chart, not a medical illustration; sub-part shapes are editorial.
+- Move diagrams are simplified side-view sketches; some patterns are shared between similar moves.
+- Difficulty, force and mechanic are editorial classifications, not sourced data.
+- Exercise text is the round-2 general-education guide repackaged into quick steps and Setup / Performing.
+- The heat map is relative to the weekly target (default 10 weighted sets per group); with the default target and a full plan most groups read red. Change the target on the Body tab to spread the ramp.
