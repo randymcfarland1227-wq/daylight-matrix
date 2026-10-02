@@ -82,9 +82,9 @@ const P: Record<string, Mk> = {
   }),
   sidePlank: () => ({
     props: [],
-    a: { hip: [60, 74], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [30, 88], kb: "up", eb: "down" },
-    b: { hip: [60, 74], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [30, 88], kb: "up", eb: "down" },
-    hold: true, labels: ["On one forearm, hips lifted", ""], look: "Drawn from the side, so it looks like a plank: in real life you lie on your side, bottom elbow under shoulder, feet stacked, body one line.",
+    a: { hip: [48, 81], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [34, 89], hand2: [24, 52], kb: "up", eb: "down", eb2: "up" },
+    b: { hip: [48, 81], t: -100, hd: -100, foot: [92, 88], foot2: [94, 88], hand: [34, 89], hand2: [24, 52], kb: "up", eb: "down", eb2: "up" },
+    hold: true, labels: ["Side plank: elbow under shoulder, feet stacked", ""], look: "Seen from the front of the body it is a straight diagonal line: ears, shoulders, hips, ankles. Top arm can rest on the hip or reach up.",
   }),
   pallof: () => ({
     props: [post(8), pulley([8, 52]), cableH([8, 52])],
@@ -177,6 +177,31 @@ const P: Record<string, Mk> = {
     a: { hip: [58, 66], t: 176, hd: 176, hand: [60, 24], eb: "up", foot: [40, 89], foot2: [38, 89], kb: "back", noArm2: true },
     b: { hip: [58, 66], t: 128, hd: 120, hand: [72, 52], eb: "up", foot: [40, 89], foot2: [38, 89], kb: "back", noArm2: true },
     labels: ["Tall kneeling, rope at head", "Round down ribs to pelvis"], track: "head", look: "Round through the abs; hips stay still.",
+  }),
+
+  latPulldown: () => ({
+    props: [post(98, 4), pulley([90, 6]), { t: "seg", a: [90, 6], b: "hand", w: 0.9, k: "cable" }, { t: "rect", x: 28, y: 62, w: 26, h: 4, k: "bench" }, { t: "seg", a: [66, 54], b: [80, 50], w: 6, k: "pad" }, { t: "weight", at: "hand", k: "handle" }],
+    a: { hip: [46, 60], t: 178, hd: 178, hand: [72, 12], eb: "up", foot: [76, 88], foot2: [78, 88], kb: "fwd", noArm2: true },
+    b: { hip: [46, 60], t: 166, hd: 166, hand: [58, 36], eb: "back", foot: [76, 88], foot2: [78, 88], kb: "fwd", noArm2: true },
+    labels: ["Arms long, ribs down", "Bar to upper chest, elbows down"], track: "hand", look: "Lean back a touch; pull with the elbows, not the hands.",
+  }),
+  woodchop: () => ({
+    props: [post(106, 4), pulley([106, 10]), { t: "seg", a: [106, 10], b: "hand", w: 0.9, k: "cable" }, { t: "weight", at: "hand", k: "handle" }],
+    a: stand(54, { t: 172, hd: 172, hand: [84, 26], hand2: [84, 28], eb: "fwd", eb2: "fwd", foot2: [48, ANK] }),
+    b: stand(54, { t: 168, hd: 170, hip: [54, 44], hand: [50, 64], hand2: [52, 66], eb: "down", eb2: "down", foot2: [48, ANK], kb: "fwd" }),
+    labels: ["Rope high, feet wide", "Chop down across the body, hips quiet"], track: "hand", look: "Turn from the ribs and hips together, arms stay long; stop before the low back takes over.",
+  }),
+  nordic: () => ({
+    props: [{ t: "rect", x: 10, y: 86, w: 40, h: 4, k: "block" }, { t: "seg", a: [14, 84], b: [34, 84], w: 1.4, k: "band" }],
+    a: { hip: [44, 66], t: 178, hd: 178, foot: [18, 84], foot2: [20, 84], kb: "fwd", hand: [50, 66], eb: "down", noArm2: true },
+    b: { hip: [44, 66], t: 96, hd: 96, foot: [18, 84], foot2: [20, 84], kb: "fwd", hand: [80, 86], eb: "down", noArm2: true },
+    labels: ["Kneel tall, ankles anchored", "Lower forward in one straight line"], track: "hand", look: "Knees to head stay one straight line; hips don't fold. Catch yourself with your hands and push back up.",
+  }),
+  wallSit: () => ({
+    props: [{ t: "seg", a: [40, 6], b: [40, FLOOR], w: 3, k: "frame" }],
+    a: { hip: [47, 66], t: 180, hd: 180, foot: [73, 88], foot2: [75, 88], kb: "fwd", hand: [62, 66], eb: "down", noArm2: true },
+    b: { hip: [47, 66], t: 180, hd: 180, foot: [73, 88], foot2: [75, 88], kb: "fwd", hand: [62, 66], eb: "down", noArm2: true },
+    hold: true, labels: ["Back on the wall, thighs about level, knees over ankles", ""], look: "Knees at about a right angle and stacked over the ankles; hands off the thighs if you can.",
   }),
 
   /* ---- legs ---- */
@@ -428,12 +453,12 @@ export const ART_MAP: Record<string, keyof typeof P> = {
   "suitcase-carry": "suitcase", "farmer-carry": "farmer", plank: "plank", "side-plank": "sidePlank", pallof: "pallof",
   "mobility-flow": "mobility", zone2: "walk", "tuesday-cardio": "incline", "wednesday-cardio": "walk", "saturday-cardio": "bike",
   "assisted-pullup": "pullup", "neutral-pullup": "neutralPullup", "dead-hang": "deadHang", "chest-supported-row": "supportedRow",
-  "tbar-chest-supported": "supportedRow", "chest-supported-rear-fly": "supportedRow", "seated-cable-row": "seatedRow", "lat-pulldown": "halfKneelPulldown",
+  "tbar-chest-supported": "supportedRow", "chest-supported-rear-fly": "supportedRow", "seated-cable-row": "seatedRow", "lat-pulldown": "latPulldown",
   "half-kneeling-pulldown": "halfKneelPulldown", "face-pull": "facePull", "incline-shrug": "inclineShrug", "cable-shrug": "inclineShrug", "straight-arm-pulldown": "straightArm",
-  "cable-crunch": "cableCrunch", "cable-woodchop": "cableCrunch",
+  "cable-crunch": "cableCrunch", "cable-woodchop": "woodchop",
   "hack-squat": "hackSquat", "heel-elevated-goblet": "goblet", "sumo-goblet": "goblet", "battle-rope-squat": "battleRope", "bulgarian-split-squat": "bulgarian",
-  "leg-press": "legPress", "leg-press-narrow": "legPress", "leg-extension": "legExtension", "leg-curl": "legCurl", "lying-leg-curl": "lyingLegCurl", "ball-leg-curl": "lyingLegCurl", "nordic-curl": "lyingLegCurl",
-  "standing-calf-raise": "calfStanding", "sl-calf-raise-press": "legPress", "seated-calf-raise": "calfSeated", "tibialis-raise": "tibRaise", "wall-sit": "hackSquat",
+  "leg-press": "legPress", "leg-press-narrow": "legPress", "leg-extension": "legExtension", "leg-curl": "legCurl", "lying-leg-curl": "lyingLegCurl", "ball-leg-curl": "lyingLegCurl", "nordic-curl": "nordic",
+  "standing-calf-raise": "calfStanding", "sl-calf-raise-press": "legPress", "seated-calf-raise": "calfSeated", "tibialis-raise": "tibRaise", "wall-sit": "wallSit",
   "bstance-rdl": "rdl", "cable-pull-through": "rdl", "reverse-hyper-light": "backExt45", "reverse-lunge": "reverseLunge", "box-step-up": "stepUp",
   "hip-thrust": "hipThrust", "machine-hip-thrust": "hipThrust", "glute-bridge": "glutBridge", "sl-glute-bridge": "glutBridge", "back-extension-45": "backExt45", "cable-hip-abduction": "cableHipAbd",
   "incline-db-press": "inclinePress", "landmine-press": "landmine", "machine-chest-press": "machinePress", "incline-machine-press": "machinePress", "pec-deck": "machinePress",
