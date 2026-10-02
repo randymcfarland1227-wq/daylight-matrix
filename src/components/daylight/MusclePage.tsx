@@ -95,7 +95,8 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
     const reg = regionOfSub(id as SubId);
     if (reg.subs.length > 1) crumbs.push({ label: reg.name, to: reg.id });
   }
-  crumbs.push({ label: name });
+  if (crumbs[crumbs.length - 1].label !== name) crumbs.push({ label: name });
+  else delete crumbs[crumbs.length - 1].to;
 
   return (
     <div data-testid="muscle-page" data-muscle={id}>
