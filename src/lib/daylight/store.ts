@@ -139,6 +139,8 @@ type Data = {
   bodyMode: BodyMode;
   heatWindow: 7 | 14 | 30;
   selectedMuscleId: string | null;
+  /** Body map detail: Standard = ~17 named muscles, Advanced = all sub-parts. */
+  bodyDetail: "standard" | "advanced";
   schemaVersion: number;
   theme: ThemeChoice;
   /** Fluid ounces per day. Yours to set. */
@@ -156,6 +158,8 @@ type Data = {
   trainDay: number;
   openSlotId: string | null;
   openExerciseId: string | null;
+  /** Exercise reference page (full screen, above whatever is open). Not saved. */
+  exercisePage: { exerciseId: string; muscle?: string } | null;
   /** Open the Train tab straight into gym mode for today. Persisted. */
   gymDefault: boolean;
   /** Full-screen gym mode for this weekday. Not persisted. */
@@ -287,7 +291,9 @@ type Actions = {
   addGoal: () => void;
   setPtNote: (id: string, note: string) => void;
   // body / ui
-  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId">>) => void;
+  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail">>) => void;
+  openExercise: (exerciseId: string, muscle?: string) => void;
+  closeExercise: () => void;
   setTheme: (theme: ThemeChoice) => void;
   setWeeklyTarget: (n: number) => void;
   setPlanContext: (text: string) => void;
@@ -364,6 +370,7 @@ const seed = (): Data => ({
   bodyMode: "plan",
   heatWindow: 14,
   selectedMuscleId: null,
+  bodyDetail: "standard",
   schemaVersion: SCHEMA_VERSION,
   theme: "dark",
   waterGoal: 96,
@@ -376,6 +383,7 @@ const seed = (): Data => ({
   trainDay: new Date().getDay(),
   openSlotId: null,
   openExerciseId: null,
+  exercisePage: null,
   gymMode: null,
   gymAutoSkip: false,
   gymDefault: true,
@@ -1251,6 +1259,8 @@ export const useDaylight = create<Data & Actions>()(
       },
       setPtNote: (id, note) => set(saved({ ptNotes: { ...get().ptNotes, [id]: note } })),
       setBody: (patch) => set(patch),
+      openExercise: (exerciseId, muscle) => set({ exercisePage: { exerciseId, muscle }, overlay: null }),
+      closeExercise: () => set({ exercisePage: null }),
       setTheme: (theme) => set(saved({ theme })),
       setWeeklyTarget: (weeklyTarget) => set(saved({ weeklyTarget })),
       setPlanContext: (planContext) => set(saved({ planContext })),
@@ -1308,7 +1318,7 @@ export const useDaylight = create<Data & Actions>()(
   ),
 );
 
-const EPHEMERAL = new Set(["gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["exercisePage", "selectedMuscleId", "gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};

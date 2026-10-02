@@ -22,6 +22,19 @@ export type SubId =
 /** Everything the volume engine, body map and notes can refer to. */
 export type MuscleId = GroupId | SubId;
 
+/**
+ * Middle level, used by the "Standard" body map (like the big named areas on a muscle chart):
+ * Chest, Front delts, Traps, Biceps, Forearms, Abs, Obliques, Quads, Inner thigh, Calves, Lats, Mid-back,
+ * Lower back, Rear delts, Triceps, Glutes, Hamstrings. Each region is a fixed set of sub-parts of ONE group.
+ */
+export type RegionId =
+  | "rg-chest" | "rg-delt-front" | "rg-traps" | "rg-biceps" | "rg-forearms" | "rg-abs" | "rg-obliques"
+  | "rg-delt-side" | "rg-quads" | "rg-adductors" | "rg-calves"
+  | "rg-lats" | "rg-midback" | "rg-lowback" | "rg-delt-rear" | "rg-triceps" | "rg-glutes" | "rg-hamstrings";
+
+/** Anything the map, volume engine and muscle pages can point at. */
+export type AnyMuscleId = MuscleId | RegionId;
+
 export type View = "front" | "back";
 export type GroupInfo = { id: GroupId; name: string; blurb: string; subs: SubId[]; views: View[] };
 export type SubInfo = { id: SubId; group: GroupId; name: string; blurb: string; views: View[]; deep?: boolean };
@@ -38,6 +51,41 @@ export const GROUPS: GroupInfo[] = [
   { id: "hamstrings", name: "Hamstrings", blurb: "Inner (semitendinosus / semimembranosus) and outer (biceps femoris) hamstrings.", subs: ["ham-medial", "ham-lateral"], views: ["back"] },
   { id: "calves", name: "Calves & shins", blurb: "Gastrocnemius, soleus and the tibialis anterior on the shin.", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"] },
 ];
+
+export type RegionInfo = { id: RegionId; name: string; group: GroupId; subs: SubId[]; views: View[]; blurb: string };
+
+export const REGIONS: RegionInfo[] = [
+  { id: "rg-chest", name: "Chest", group: "chest", subs: ["chest-clav", "chest-sternal", "chest-lower", "serratus"], views: ["front"], blurb: "Pectoralis major and the serratus on the ribs." },
+  { id: "rg-delt-front", name: "Front delts", group: "shoulders", subs: ["delt-front"], views: ["front"], blurb: "The front head of the shoulder. Every press helps it." },
+  { id: "rg-delt-side", name: "Side delts", group: "shoulders", subs: ["delt-side"], views: ["front", "back"], blurb: "The outer head of the shoulder. Lateral raises are the direct move." },
+  { id: "rg-traps", name: "Traps", group: "back", subs: ["traps-upper"], views: ["front", "back"], blurb: "The slope from neck to shoulder." },
+  { id: "rg-biceps", name: "Biceps & brachialis", group: "arms", subs: ["biceps-long", "biceps-short", "brachialis"], views: ["front"], blurb: "Front of the upper arm." },
+  { id: "rg-forearms", name: "Forearms", group: "arms", subs: ["forearm-flexors", "forearm-extensors"], views: ["front", "back"], blurb: "Grip and wrist muscles." },
+  { id: "rg-abs", name: "Abs", group: "core", subs: ["abs-upper", "abs-lower", "transverse"], views: ["front"], blurb: "Rectus abdominis and the deep transverse abdominis." },
+  { id: "rg-obliques", name: "Obliques", group: "core", subs: ["obliques"], views: ["front"], blurb: "The sides of the trunk." },
+  { id: "rg-quads", name: "Quads", group: "quads", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi"], views: ["front"], blurb: "The four heads of the front thigh." },
+  { id: "rg-adductors", name: "Inner thigh", group: "adductors", subs: ["adductors-sub"], views: ["front"], blurb: "The adductors." },
+  { id: "rg-calves", name: "Calves & shins", group: "calves", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"], blurb: "Gastrocnemius, soleus and tibialis anterior." },
+  { id: "rg-lats", name: "Lats", group: "back", subs: ["lats"], views: ["back"], blurb: "The wide muscle down the side of the back." },
+  { id: "rg-midback", name: "Mid-back", group: "back", subs: ["rhomboids", "traps-lower"], views: ["back"], blurb: "Rhomboids and the middle and lower traps between the shoulder blades." },
+  { id: "rg-lowback", name: "Lower back", group: "back", subs: ["erectors"], views: ["back"], blurb: "The spinal erectors." },
+  { id: "rg-delt-rear", name: "Rear delts & cuff", group: "shoulders", subs: ["delt-rear", "rotator-cuff"], views: ["back"], blurb: "The back of the shoulder and the rotator cuff." },
+  { id: "rg-triceps", name: "Triceps", group: "arms", subs: ["triceps-long", "triceps-lateral", "triceps-medial"], views: ["back"], blurb: "Back of the upper arm." },
+  { id: "rg-glutes", name: "Glutes", group: "glutes", subs: ["glute-max", "glute-med", "glute-min"], views: ["back"], blurb: "Gluteus maximus, medius and minimus." },
+  { id: "rg-hamstrings", name: "Hamstrings", group: "hamstrings", subs: ["ham-medial", "ham-lateral"], views: ["back"], blurb: "Back of the thigh." },
+];
+export const REGION_IDS = REGIONS.map((r) => r.id) as RegionId[];
+const REGION_BY_ID = new Map<string, RegionInfo>(REGIONS.map((r) => [r.id, r]));
+const REGION_OF_SUB = new Map<string, RegionInfo>(REGIONS.flatMap((r) => r.subs.map((s) => [s, r] as const)));
+export function isRegion(id: string): id is RegionId {
+  return REGION_BY_ID.has(id);
+}
+export function regionInfo(id: string): RegionInfo | undefined {
+  return REGION_BY_ID.get(id);
+}
+export function regionOfSub(id: SubId): RegionInfo {
+  return REGION_OF_SUB.get(id)!;
+}
 
 export const SUBS: SubInfo[] = [
   { id: "chest-clav", group: "chest", name: "Upper chest (clavicular)", blurb: "Collarbone side of the pec. Works hardest on incline presses and low-to-high flys.", views: ["front"] },
@@ -136,6 +184,8 @@ export const LEGACY_MUSCLE: Record<string, { name: string; group: GroupId; sub?:
 export function resolveMuscle(id: string): { id: string; name: string; group: GroupId; sub?: SubId } | null {
   const group = GROUP_BY_ID.get(id);
   if (group) return { id, name: group.name, group: group.id };
+  const reg = REGION_BY_ID.get(id);
+  if (reg) return { id, name: reg.name, group: reg.group };
   const sub = SUB_BY_ID.get(id);
   if (sub) return { id, name: sub.name, group: sub.group, sub: sub.id };
   const legacy = LEGACY_MUSCLE[id];
@@ -155,6 +205,8 @@ export const MUSCLES: SubInfo[] = SUBS;
 export function muscleInfo(id: string): MuscleInfo | undefined {
   const g = GROUP_BY_ID.get(id);
   if (g) return g;
+  const r = REGION_BY_ID.get(id);
+  if (r) return r;
   const s = SUB_BY_ID.get(id);
   if (s) return s;
   const l = LEGACY_MUSCLE[id];
@@ -191,5 +243,20 @@ export const OLD_REGION_TO_MUSCLE: Record<string, string> = {
 
 /** Weekly weighted-set target for a level. Sub-parts get a lighter bar than whole groups. */
 export function targetFor(id: string, weeklyTarget: number): number {
-  return isGroup(id) ? weeklyTarget : Math.max(2, Math.round(weeklyTarget * 0.6));
+  if (isGroup(id)) return weeklyTarget;
+  if (isRegion(id)) return Math.max(2, Math.round(weeklyTarget * 0.8));
+  return Math.max(2, Math.round(weeklyTarget * 0.6));
+}
+
+/** The sub-parts an id stands for: a group's parts, a region's parts, or the sub-part itself (legacy ids resolve first). */
+export function subsOf(id: string): SubId[] {
+  const g = GROUP_BY_ID.get(id);
+  if (g) return g.subs;
+  const r = REGION_BY_ID.get(id);
+  if (r) return r.subs;
+  if (SUB_BY_ID.has(id)) return [id as SubId];
+  const l = LEGACY_MUSCLE[id];
+  if (l?.sub) return [l.sub];
+  if (l) return GROUP_BY_ID.get(l.group)?.subs ?? [];
+  return [];
 }

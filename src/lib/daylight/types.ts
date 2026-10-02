@@ -359,7 +359,7 @@ export type Overlay =
   | { type: "finish"; weekday: number }
   | { type: "swap-move"; weekday: number; slotId: string }
   | { type: "did-else"; weekday: number; slotId: string | null }
-  | { type: "form"; exerciseId: string }
+  | { type: "form"; exerciseId: string; muscle?: string }
   | { type: "move"; exerciseId: string }
   | { type: "trial"; observationId: string }
   | { type: "apply"; trialId: string }

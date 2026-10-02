@@ -194,3 +194,16 @@
 .sun-bob { animation: shimmer-sun 5s ease-in-out infinite; }
 
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Round 3 body chart: flat pale figure, coloured muscle regions */
+:root { --fig-bg: #e8ebf1; --fig-ink: #1c2436; }
+.dark { --fig-bg: #22252c; --fig-ink: #e6e9f0; }
+.mapreg { cursor: pointer; outline: none; }
+.mapreg .mr-fill { transition: fill 360ms ease, fill-opacity 260ms ease; }
+.mapreg:hover .mr-fill, .mapreg:focus-visible .mr-fill { filter: brightness(0.93) saturate(1.15); }
+.mapreg:hover .mr-edge, .mapreg:focus-visible .mr-edge { fill: #0f1830; stroke: #0f1830; }
+.mapreg[data-selected="true"] .mr-edge { fill: var(--sun); stroke: var(--sun); stroke-width: 4; }
+.mapreg[data-selected="true"] .mr-fill { stroke-width: 1.4; }
+.mapreg[data-dim="true"] { opacity: 0.35; }
+.mapreg .mr-under { animation: pulse-ring 2.2s ease-in-out infinite; }
+.figure-panel { background: var(--fig-bg); color: var(--fig-ink); }

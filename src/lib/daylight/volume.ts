@@ -1,6 +1,6 @@
 import { shiftDate } from "./dates";
 import { exerciseById, volumeFactorFor } from "./exercises";
-import { GROUPS, MUSCLE_IDS, groupOfSub, isGroup, resolveMuscle, type GroupId, type MuscleId, type SubId } from "./muscles";
+import { GROUPS, MUSCLE_IDS, REGIONS, REGION_IDS, groupOfSub, isGroup, isRegion, regionOfSub, resolveMuscle, subsOf, type AnyMuscleId, type GroupId, type MuscleId, type SubId } from "./muscles";
 import { dayBlocks } from "./plan";
 import type { DayTemplate, ExtraLog, PlanVersion, Prescription, WorkoutSession } from "./types";
 
@@ -16,7 +16,7 @@ export type MuscleHit = {
 };
 
 export type MuscleVolume = {
-  id: MuscleId;
+  id: AnyMuscleId;
   /** Weighted sets (primary 1, secondary 0.5, minor 0.25 and the exercise’s own volume factor). */
   effective: number;
   /** Sets where the muscle is a primary mover. */
@@ -26,7 +26,7 @@ export type MuscleVolume = {
   hits: MuscleHit[];
 };
 
-export type VolumeMap = Record<MuscleId, MuscleVolume>;
+export type VolumeMap = Record<AnyMuscleId, MuscleVolume>;
 
 export function roleOf(weight: number): "primary" | "secondary" | "minor" {
   return weight >= 1 ? "primary" : weight >= 0.5 ? "secondary" : "minor";
@@ -34,20 +34,20 @@ export function roleOf(weight: number): "primary" | "secondary" | "minor" {
 
 function emptyMap(): VolumeMap {
   const map = {} as VolumeMap;
-  for (const id of MUSCLE_IDS) map[id] = { id, effective: 0, direct: 0, indirect: 0, hits: [] };
+  for (const id of [...MUSCLE_IDS, ...REGION_IDS] as AnyMuscleId[]) map[id] = { id, effective: 0, direct: 0, indirect: 0, hits: [] };
   return map;
 }
 
 /** Weight of an exercise for any id: sub-part weight, or for a group the largest weight among its sub-parts. */
 export function weightFor(muscles: Partial<Record<string, number>> | undefined, id: string): number {
   if (!muscles) return 0;
-  if (!isGroup(id)) return muscles[id] ?? 0;
+  if (!isGroup(id) && !isRegion(id)) return muscles[id] ?? 0;
   let best = 0;
-  for (const g of GROUPS) if (g.id === id) for (const sub of g.subs) best = Math.max(best, muscles[sub] ?? 0);
+  for (const sub of subsOf(id)) best = Math.max(best, muscles[sub] ?? 0);
   return best;
 }
 
-function bump(map: VolumeMap, mid: MuscleId, ex: { id: string; name: string }, weight: number, sets: number, factor: number, day: number | null, alt: boolean) {
+function bump(map: VolumeMap, mid: AnyMuscleId, ex: { id: string; name: string }, weight: number, sets: number, factor: number, day: number | null, alt: boolean) {
   const cell = map[mid];
   if (!cell) return;
   if (!alt) {
@@ -81,6 +81,13 @@ export function addWeights(map: VolumeMap, ex: { id: string; name: string }, mus
     groupMax.set(g, Math.max(groupMax.get(g) ?? 0, weight));
   }
   for (const [g, weight] of groupMax) bump(map, g, ex, weight, sets, factor, day, alt);
+  const regionMax = new Map<string, number>();
+  for (const [mid, weight] of Object.entries(muscles) as [SubId, number][]) {
+    if (!map[mid] || !weight) continue;
+    const r = regionOfSub(mid).id;
+    regionMax.set(r, Math.max(regionMax.get(r) ?? 0, weight));
+  }
+  for (const [r, weight] of regionMax) bump(map, r as AnyMuscleId, ex, weight, sets, factor, day, alt);
 }
 
 export function plannedSets(slot: Prescription): number {
@@ -245,7 +252,7 @@ export type Suggestion = {
 };
 
 /** Candidate moves that would hit a muscle more. Back-friendly options come first. */
-export function suggestionsFor(muscle: MuscleId, planExerciseIds: Set<string>, limit = 8): Suggestion[] {
+export function suggestionsFor(muscle: AnyMuscleId, planExerciseIds: Set<string>, limit = 8): Suggestion[] {
   const list: Suggestion[] = [];
   const ids = new Set<string>();
   for (const id of EXERCISE_IDS()) ids.add(id);
