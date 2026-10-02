@@ -43,7 +43,9 @@ test("planned volume carries region keys that match their subs", () => {
   const chest = vol["rg-chest"].effective;
   assert.ok(chest > 0, "chest region has planned volume");
   assert.ok(vol["chest"].effective >= chest - 1e-9);
-  assert.equal(weightFor({ "upper-chest": 1 } as never, "rg-chest"), weightFor({ "upper-chest": 1 } as never, "upper-chest"));
+  const sub = REGIONS.find((r) => r.id === "rg-chest")!.subs[0]!;
+  assert.equal(weightFor({ [sub]: 1 } as never, "rg-chest"), 1);
+  assert.equal(weightFor({ [sub]: 1 } as never, sub), 1);
 });
 
 test("every exercise has metadata, equipment categories and tags", () => {
