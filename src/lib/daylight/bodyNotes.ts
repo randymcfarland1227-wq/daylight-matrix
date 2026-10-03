@@ -1,9 +1,9 @@
-import { GROUPS, REGIONS, isGroup, isRegion, isSub, regionOfSub, resolveMuscle, type RegionId } from "./muscles";
+import { GROUPS, OLD_REGION_TO_MUSCLE, REGIONS, isGroup, isRegion, isSub, regionOfSub, resolveMuscle, type RegionId } from "./muscles";
 import type { Observation } from "./types";
 
 /** Where a note sits on the figure: its region (the pin), or the first region of its group when it was attached to a whole group. */
 export function noteRegion(n: Pick<Observation, "context">): RegionId | null {
-  const raw = n.context.muscleId ?? n.context.regionId;
+  const raw = n.context.muscleId ?? (n.context.regionId ? OLD_REGION_TO_MUSCLE[n.context.regionId] ?? n.context.regionId : undefined);
   if (!raw) return null;
   const c = resolveMuscle(raw);
   if (!c) return null;
