@@ -184,7 +184,7 @@ export function Body() {
                   <div className="h-[30rem]" />
                 )}
                 <div className="absolute inset-x-0 bottom-2 flex items-center justify-center gap-1.5">
-                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn left" data-testid="turn-left" onClick={() => setTurnView((v) => ({ front: "left", left: "back", back: "right", right: "front" } as const)[v])}>
+                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn left" data-testid="turn-ccw" onClick={() => setTurnView((v) => ({ front: "left", left: "back", back: "right", right: "front" } as const)[v])}>
                     <RotateCcw className="size-4" />
                   </button>
                   {(["front", "right", "back", "left"] as const).map((v) => (
@@ -192,16 +192,16 @@ export function Body() {
                       {v[0]!.toUpperCase() + v.slice(1)}
                     </button>
                   ))}
-                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn right" data-testid="turn-right" onClick={() => setTurnView((v) => ({ front: "right", right: "back", back: "left", left: "front" } as const)[v])}>
+                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn right" data-testid="turn-cw" onClick={() => setTurnView((v) => ({ front: "right", right: "back", back: "left", left: "front" } as const)[v])}>
                     <RotateCw className="size-4" />
                   </button>
                 </div>
               </div>
               <p className="mt-2 text-xs text-ink-soft">Drag to turn. Tap a muscle to pick it. Reference male scaled to 6&apos;4&quot;. Not a scan of you and not a medical model; zones are approximate.</p>
               {turnSel ? (
-                <Card className="mt-2 flex flex-wrap items-center gap-2 p-3" data-testid="turn-selected">
+                <Card className="mt-2 flex flex-wrap items-center gap-2 p-3" >
                   <MapPin className="size-4 text-teal" />
-                  <span className="min-w-0 flex-1 font-bold">{regionInfo(turnSel)?.name ?? turnSel}</span>
+                  <span className="min-w-0 flex-1 font-bold" data-testid="turn-selected">{regionInfo(turnSel)?.name ?? turnSel}</span>
                   <Button size="sm" tone="sun" data-testid="turn-open" onClick={() => open(turnSel as AnyMuscleId)}>
                     See moves
                   </Button>
