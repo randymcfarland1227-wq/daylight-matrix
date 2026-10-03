@@ -176,3 +176,14 @@ The old 24-region body screen, the Planned/Completed/How-I-felt layers, Fraunces
 - Turn needs WebGL; without it the flat map still works (Turn shows an empty panel). Mesh is ~1.7 MB, three.js ~0.5 MB, both lazy.
 - Pins on the flat figure sit at the centre of each region's drawing.
 - The weekly-target / heat-map caveats from round 3 still apply.
+
+## Round 4: embedded demo videos (branch `videos`, from `merge` 1096170)
+
+Randy asked for a real video of the move instead of only a YouTube search link.
+
+- **Data**: `src/lib/daylight/videos.ts`. `VIDEOS[exerciseId] = { id, title, channel, verifiedAt }` for 91 of the 97 catalog moves, plus `NO_VIDEO` (explicit fallbacks with a reason) for the other 6. A unit test (`videos.test.ts`) fails if any entry lacks id/title/channel, any key is not a real exercise, or any plan move (slots and alternatives) has neither a video nor an explicit fallback.
+- **Verification (2026-10-03)**: candidates came from `yt-dlp ytsearch` (ids, titles, channels, durations). Each chosen id was then checked with the YouTube oEmbed endpoint (HTTP 200, which also refuses non-embeddable videos) and `yt-dlp playable_in_embed`; the oEmbed title/author is what is stored. Titles were read against the move. One candidate that oEmbed accepted but yt-dlp reported unavailable was dropped and replaced. No id was invented.
+- **UI**: `VideoEmbed.tsx`, shown at the top of `ExercisePage` (and therefore in gym mode's form view, which opens the same page). Thumbnail from `i.ytimg.com` with a play button; the `youtube-nocookie.com` iframe is mounted only after a tap. Shows the title, "Video by <channel>" and "Open on YouTube". No verified clip, offline, or a player that does not load within 12 s shows the existing YouTube-search link (`demo-link` stays on the page, as does the MuscleWiki link).
+- **PWA**: `sw.js` (v3) never intercepts youtube.com / youtube-nocookie.com / ytimg.com / googlevideo.com (and already ignored every cross-origin request). Verified in a browser that the cache holds no YouTube URLs. Offline, the written guide and diagrams still work.
+- **Caveats**: videos are third-party and can be removed or have embedding disabled later; the fallback link then still works. Re-run the oEmbed check periodically.
+- **Not done**: nothing was published. Publishing to the live repo is a separate step: copy `dist/client` (staged at `/workspace/daylight-overhaul-dist-videos`) over the live repo's root and push `main` after Randy approves.
