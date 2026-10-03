@@ -187,3 +187,14 @@ Randy asked for a real video of the move instead of only a YouTube search link.
 - **PWA**: `sw.js` (v3) never intercepts youtube.com / youtube-nocookie.com / ytimg.com / googlevideo.com (and already ignored every cross-origin request). Verified in a browser that the cache holds no YouTube URLs. Offline, the written guide and diagrams still work.
 - **Caveats**: videos are third-party and can be removed or have embedding disabled later; the fallback link then still works. Re-run the oEmbed check periodically.
 - **Not done**: nothing was published. Publishing to the live repo is a separate step: copy `dist/client` (staged at `/workspace/daylight-overhaul-dist-videos`) over the live repo's root and push `main` after Randy approves.
+
+## Round 5: real photos, inline motion loop, no YouTube
+
+Randy's asks: replace the cartoon diagrams in the one-by-one (gym) view with real photos, play the demo inline with no navigation, and stop embedding YouTube.
+
+- **Photos**: `src/lib/daylight/exImages.ts`, 69 of 97 moves. Source is Free Exercise DB (yuhonas/free-exercise-db), The Unlicense (public domain). Matched by name and equipment against the dataset (`exact` = same movement, 55; `close` = nearest variant, 14, labelled "Closest photo match" in the UI). Every image URL was fetched (HTTP 200, image/jpeg). Hotlinked from raw.githubusercontent.com (CORS open), lazy; not bundled (about 9 MB for all 138 files).
+- **Inline "video"**: `MoveMedia.tsx`. The start and end photos crossfade in a muted, looping strip inside the one-by-one view, the guided timer view and the exercise page. It starts on its own, has a pause button, and respects reduced-motion (then a manual "flip"). No click leads anywhere. Honest limit: this is two real photos looping, not motion video. No openly licensed video library covered these moves (see below).
+- **Why no video library**: wger's 78 videos are 30-50 MB HEVC .MOV files for a few moves; Wikimedia Commons has about ten barbell demos; the large GIF libraries (ExerciseDB, Gym Visual, BodyIQDB) are copyrighted or educational-use only. None was used.
+- **YouTube**: all embeds, thumbnails and the `VideoEmbed` component are gone. `videos.ts` stays as a reference-link list (not shown). The "Find a demo video" search link remains for every move.
+- **Offline**: `sw.js` v4 caches the photo set cache-first (`dm-photos-v1`, kept across versions, capped at 400), never touches YouTube. Gym mode quietly prefetches today's photos once, skipped on Data Saver or offline. If a photo fails, the move falls back to the old diagram.
+- **Diagrams stay only** for the 28 moves with no photo (PT floor drills, cardio entries, a few odd moves); see `NO_PHOTO`.

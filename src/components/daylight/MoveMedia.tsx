@@ -25,18 +25,21 @@ export function prefetchPhotos(exerciseIds: string[]): void {
   if (conn?.saveData || navigator.onLine === false) return;
   const urls = new Set<string>();
   for (const id of exerciseIds) for (const u of photosFor(id)?.images ?? []) urls.add(u);
-  const run = () => {
-    for (const u of urls) {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.referrerPolicy = "no-referrer";
-      img.decoding = "async";
-      img.src = u;
+  const list = [...urls];
+  const run = async () => {
+    // One at a time: gentle on data, and the service worker keeps each response for offline.
+    for (const u of list) {
+      try {
+        const r = await fetch(u, { mode: "cors", credentials: "omit", referrerPolicy: "no-referrer" });
+        await r.arrayBuffer();
+      } catch {
+        return; // offline or blocked: stop quietly, the diagram fallback covers it
+      }
     }
   };
   const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
-  if (w.requestIdleCallback) w.requestIdleCallback(run);
-  else window.setTimeout(run, 800);
+  if (w.requestIdleCallback) w.requestIdleCallback(() => void run());
+  else window.setTimeout(() => void run(), 800);
 }
 
 /** Real start/end photos of the move, played as a muted looping motion strip, inline. Moves without a photo keep the old diagram. */
