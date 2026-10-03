@@ -13,6 +13,7 @@ import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { MapFigure } from "./MapFigure";
 import { MoveArt } from "./MoveArt";
+import { VideoEmbed } from "./VideoEmbed";
 import { DIFF_TONE } from "./MusclePage";
 import { Badge, Button, Eyebrow, cn } from "./ui";
 
@@ -128,6 +129,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <div className="min-w-0 space-y-6">
+              <VideoEmbed key={exerciseId} exerciseId={exerciseId} name={name} />
               <MoveArt exerciseId={exerciseId} />
 
               {uses.length ? (

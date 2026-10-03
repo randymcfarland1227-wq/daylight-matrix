@@ -1,7 +1,10 @@
 /* Daylight Matrix service worker: keeps the app usable offline at the gym.
    HTML is network-first (so a new build is never trapped behind a stale cache);
-   hashed assets are cache-first. Your logs live in localStorage and are never touched here. */
-const VERSION = "dm-v2-overhaul";
+   hashed assets are cache-first. Your logs live in localStorage and are never touched here.
+   Demo videos (YouTube embeds and ytimg thumbnails) are third-party: they are never cached or intercepted here.
+   The app shell and written guides stay fully offline; the video card falls back to a search link. */
+const THIRD_PARTY_MEDIA = /(^|\.)(youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
+const VERSION = "dm-v3-videos";
 const CORE = ["./", "./manifest.webmanifest", "./favicon.svg", "./icon-192.png"];
 
 self.addEventListener("install", (e) => {
@@ -15,7 +18,8 @@ self.addEventListener("activate", (e) => {
 });
 self.addEventListener("fetch", (e) => {
   const req = e.request;
-  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== "GET" || THIRD_PARTY_MEDIA.test(url.hostname) || url.origin !== self.location.origin) return;
   const isDoc = req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
   if (isDoc) {
     e.respondWith(
