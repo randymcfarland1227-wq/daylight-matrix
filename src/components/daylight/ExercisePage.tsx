@@ -12,8 +12,7 @@ import { activePlan } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { MapFigure } from "./MapFigure";
-import { MoveArt } from "./MoveArt";
-import { VideoEmbed } from "./VideoEmbed";
+import { MoveMedia } from "./MoveMedia";
 import { DIFF_TONE } from "./MusclePage";
 import { Badge, Button, Eyebrow, cn } from "./ui";
 
@@ -129,8 +128,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <div className="min-w-0 space-y-6">
-              <VideoEmbed key={exerciseId} exerciseId={exerciseId} name={name} />
-              <MoveArt exerciseId={exerciseId} />
+              <MoveMedia key={exerciseId} exerciseId={exerciseId} />
 
               {uses.length ? (
                 <div className="space-y-2 rounded-2xl border border-sun/40 bg-sun/10 p-4" data-testid="plan-context">
@@ -306,7 +304,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
             <a href={demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-forest px-4 font-bold text-on-forest" data-testid="demo-link">
-              <PlayCircle className="size-5" /> Watch demo (YouTube search) <ExternalLink className="size-4" />
+              <PlayCircle className="size-5" /> Find a demo video (opens a search) <ExternalLink className="size-4" />
             </a>
             {mw ? (
               <a href={mw} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface px-4 font-bold" data-testid="mw-link">

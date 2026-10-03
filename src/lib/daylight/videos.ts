@@ -1,4 +1,6 @@
-/* Embedded demo videos, keyed by exercise id.
+/* REFERENCE LINKS ONLY (round 5). Nothing here is embedded any more: the app plays no YouTube video, loads no YouTube iframe or thumbnail.
+   This is the round-4 list of verified YouTube form tutorials, kept as an external link list that the UI does not currently show.
+   Round-4 note: demo videos, keyed by exercise id.
    Every entry was checked on VERIFIED_AT: the YouTube oEmbed endpoint answered 200 for the id
    (https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=ID&format=json, which refuses
    non-embeddable videos), the oEmbed title/author were recorded below, and the title was read against the move.
@@ -102,7 +104,7 @@ export const VIDEOS: Record<string, VideoEntry> = {
   "reverse-hyper-light": { id: "80vSt6iDywo", title: "How To Do Reverse Hyperextensions to Fix Low Back Pain (Posterior Pelvic Tilt)", channel: "Dr. Josh Jagoda", verifiedAt: VERIFIED_AT },
 };
 
-/** Deliberate fallbacks: no verified clip of that exact movement. These keep the "Watch demo (YouTube search)" link. */
+/** Deliberate fallbacks: no verified clip of that exact movement. These keep the "Find a demo video" search link. */
 export const NO_VIDEO: Record<string, string> = {
   "battle-rope-squat": "Unusual page-2 note. Only low-reputation clips of battle-rope squat waves were found, so it keeps the search link.",
   "mobility-flow": "The PDF gives a time window, not a sequence, so no single video is right.",
@@ -119,9 +121,5 @@ export function videoFor(exerciseId: string): VideoEntry | undefined {
 const ID_RE = /^[A-Za-z0-9_-]{11}$/;
 export const isVideoId = (id: string): boolean => ID_RE.test(id);
 
-/** Plain YouTube page, used for the "Open on YouTube" link. */
+/** Plain YouTube page for a reference video (a link, never an embed). */
 export const watchUrl = (id: string): string => `https://www.youtube.com/watch?v=${id}`;
-/** Privacy-enhanced embed. Only mounted after the user taps play. */
-export const embedUrl = (id: string): string => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
-/** Thumbnail shown before play (no iframe, no YouTube scripts until tapped). */
-export const thumbUrl = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;

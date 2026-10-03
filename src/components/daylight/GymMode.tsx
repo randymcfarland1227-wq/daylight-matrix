@@ -9,7 +9,8 @@ import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import type { Prescription, WorkoutSession } from "@/lib/daylight/types";
 import { plannedSets } from "@/lib/daylight/volume";
-import { MoveArt, MoveThumb } from "./MoveArt";
+import { MoveThumb } from "./MoveArt";
+import { MoveMedia, prefetchPhotos } from "./MoveMedia";
 import { Overlays } from "./Overlays";
 import { Toast } from "./Toast";
 import { Badge, Button, Eyebrow, Stepper, cn, haptic, useNow } from "./ui";
@@ -54,6 +55,12 @@ export function GymMode({ weekday }: { weekday: number }) {
     list.push({ key: "end", type: "end" });
     return list;
   }, [slots, ptMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Warm the photo cache for today's moves so the one-by-one view keeps its pictures offline.
+  const photoKey = slots.map((s) => s.exerciseId).join("|");
+  useEffect(() => {
+    prefetchPhotos(photoKey.split("|"));
+  }, [photoKey]);
 
   const idx = Math.min(cur, steps.length - 1);
   const step = steps[idx]!;
@@ -358,7 +365,7 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
       {replaced ? <p className="mt-1 rounded-xl bg-sun/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
 
       <div className="mt-3">
-        <MoveArt exerciseId={exerciseId} compact />
+        <MoveMedia key={exerciseId} exerciseId={exerciseId} compact />
       </div>
 
       {slot.sourceCue ? (
@@ -558,7 +565,7 @@ export function GuidedRun({ slots, session, weekday, onClose, onFinished }: { sl
             {rep ? <p className="mt-1 text-xl font-bold text-ink-soft tabular-nums" data-testid="guided-rep">rep {rep} of {p.reps}</p> : null}
           </div>
         </div>
-        {p.kind !== "rest" ? <div className="mt-4 w-full max-w-xs"><MoveArt exerciseId={exId} compact /></div> : null}
+        {p.kind !== "rest" ? <div className="mt-4 w-full max-w-xs"><MoveMedia key={exId} exerciseId={exId} compact /></div> : null}
         {nextPhase ? <p className="mt-3 text-sm text-ink-soft">Next: {nextPhase.kind === "rest" ? "rest" : nextPhase.kind === "ready" ? `get ready for ${nextPhase.label}` : `${nextPhase.label}${nextPhase.side ? `, ${nextPhase.side}` : ""}`}</p> : <p className="mt-3 text-sm text-ink-soft">Last one. Everything is logged as prescribed when you finish.</p>}
       </div>
       <div className="mx-auto grid w-full max-w-xl grid-cols-3 gap-2 px-4" style={{ paddingBottom: "max(0.9rem, env(safe-area-inset-bottom))" }}>
