@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { ArrowRight, Droplets, Flag, Footprints, PenLine, Play, Utensils } from "lucide-react";
+import { ArrowRight, Droplets, Flag, Footprints, MapPin, PenLine, Play, Utensils } from "lucide-react";
 import { WEEKDAY_NAMES, localDate, prettyDate, shiftDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
-import { GROUPS, muscleName, targetFor, type AnyMuscleId, type MuscleId } from "@/lib/daylight/muscles";
+import { bodyNotes } from "@/lib/daylight/bodyNotes";
+import { GROUPS, muscleName, regionInfo, targetFor, type AnyMuscleId, type MuscleId } from "@/lib/daylight/muscles";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, statusFor } from "@/lib/daylight/volume";
@@ -45,6 +46,7 @@ export function Today() {
   const muscles = dayMuscles({ ...day, slots }).filter((m) => m.weight >= 0.5).slice(0, 6);
 
   const heat = useMemo(() => heatSnapshot(s.sessions, plan, 7, today), [s.sessions, plan, today]);
+  const bodyNoteList = useMemo(() => bodyNotes(s.observations).list, [s.observations]);
   const target = s.weeklyTarget;
   const under = GROUPS.filter((m) => {
     const x = statusFor(heat.map[m.id], heat.weeklyFactor, targetFor(m.id, target));
@@ -205,6 +207,15 @@ export function Today() {
               </Button>
             </div>
           </div>
+          {bodyNoteList.length ? (
+            <button type="button" data-testid="today-body-notes" className="tap mt-3 flex w-full items-start gap-2 rounded-xl bg-surface-2 px-3 py-2 text-left" onClick={go("body")}>
+              <MapPin className="mt-0.5 size-4 shrink-0 text-teal" />
+              <span className="min-w-0 text-sm">
+                <b>{bodyNoteList.length} note{bodyNoteList.length === 1 ? "" : "s"} on the body</b>
+                <span className="block truncate text-ink-soft">{regionInfo(bodyNoteList[0]!.region)?.name}: {bodyNoteList[0]!.text}</span>
+              </span>
+            </button>
+          ) : null}
         </Card>
 
         <Card>
