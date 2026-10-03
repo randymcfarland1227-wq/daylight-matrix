@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { ArrowRight, Target } from "lucide-react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { ArrowRight, MapPin, Pencil, RotateCcw, RotateCw, Target } from "lucide-react";
 import { localDate } from "@/lib/daylight/dates";
 import {
   GROUPS, REGIONS, SUBS, groupInfo, groupOfSub, isGroup, isRegion, isSub, regionInfo, resolveMuscle, subInfo, targetFor,
@@ -10,9 +10,14 @@ import { useDaylight } from "@/lib/daylight/store";
 import { STATUS_LABEL, fmt, heatLevel, heatSnapshot, plannedVolume, statusFor, type CoverageStatus, type VolumeMap } from "@/lib/daylight/volume";
 import type { BodyMode } from "@/lib/daylight/types";
 import { FIG_SKIN, GROUP_HUE, INDIRECT_COLOR, RAMP_CSS, mix, rampColor, ROLE_STRENGTH } from "@/lib/daylight/figureColors";
+import { bodyNotes } from "@/lib/daylight/bodyNotes";
 import { MapFigure, type MapLevel } from "./MapFigure";
+import type { TurnView } from "./TurnFigure";
 import { MusclePage } from "./MusclePage";
-import { Badge, Card, Chip, Eyebrow, PageHead, Segmented, cn } from "./ui";
+import { Badge, Button, Card, Chip, Eyebrow, PageHead, Segmented, cn } from "./ui";
+
+// three.js and the mesh are only fetched when the Turn view is opened
+const TurnFigure = lazy(() => import("./TurnFigure").then((m) => ({ default: m.TurnFigure })));
 
 export const STATUS_TONE: Record<CoverageStatus, "danger" | "copper" | "sun" | "forest" | "teal"> = {
   none: "danger",
@@ -70,6 +75,12 @@ export function Body() {
   const planned = useMemo(() => plannedVolume(plan), [plan]);
   const heat = useMemo(() => heatSnapshot(state.sessions, plan, state.heatWindow, today), [state.sessions, plan, state.heatWindow, today]);
   const heatSrc: Src = heat;
+  const style = state.bodyStyle ?? "map";
+  const notes = useMemo(() => bodyNotes(state.observations), [state.observations]);
+  const [turnView, setTurnView] = useState<TurnView>("front");
+  const [turnSel, setTurnSel] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const raw = state.selectedMuscleId;
   const canon = raw ? resolveMuscle(raw) : null;
@@ -100,7 +111,16 @@ export function Body() {
             { id: "grow", label: "Grow an area" },
           ]}
         />
-        <label className="tap flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl bg-surface-2 px-3 text-sm font-bold" data-testid="advanced-toggle">
+        <Segmented<"map" | "turn">
+          label="Figure style"
+          value={style}
+          onChange={(v) => state.setBody({ bodyStyle: v })}
+          options={[
+            { id: "map", label: "Front + back" },
+            { id: "turn", label: "Turn" },
+          ]}
+        />
+        <label className={cn("tap flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl bg-surface-2 px-3 text-sm font-bold", style === "turn" && "pointer-events-none opacity-50")} data-testid="advanced-toggle">
           <span>Advanced</span>
           <input
             type="checkbox"
@@ -137,17 +157,66 @@ export function Body() {
 
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:items-start">
         <div>
-          <div className="figure-panel card overflow-hidden p-2 sm:p-4" data-testid="main-map" data-level={level}>
-            <div className="grid grid-cols-2 gap-1 sm:gap-4">
-              {(["front", "back"] as const).map((view) => (
-                <MapFigure key={view} view={view} level={level} className="mx-auto h-auto w-full max-w-[230px]" fill={fill} under={under} onSelect={open} showLabel />
-              ))}
+          {style === "map" ? (
+            <div className="figure-panel card overflow-hidden p-2 sm:p-4" data-testid="main-map" data-level={level}>
+              <div className="grid grid-cols-2 gap-1 sm:gap-4">
+                {(["front", "back"] as const).map((view) => (
+                  <MapFigure key={view} view={view} level={level} className="mx-auto h-auto w-full max-w-[230px]" fill={fill} under={under} onSelect={open} showLabel pins={notes.pins} />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div data-testid="turn-view">
+              <div className="figure-panel card relative overflow-hidden">
+                {mounted ? (
+                  <Suspense fallback={<div className="grid h-[30rem] place-items-center text-sm text-ink-soft">Loading the figure…</div>}>
+                    <TurnFigure
+                      className="h-[30rem] w-full sm:h-[34rem]"
+                      view={turnView}
+                      fill={(id) => fill(id)}
+                      under={(id) => under(id)}
+                      selected={turnSel}
+                      pins={notes.pins}
+                      onSelect={(id) => setTurnSel(id)}
+                    />
+                  </Suspense>
+                ) : (
+                  <div className="h-[30rem]" />
+                )}
+                <div className="absolute inset-x-0 bottom-2 flex items-center justify-center gap-1.5">
+                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn left" data-testid="turn-left" onClick={() => setTurnView((v) => ({ front: "left", left: "back", back: "right", right: "front" } as const)[v])}>
+                    <RotateCcw className="size-4" />
+                  </button>
+                  {(["front", "right", "back", "left"] as const).map((v) => (
+                    <button key={v} type="button" data-testid={`turn-${v}`} aria-pressed={turnView === v} onClick={() => setTurnView(v)} className={cn("tap min-h-9 rounded-full px-3 text-xs font-bold shadow", turnView === v ? "bg-sun text-on-sun" : "bg-surface/90 text-ink")}>
+                      {v[0]!.toUpperCase() + v.slice(1)}
+                    </button>
+                  ))}
+                  <button type="button" className="tap grid size-9 place-items-center rounded-full bg-surface/90 text-ink shadow" aria-label="Turn right" data-testid="turn-right" onClick={() => setTurnView((v) => ({ front: "right", right: "back", back: "left", left: "front" } as const)[v])}>
+                    <RotateCw className="size-4" />
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-ink-soft">Drag to turn. Tap a muscle to pick it. Reference male scaled to 6&apos;4&quot;. Not a scan of you and not a medical model; zones are approximate.</p>
+              {turnSel ? (
+                <Card className="mt-2 flex flex-wrap items-center gap-2 p-3" data-testid="turn-selected">
+                  <MapPin className="size-4 text-teal" />
+                  <span className="min-w-0 flex-1 font-bold">{regionInfo(turnSel)?.name ?? turnSel}</span>
+                  <Button size="sm" tone="sun" data-testid="turn-open" onClick={() => open(turnSel as AnyMuscleId)}>
+                    See moves
+                  </Button>
+                  <Button size="sm" tone="soft" data-testid="turn-note" onClick={() => state.setOverlay({ type: "note", muscleId: turnSel, kind: "general" })}>
+                    <Pencil className="size-4" /> Add a note
+                  </Button>
+                </Card>
+              ) : null}
+            </div>
+          )}
           <Legend mode={mode} />
         </div>
 
         <div className="space-y-4">
+          <BodyNotes notes={notes.list} />
           {mode === "grow" ? <GrowPicker under={underGroups.map((g) => g.id)} underSubs={underSubs.map((s) => s.id)} /> : <Overview planned={planned} heat={heat} mode={mode} underSubs={underSubs.map((s) => s.id)} />}
         </div>
       </div>
@@ -295,3 +364,34 @@ export function GrowPicker({ under, underSubs }: { under: GroupId[]; underSubs: 
   );
 }
 
+
+
+/** Every note that is attached to a muscle, in one list. The pins on the figure are these notes. */
+export function BodyNotes({ notes }: { notes: ReturnType<typeof bodyNotes>["list"] }) {
+  const state = useDaylight();
+  return (
+    <Card className="animate-rise" >
+      <div className="flex items-center gap-2" data-testid="body-notes">
+        <MapPin className="size-5 text-teal" />
+        <h2 className="flex-1 font-display text-xl">Body notes</h2>
+        <Badge tone="plain">{notes.length}</Badge>
+      </div>
+      {notes.length === 0 ? (
+        <p className="mt-2 text-sm text-ink-soft">Nothing pinned yet. Tap a muscle and add a note, or attach one from any quick note. Pinned notes show as numbered dots on the figure.</p>
+      ) : (
+        <ul className="mt-3 divide-y divide-line" data-testid="body-notes-list" aria-label="Notes attached to muscles">
+          {notes.map((n) => (
+            <li key={n.id} className="py-2.5">
+              <button type="button" className="tap -mx-1 block w-[calc(100%+0.5rem)] rounded-lg px-1 text-left hover:bg-surface-2" onClick={() => state.setBody({ selectedMuscleId: n.region })}>
+                <p className="text-xs font-bold uppercase tracking-wide text-teal">
+                  {regionInfo(n.region)?.name ?? n.region} <span className="font-medium normal-case tracking-normal text-ink-faint">· {n.context.date}</span>
+                </p>
+                <p className="text-sm">{n.text}</p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}

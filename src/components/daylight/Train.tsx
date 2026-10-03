@@ -177,7 +177,7 @@ function SessionScreen() {
               {slots.filter((s) => !s.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} planned sets
             </p>
           </div>
-          <Ring value={pct} size={76} stroke={8} color="#e2b672" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
+          <Ring value={pct} size={76} stroke={8} color="#8cd0e6" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
             <span className="font-display text-xl text-white">{Math.round(pct * 100)}%</span>
           </Ring>
         </div>

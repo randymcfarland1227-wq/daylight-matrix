@@ -141,6 +141,8 @@ type Data = {
   selectedMuscleId: string | null;
   /** Body map detail: Standard = ~17 named muscles, Advanced = all sub-parts. */
   bodyDetail: "standard" | "advanced";
+  /** Body map surface: the flat front + back chart, or the turnable 6'4" figure. */
+  bodyStyle: "map" | "turn";
   schemaVersion: number;
   theme: ThemeChoice;
   /** Fluid ounces per day. Yours to set. */
@@ -289,7 +291,7 @@ type Actions = {
   addGoal: () => void;
   setPtNote: (id: string, note: string) => void;
   // body / ui
-  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail">>) => void;
+  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail" | "bodyStyle">>) => void;
   setTheme: (theme: ThemeChoice) => void;
   setWeeklyTarget: (n: number) => void;
   setPlanContext: (text: string) => void;
@@ -367,6 +369,7 @@ const seed = (): Data => ({
   heatWindow: 14,
   selectedMuscleId: null,
   bodyDetail: "standard",
+  bodyStyle: "map",
   schemaVersion: SCHEMA_VERSION,
   theme: "dark",
   waterGoal: 96,

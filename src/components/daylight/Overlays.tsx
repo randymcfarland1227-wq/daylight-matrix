@@ -12,6 +12,8 @@ import { DAY_STYLE } from "@/lib/daylight/theme";
 import { Button, Chip, Sheet, cn, haptic } from "./ui";
 import { ExercisePage } from "./ExercisePage";
 import { DidElseSheet, SwapMoveSheet } from "./MoveSheets";
+import { MapFigure } from "./MapFigure";
+import { FIG_SKIN } from "@/lib/daylight/figureColors";
 import { MusclePicker } from "./MusclePicker";
 
 export function Overlays() {
@@ -175,6 +177,12 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
           </div>
           <div>
             <p className="eyebrow mb-1">Muscle</p>
+            <div className="figure-panel mb-2 grid grid-cols-2 gap-1 rounded-2xl p-2" data-testid="note-figure">
+              {(["front", "back"] as const).map((v) => (
+                <MapFigure key={v} view={v} level="region" className="mx-auto h-auto w-full max-w-[150px]" fill={(id) => (muscleId === id ? "#4aa3d8" : FIG_SKIN)} selected={muscleId} onSelect={(id) => setMuscleId(id)} />
+              ))}
+              <p className="col-span-2 text-center text-xs" style={{ color: "var(--fig-ink)" }}>{muscleId ? `Attached to ${muscleName(muscleId)}` : "Tap the figure to attach this note to a muscle"}</p>
+            </div>
             <MusclePicker multi={false} value={muscleId ? [muscleId] : []} onChange={(v) => setMuscleId(v[v.length - 1])} />
           </div>
         </div>

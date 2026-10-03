@@ -96,7 +96,7 @@ export function Today() {
                   {slots.filter((x) => !x.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} sets
                 </p>
               </div>
-              <Ring value={pct} size={72} stroke={8} color="#e2b672" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
+              <Ring value={pct} size={72} stroke={8} color="#8cd0e6" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
                 <span className="font-display text-lg text-white">{fmt(totals.done)}/{Math.ceil(totals.target)}</span>
               </Ring>
             </div>

@@ -17,10 +17,10 @@ const ITEMS: { id: AppView; label: string; icon: typeof SunMedium }[] = [
 export function Logo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#201c17" />
-      <circle cx="16" cy="19" r="7.2" fill="#cf9c55" />
-      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#4a3f31" />
-      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#cf9c55" strokeWidth="1.7" strokeLinecap="round" />
+      <rect width="32" height="32" rx="9" fill="#151d23" />
+      <circle cx="16" cy="19" r="7.2" fill="#5fb6cf" />
+      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#2c4352" />
+      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#5fb6cf" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }

@@ -1,6 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/manrope/wght.css";
-@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/outfit/wght.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -22,8 +21,8 @@
   --color-teal: var(--teal);
   --color-danger: var(--danger);
   --color-day: var(--day);
-  --font-sans: "Manrope Variable", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Outfit Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Outfit Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --radius-card: 1.25rem;
   --animate-rise: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   --animate-pop: pop 0.28s cubic-bezier(0.3, 1.5, 0.5, 1) both;
@@ -31,53 +30,53 @@
 }
 
 :root {
-  /* Light variant: bone paper, warm charcoal ink, one amber accent. */
-  --canvas: #efe9dd;
-  --surface: #f8f4ec;
-  --surface-2: #e7dfd0;
-  --ink: #221e18;
-  --ink-soft: #4e473b;
-  --ink-faint: #625a4b;
-  --line: #d8cfbd;
-  --forest: #3b352b;          /* primary action: warm charcoal */
-  --forest-deep: #2a251d;
-  --on-forest: #f6f1e6;
-  --sun: #b9822f;             /* the single accent: muted amber (fills only; use copper-deep for text) */
-  --on-sun: #1d1508;
-  --copper: #9c5b3a;
-  --copper-deep: #7d4528;
-  --teal: #3f6a77;            /* desaturated blue-teal for info / underserved */
-  --danger: #a84a40;
-  --day: #3b352b;
-  --muscle-idle: #d8d0bf;
-  --muscle-stroke: #f3eee3;
-  --body-skin: #cbc1ac;
-  --body-edge: #a79d88;
+  /* Light variant: cool paper, slate ink, one deep blue-teal accent. No green. */
+  --canvas: #f1f5f8;
+  --surface: #ffffff;
+  --surface-2: #e4ecf1;
+  --ink: #112029;
+  --ink-soft: #44596a;
+  --ink-faint: #55697a;
+  --line: #d3dee6;
+  --forest: #14566b;          /* primary action: deep blue-teal */
+  --forest-deep: #0d4153;
+  --on-forest: #f2fafc;
+  --sun: #1f7a99;             /* the single accent: calm steel blue */
+  --on-sun: #ffffff;
+  --copper: #b0573f;
+  --copper-deep: #8e432e;
+  --teal: #2f6f8f;            /* info / underserved */
+  --danger: #b13e3e;
+  --day: #14566b;
+  --muscle-idle: #d3dee6;
+  --muscle-stroke: #f1f5f8;
+  --body-skin: #c9d4de;
+  --body-edge: #9fb0be;
   color-scheme: light;
 }
 .dark {
-  /* Dark (default): warm charcoal, soft bone text, muted amber accent. */
-  --canvas: #161411;
-  --surface: #201d18;
-  --surface-2: #2a2620;
-  --ink: #eee6d6;
-  --ink-soft: #bdb4a2;
-  --ink-faint: #9a9282;
-  --line: #36312a;
-  --forest: #d9cdb2;          /* primary action: soft sand */
-  --forest-deep: #eadfc6;
-  --on-forest: #1b1813;
-  --sun: #cf9c55;
-  --on-sun: #1d1508;
-  --copper: #c58660;
-  --copper-deep: #d9a07c;
-  --teal: #7ba3ae;
-  --danger: #e0877d;
-  --day: #d9cdb2;
-  --muscle-idle: #342f27;
-  --muscle-stroke: #1d1a15;
-  --body-skin: #2b2721;
-  --body-edge: #47403a;
+  /* Dark (default): cool slate, soft ice text, calm blue accent. */
+  --canvas: #0e1418;
+  --surface: #151d23;
+  --surface-2: #1d2830;
+  --ink: #e7eef2;
+  --ink-soft: #b2c0c8;
+  --ink-faint: #93a3ad;
+  --line: #2a3841;
+  --forest: #9bd0e0;          /* primary action: ice blue */
+  --forest-deep: #bfe3ef;
+  --on-forest: #0b1a21;
+  --sun: #5fb6cf;
+  --on-sun: #06222c;
+  --copper: #d08a74;
+  --copper-deep: #e2a18c;
+  --teal: #8bb4d8;
+  --danger: #e58a86;
+  --day: #9bd0e0;
+  --muscle-idle: #28343c;
+  --muscle-stroke: #172028;
+  --body-skin: #222d35;
+  --body-edge: #3a4a55;
   color-scheme: dark;
 }
 
@@ -138,6 +137,8 @@
   }
   h1, h2, h3 {
     font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.025em;
     font-optical-sizing: auto;
     text-wrap: balance;
     letter-spacing: -0.01em;
@@ -196,8 +197,8 @@
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 /* Round 3 body chart: flat pale figure, coloured muscle regions */
-:root { --fig-bg: #e8ebf1; --fig-ink: #1c2436; }
-.dark { --fig-bg: #22252c; --fig-ink: #e6e9f0; }
+:root { --fig-bg: #e6edf3; --fig-ink: #15233a; }
+.dark { --fig-bg: #1d2731; --fig-ink: #e6edf5; }
 .mapreg { cursor: pointer; outline: none; }
 .mapreg .mr-fill { transition: fill 360ms ease, fill-opacity 260ms ease; }
 .mapreg:hover .mr-fill, .mapreg:focus-visible .mr-fill { filter: brightness(0.93) saturate(1.15); }
