@@ -145,3 +145,34 @@ A staged build is at `/workspace/daylight-overhaul-dist-r3`. The live repo has n
 - Difficulty, force and mechanic are editorial classifications, not sourced data.
 - Exercise text is the round-2 general-education guide repackaged into quick steps and Setup / Performing.
 - The heat map is relative to the weekly target (default 10 weighted sets per group); with the default target and a full plan most groups read red. Change the target on the Body tab to spread the ramp.
+
+---
+
+# Merge: round 3 + the live "refresh" (branch `merge`, from `round3` @ c7cc0b4 + `origin/main` @ 7ed6ea4)
+
+Randy: "look at both and merge the best of both into one version." `main` (7ed6ea4, live at 95e17ef) is the original v1 store plus a cooler look, a turnable 6'4" mesh figure and notes that attach to a muscle. It added no new persisted fields (`regionId` on a note already existed). Git history is merged (`git merge origin/main`); every source conflict was resolved to round 3's code, with main's ideas re-built on top.
+
+## Taken from main
+- **The turnable 6'4" figure** (`public/human-man.obj`, `three`): kept as a **Turn** view next to the flat chart (Body tab: "Front + back | Turn"). Rewritten as `TurnFigure.tsx`: a pale neutral mannequin whose regions are coloured with the same hues / heat ramp as the flat map (vertex colours from ellipsoid zones in `turnZones.ts`), drag to turn, Front/Right/Back/Left buttons, tap a muscle -> "See moves" or "Add a note". three.js and the mesh load only when Turn is opened (separate chunk). The terracotta skin, shadows and glowing blobs were dropped: they looked heavy next to the chart.
+- **Notes that attach to a muscle, visible in one list**: `Body notes` card on the Body tab (every note with a muscle or old region, newest first, tap to open the muscle), numbered pins on both figures (flat and Turn), a "N notes on the body" tile on Today, and a figure picker inside the quick-note sheet ("Link to a move or muscle" -> tap the figure). Notes use round 3's `context.muscleId`; main's `context.regionId` (24 old ids) is migrated to it, and `bodyNotes.ts` also reads `regionId` directly.
+- **Cooler palette and cleaner type**: Outfit (self-hosted, no Google CDN), white/slate cards in light, slate navy in dark, a calm steel-blue accent, tighter headings. Main's teal (#0c7c74) read green next to Randy's "no bright green", so the accent is steel blue (#1f7a99 light, #5fb6cf dark). Weekday accents were retuned to cool hues. Contrast checked (>= 4.5:1).
+
+## Kept from round 3
+MuscleWiki-style map (standard/advanced, hue per group, muscle page with plan first and filters, exercise page with colour-coded diagram), gym mode, form guides, swaps, notes + digest, heat map, food, migration.
+
+## Dropped from main
+The old 24-region body screen, the Planned/Completed/How-I-felt layers, Fraunces/Source Sans, the copper/forest theme, the committed `site/` build (replaced by the new build).
+
+## Migration results (Playwright, merged build)
+- Blob saved by the live main build (v1 store, 2 notes attached to `abs`, an active session): loads, schema 3, both notes kept and migrated to `abs-upper`, shown in Body notes with a pin, sessions kept, PDF plan appended, backups written.
+- Old v1 fixture, v2-style blob (light theme, `regionId` + `muscleId` notes), and round-3 v3 blobs: all load; no schema bump (still 3); `bodyStyle` defaults to `map`.
+- Unit tests: `merge.test.ts` (zones cover every region, note -> region mapping incl. main's old ids, pin counts, main-blob migration). Also fixed a date-dependent assertion in `daylight.test.ts`.
+
+## Publish steps (NOT executed)
+1. `npm run build:pages`; 2. rsync `dist/client/` into a clone of `randymcfarland1227-wq.github.io` (keep `.nojekyll`), **after `git pull` there: origin/main is 95e17ef, the local clone is still at round 2 (c443b46)**; 3. commit and push. Staged build: `/workspace/daylight-overhaul-dist-merge`.
+
+## Known weak spots
+- Turn view zones are ellipsoids placed by hand on a mesh of unknown origin (the OBJ is main's asset; its licence/provenance is not documented). Regions are blobs, not real muscle shapes; no Advanced (sub-muscle) level in Turn, and underserved is shown only as a paler colour there (dashed outlines exist on the flat map).
+- Turn needs WebGL; without it the flat map still works (Turn shows an empty panel). Mesh is ~1.7 MB, three.js ~0.5 MB, both lazy.
+- Pins on the flat figure sit at the centre of each region's drawing.
+- The weekly-target / heat-map caveats from round 3 still apply.
