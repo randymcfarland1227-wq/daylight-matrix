@@ -1,10 +1,12 @@
 /* Daylight Matrix service worker: keeps the app usable offline at the gym.
    HTML is network-first (so a new build is never trapped behind a stale cache);
    hashed assets are cache-first. Your logs live in localStorage and are never touched here.
-   The app embeds no video and loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is left alone: never intercepted or cached.
+   Round 6: exercise clips play through Vimeo's official player iframe. Vimeo (vimeo.com, player.vimeo.com, vimeocdn.com) is NEVER cached
+   or intercepted here: those requests go straight to the network, and offline the app shows the photos instead.
+   The app loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is also left alone: never intercepted or cached.
    The only cross-origin thing cached is the exercise photo set (Free Exercise DB, public domain): cache-first, so photos you have seen work offline. */
-const THIRD_PARTY_MEDIA = /(^|\.)(youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
-const VERSION = "dm-v4-photos";
+const THIRD_PARTY_MEDIA = /(^|\.)(vimeo\.com|vimeocdn\.com|youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
+const VERSION = "dm-v5-vimeo";
 const PHOTOS = "dm-photos-v1"; // real exercise photos: kept across app versions, capped below
 const PHOTO_HOST = "raw.githubusercontent.com";
 const PHOTO_PATH = "/yuhonas/free-exercise-db/";
@@ -23,6 +25,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
+  if (THIRD_PARTY_MEDIA.test(url.hostname)) return; // Vimeo / YouTube: never intercepted, never cached
   if (req.method === "GET" && url.hostname === PHOTO_HOST && url.pathname.startsWith(PHOTO_PATH) && /\.(jpe?g|png|webp)$/i.test(url.pathname)) {
     e.respondWith(
       caches.open(PHOTOS).then((c) =>

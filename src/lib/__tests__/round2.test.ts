@@ -153,7 +153,7 @@ test("every exercise has a form guide with real steps, and a safe demo link", ()
     for (const k of ["base", "brace", "grip", "rom", "tempo", "feel", "back"] as const) assert.ok(g![k].trim().length > 3, `${e.id}.${k}`);
     assert.ok(g!.err.length >= 2, `${e.id} mistakes`);
     const url = demoUrl(e.id);
-    assert.ok(url.startsWith("https://www.youtube.com/results?search_query="), url);
+    assert.ok(url.startsWith("https://vimeo.com/search?q="), url);
     assert.ok(!/[()\s]/.test(url), "url is encoded");
   }
   assert.equal(Object.keys(FORM_GUIDES).length, exercises.length);

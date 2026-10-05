@@ -1119,11 +1119,11 @@ export function formFor(id: string): FormGuide | undefined {
   return G[id];
 }
 
-/** A YouTube search for the exact move name. A search URL is always valid; no specific video is assumed. */
+/** A Vimeo search for the exact move name (round 6: no YouTube anywhere). A search URL is always valid; no specific video is assumed. */
 export function demoUrl(exerciseId: string, customName?: string): string {
   const name = customName ?? exerciseById(exerciseId)?.name ?? exerciseId;
-  const q = `${name} proper form tutorial`.replace(/[()]/g, "");
-  return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+  const q = `${name} exercise`.replace(/[()]/g, "");
+  return `https://vimeo.com/search?q=${encodeURIComponent(q)}`;
 }
 
 /** Best catalog match for free text ("lat pull down" -> Lat Pulldown). Used to suggest muscle credit for off-plan work. */

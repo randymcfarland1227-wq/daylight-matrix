@@ -13,6 +13,7 @@ import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { MapFigure } from "./MapFigure";
 import { MoveMedia } from "./MoveMedia";
+import { videoFor, vimeoPageUrl } from "@/lib/daylight/videos";
 import { DIFF_TONE } from "./MusclePage";
 import { Badge, Button, Eyebrow, cn } from "./ui";
 
@@ -64,6 +65,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   const topGroup = topSub ? groupOfSub(topSub) : null;
   const hue = topGroup ? GROUP_HUE[topGroup] : "#7d86e8";
   const mw = muscleWikiUrl(exerciseId);
+  const clip = videoFor(exerciseId);
   const tags = tagsFor(exerciseId);
 
   useEffect(() => {
@@ -303,8 +305,8 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
           </div>
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
-            <a href={demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-forest px-4 font-bold text-on-forest" data-testid="demo-link">
-              <PlayCircle className="size-5" /> Find a demo video (opens a search) <ExternalLink className="size-4" />
+            <a href={clip ? vimeoPageUrl(clip.id) : demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-forest px-4 font-bold text-on-forest" data-testid="demo-link">
+              <PlayCircle className="size-5" /> {clip ? "Open this clip on Vimeo" : "Search Vimeo for a demo"} <ExternalLink className="size-4" />
             </a>
             {mw ? (
               <a href={mw} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface px-4 font-bold" data-testid="mw-link">

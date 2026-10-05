@@ -1,125 +1,176 @@
-/* REFERENCE LINKS ONLY (round 5). Nothing here is embedded any more: the app plays no YouTube video, loads no YouTube iframe or thumbnail.
-   This is the round-4 list of verified YouTube form tutorials, kept as an external link list that the UI does not currently show.
-   Round-4 note: demo videos, keyed by exercise id.
-   Every entry was checked on VERIFIED_AT: the YouTube oEmbed endpoint answered 200 for the id
-   (https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=ID&format=json, which refuses
-   non-embeddable videos), the oEmbed title/author were recorded below, and the title was read against the move.
-   Nothing here was invented. Moves with no good clip are listed in NO_VIDEO and keep the YouTube-search fallback (demoUrl). */
+/* Round 6: real exercise motion clips, played INLINE through Vimeo's official embed player (player.vimeo.com).
+   One host and one library account for a uniform look: Erin Stern's public exercise-demo library on Vimeo (https://vimeo.com/erinstern).
+   No video file is downloaded, re-hosted or hot-linked: the app only loads Vimeo's own player iframe, as Vimeo allows for public, embeddable videos.
+   No YouTube anywhere (Randy's explicit wish).
 
-export type VideoEntry = { id: string; title: string; channel: string; verifiedAt: string };
+   How each entry was verified on VERIFIED_AT (nothing invented):
+   - https://vimeo.com/api/oembed.json?url=https://vimeo.com/<id> answered 200 (public and embeddable; private / embed-restricted videos answer 403/404),
+   - the oEmbed title, author and duration were recorded below, and the title (and thumbnail when the title was vague) was read against the move,
+   - playerChecked: the player.vimeo.com page itself also loaded headless from the build box. false = Vimeo's bot check blocked the
+     datacenter box for that one id (not an embed restriction: oEmbed is 200), so playback there is expected to work for real visitors but was not seen.
+   match "close" = the nearest variant in the library (labelled in the UI). Moves with no good clip are in NO_VIDEO and keep the photos/diagram. */
 
-export const VERIFIED_AT = "2026-10-03";
+export type VideoHost = "vimeo";
 
-export const VIDEOS: Record<string, VideoEntry> = {
-  "ppt": { id: "4j0vN1WEIyg", title: "Hip & Joint Patient Exercises: Posterior Pelvic Tilt", channel: "HCA HealthONE", verifiedAt: VERIFIED_AT },
-  "pt-shoulder-flexion": { id: "glwqk4VEvcM", title: "Posterior Pelvic Tilt with Shoulder Flexion Iso", channel: "Flight Performance & Fitness", verifiedAt: VERIFIED_AT },
-  "bird-dog": { id: "S1QbyYZaXIg", title: "McGill “Big 3” - The Birddog", channel: "Northern Nevada Chiropractic", verifiedAt: VERIFIED_AT },
-  "bracing-marches": { id: "qLsjOt9yDTM", title: "Marching with Abdominal Brace (level 1)", channel: "IPA Physio", verifiedAt: VERIFIED_AT },
-  "dead-bug": { id: "GbSC02oU3To", title: "How to Do a Dead Bug: A Guide from Physical Therapists", channel: "Hinge Health", verifiedAt: VERIFIED_AT },
-  "clamshell": { id: "gFyIjunfbbg", title: "How to Do the Clamshell Exercise", channel: "Hinge Health", verifiedAt: VERIFIED_AT },
-  "band-walks": { id: "M5uxEQH5BUM", title: "How to do Lateral Band Walking", channel: "National Academy of Sports Medicine (NASM)", verifiedAt: VERIFIED_AT },
-  "single-leg-stand": { id: "Wb68ze1oH5c", title: "How to Do a Single Leg Stance Exercise | 30 Seconds | MedBridge", channel: "Medbridge", verifiedAt: VERIFIED_AT },
-  "seated-pigeon": { id: "9duW9HncInY", title: "Seated Pigeon Pose", channel: "Kaplan Center for Integrative Medicine", verifiedAt: VERIFIED_AT },
-  "suitcase-carry": { id: "y-hn_Ha1-RE", title: "How To Perform The Suitcase Carry", channel: "Dr. Carl Baird", verifiedAt: VERIFIED_AT },
-  "plank": { id: "kL_NJAkCQBg", title: "Mastering the Plank - In Just 2 Minutes", channel: "Calisthenicmovement", verifiedAt: VERIFIED_AT },
-  "pallof": { id: "otxypVv_0Es", title: "How To Perform The Pallof Press Exercise For Less Lower Back Pain", channel: "Dr. Carl Baird", verifiedAt: VERIFIED_AT },
-  "assisted-pullup": { id: "gx0RWT7WbmA", title: "How To PROPERLY Use The Assisted Pull Up Machine (DO MORE PULL UPS)", channel: "Colossus Fitness", verifiedAt: VERIFIED_AT },
-  "neutral-pullup": { id: "tSRo8ksP27I", title: "How to perform a Neutral Grip Pull Up", channel: "Dimitri Giankoulas", verifiedAt: VERIFIED_AT },
-  "chest-supported-row": { id: "vmX58YYK3-8", title: "Perfect Dumbbell Chest Supported Rows (KING of Back Exercises)", channel: "Seriously Strong Training", verifiedAt: VERIFIED_AT },
-  "half-kneeling-pulldown": { id: "OWvqEaT6Ohc", title: "Half-Kneeling Single-Arm Lat Pull Down Technique Video", channel: "Jordan Syatt", verifiedAt: VERIFIED_AT },
-  "face-pull": { id: "qCTlaGin9dQ", title: "Rope Face Pull (External Rotation)", channel: "E3 Rehab Exercise Library", verifiedAt: VERIFIED_AT },
-  "incline-shrug": { id: "VXwCPj1U1a4", title: "Chest Supported Incline Shrug", channel: "Testosterone Nation", verifiedAt: VERIFIED_AT },
-  "straight-arm-pulldown": { id: "G9uNaXGTJ4w", title: "Straight Arm Pulldown", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "reverse-crunch": { id: "XY8KzdDcMFg", title: "How To Do A Reverse Crunch", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "cable-crunch": { id: "3qjoXDTuyOE", title: "Cable Crunch - Abs / Core Exercise - Bodybuilding.com", channel: "Bodybuilding.com", verifiedAt: VERIFIED_AT },
-  "hack-squat": { id: "rYgNArpwE7E", title: "Hack Squat", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "heel-elevated-goblet": { id: "lmWPn5Q-TSE", title: "How To: Dumbbell Goblet Squat (Heels Elevated)", channel: "Fitness Lab", verifiedAt: VERIFIED_AT },
-  "bulgarian-split-squat": { id: "fSyiHxm1Igw", title: "Avoid These 3 Bulgarian Split Squat Mistakes!", channel: "Squat University", verifiedAt: VERIFIED_AT },
-  "leg-press": { id: "D9tF7fBoDYM", title: "How To Leg Press | Better! | Dorian Yates", channel: "Bodybuildergreats", verifiedAt: VERIFIED_AT },
-  "leg-extension": { id: "4ZDm5EbiFI8", title: "How To Do A Leg Extension", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "standing-calf-raise": { id: "SVtg-1loH4c", title: "How to PROPERLY Standing Calf Raise | Tips & Common Mistakes", channel: "Colossus Fitness", verifiedAt: VERIFIED_AT },
-  "tibialis-raise": { id: "VzIcGAgBiaM", title: "Tibialis Wall Raises (Exercise Demo)", channel: "The Barefoot Sprinter", verifiedAt: VERIFIED_AT },
-  "incline-db-press": { id: "8iPEnn-ltC8", title: "How To: Dumbbell Incline Chest Press", channel: "ScottHermanFitness", verifiedAt: VERIFIED_AT },
-  "landmine-press": { id: "Sjb5meztfSE", title: "Single-Arm Landmine Press [technique breakdown]", channel: "Coach Joe Drake", verifiedAt: VERIFIED_AT },
-  "machine-chest-press": { id: "xUm0BiZCWlQ", title: "How To: Chest Press (Cybex)", channel: "ScottHermanFitness", verifiedAt: VERIFIED_AT },
-  "weighted-pushup": { id: "eM89z8sojy4", title: "Weighted Push Up", channel: "OPEX Fitness", verifiedAt: VERIFIED_AT },
-  "low-high-fly": { id: "eQ_NBB6OBH4", title: "HOW TO: Chest \"Low-To-High\" Cable Fly (BIGGER UPPER CHEST) || PERFECT FORM", channel: "ScottHermanFitness", verifiedAt: VERIFIED_AT },
-  "cable-lateral-raise": { id: "Z5FA9aq3L6A", title: "How To Do Cable Lateral Raises", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "overhead-rope-triceps": { id: "kqidUIf1eJE", title: "Rope Overhead Triceps Extension", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "assisted-dip": { id: "yZ83t4mrPrI", title: "Assisted Dip", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "hip-thrust": { id: "LM8XHLYJoYs", title: "Proper Hip Thrust Form", channel: "Bret Contreras Glute Guy", verifiedAt: VERIFIED_AT },
-  "machine-hip-thrust": { id: "ZSPmIyX9RZs", title: "Machine Hip Thrust", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "bstance-rdl": { id: "Q_z2eDx9cE4", title: "B Stance Romanian Deadlift", channel: "The Barbell Physio", verifiedAt: VERIFIED_AT },
-  "leg-curl": { id: "Orxowest56U", title: "Seated Leg Curl", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "lying-leg-curl": { id: "jxctD6fL_FQ", title: "Lying Leg Curls - Leg Exercise - Bodybuilding.com", channel: "Bodybuilding.com", verifiedAt: VERIFIED_AT },
-  "reverse-lunge": { id: "xrPteyQLGAo", title: "How To Reverse Lunge", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "box-step-up": { id: "elhu-WC1qk4", title: "Proper Step Ups/Downs", channel: "[P]rehab", verifiedAt: VERIFIED_AT },
-  "back-extension-45": { id: "OMb1VFQK9Tk", title: "45 Degree Hip Extension [Glutes & Hamstrings Bias]", channel: "Physique Development", verifiedAt: VERIFIED_AT },
-  "cable-hip-abduction": { id: "1rbpTTzEnV4", title: "How To: Hip Abduction (LF Cable)", channel: "ScottHermanFitness", verifiedAt: VERIFIED_AT },
-  "seated-calf-raise": { id: "BxfKOyI8sUg", title: "How to Do a Seated Calf Raise: A Guide from Physical Therapists", channel: "Hinge Health", verifiedAt: VERIFIED_AT },
-  "shoulder-press": { id: "vlFGTI5JzjI", title: "How To PROPERLY Dumbbell Shoulder Press (LEARN FAST)", channel: "Colossus Fitness", verifiedAt: VERIFIED_AT },
-  "machine-shoulder-press": { id: "WvLMauqrnK8", title: "Machine Shoulder Press", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "btb-lateral-raise": { id: "fWvTfgTIgMk", title: "Behind the back cable lateral raise", channel: "Ron Harris Muscle", verifiedAt: VERIFIED_AT },
-  "reverse-pec-deck": { id: "5YK4bgzXDp0", title: "Machine Reverse Flye", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "y-raise": { id: "UB9uN3RDA5M", title: "Cable Y Raise and Cable Lateral Raise", channel: "Testosterone Nation", verifiedAt: VERIFIED_AT },
-  "ez-curl": { id: "zG2xJ0Q5QtI", title: "How To: Inside-Grip Bicep Curl With E-Z Bar Curl", channel: "ScottHermanFitness", verifiedAt: VERIFIED_AT },
-  "incline-db-curl": { id: "aTYlqC_JacQ", title: "Incline Dumbbell Curl", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "rope-pressdown": { id: "-xa-6cQaZKY", title: "Rope Pushdown", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "cross-body-cable-ext": { id: "xzs9RTtt5y8", title: "Cable Cross-Body Tricep Extension (Technique)", channel: "Ryan Jewers", verifiedAt: VERIFIED_AT },
-  "farmer-carry": { id: "lLAw6fUccKA", title: "Farmer's Carry Tutorial - Proper Form and Technique", channel: "Runna", verifiedAt: VERIFIED_AT },
-  "adductor-machine": { id: "CjAVezAggkI", title: "How To Use The Seated Thigh Adduction (Hip Adduction) Machine", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "sumo-goblet": { id: "R0I3kN0wo9w", title: "Sumo Goblet Squat (Wide Stance)", channel: "TrainFTW", verifiedAt: VERIFIED_AT },
-  "pec-deck": { id: "FDay9wFe5uE", title: "Machine Flye", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "incline-machine-press": { id: "TrTSvn5-MTk", title: "Incline Machine Chest Press", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "high-low-fly": { id: "cITkrjS-Lgw", title: "High to Low Cable Fly", channel: "Melita ReGen Lab + Performance Center", verifiedAt: VERIFIED_AT },
-  "wrist-curl": { id: "3VLTzIrnb5g", title: "How To Do Wrist Curls", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "hammer-curl": { id: "Hy5L3-QJETc", title: "How to PROPERLY Dumbbell Hammer Curl (FIX THIS NOW!)", channel: "Colossus Fitness", verifiedAt: VERIFIED_AT },
-  "dead-hang": { id: "no_ZdiJsLu4", title: "Build Hanging From Zero! Great for beginners!", channel: "Tom Morrison", verifiedAt: VERIFIED_AT },
-  "band-pull-apart": { id: "smSSXITNpCI", title: "How To Do Band Pull Aparts", channel: "Rogue Fitness", verifiedAt: VERIFIED_AT },
-  "cable-external-rotation": { id: "GxDF2AYsI1Q", title: "Cable Shoulder External Rotation", channel: "Physio Plus Fitness", verifiedAt: VERIFIED_AT },
-  "lat-pulldown": { id: "AOpi-p0cJkc", title: "Beginner's Guide: Lat Pulldown", channel: "SilverSneakers", verifiedAt: VERIFIED_AT },
-  "seated-cable-row": { id: "xQNrFHEMhI4", title: "Seated Cable Row | Exercise Guide", channel: "Bodybuilding.com", verifiedAt: VERIFIED_AT },
-  "tbar-chest-supported": { id: "CRpez9nWVH0", title: "Chest Supported T Bar Row Tutorial", channel: "Prep Coach UK", verifiedAt: VERIFIED_AT },
-  "side-plank": { id: "N_s9em1xTqU", title: "Core Exercise: Side Plank", channel: "Children's Hospital Colorado", verifiedAt: VERIFIED_AT },
-  "hanging-knee-raise": { id: "7KDDZtaUaxw", title: "How To Do A CAPTAIN'S CHAIR KNEE RAISE | Exercise Demonstration Video and Guide", channel: "Live Lean TV Daily Exercises", verifiedAt: VERIFIED_AT },
-  "cable-woodchop": { id: "ZDt4MCvjMAA", title: "HOW TO: Cable Wood Chop", channel: "Goodlife Health Clubs", verifiedAt: VERIFIED_AT },
-  "glute-bridge": { id: "L9KZfxT654Y", title: "Glute Bridge Tutorial - Proper Form and Technique", channel: "Runna", verifiedAt: VERIFIED_AT },
-  "cable-pull-through": { id: "pv8e6OSyETE", title: "Cable Pull Through", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "sl-glute-bridge": { id: "_K_di6h2-Wg", title: "How to do a Single-Leg Glute Bridge | The Right Way | Well+Good", channel: "Well+Good", verifiedAt: VERIFIED_AT },
-  "ball-leg-curl": { id: "XkESHgkTdFw", title: "Swiss Ball Hamstring Curl | Nuffield Health", channel: "Nuffield Health", verifiedAt: VERIFIED_AT },
-  "nordic-curl": { id: "3-4pKUhkzoQ", title: "Nordic Hamstring Curls for Beginners (In 1 Minute!)", channel: "Movement Project PT", verifiedAt: VERIFIED_AT },
-  "leg-press-narrow": { id: "QPlMYBDSRE0", title: "Machine Leg Press (Narrow Stance) Exercise Breakdown", channel: "MattLeeFit", verifiedAt: VERIFIED_AT },
-  "wall-sit": { id: "RG7z0P9qrLk", title: "Wall Sit", channel: "E3 Rehab Exercise Library", verifiedAt: VERIFIED_AT },
-  "sl-calf-raise-press": { id: "Wr6Bik6Lrp4", title: "Leg Press Machine Single Leg Calf Raises", channel: "OPEX Fitness", verifiedAt: VERIFIED_AT },
-  "skull-crusher": { id: "GaK2da6B2zM", title: "EZ Bar Skull Crushers: How To", channel: "Hammer Fitness", verifiedAt: VERIFIED_AT },
-  "close-grip-pushup": { id: "2cdIRe5tcqI", title: "Close Grip Pushup", channel: "Atomic Athlete", verifiedAt: VERIFIED_AT },
-  "preacher-curl": { id: "Ja6ZlIDONac", title: "Machine Preacher Curl", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "cable-shrug": { id: "YykmcX2b-LY", title: "Cable Shrug", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "machine-lateral-raise": { id: "0o07iGKUarI", title: "Machine Lateral Raise", channel: "Renaissance Periodization", verifiedAt: VERIFIED_AT },
-  "cable-front-raise": { id: "vtH93qBItdk", title: "How To Do A Cable Front Raise", channel: "PureGym", verifiedAt: VERIFIED_AT },
-  "chest-supported-rear-fly": { id: "iCbVhDNpG-Y", title: "DB Chest Supported Rear Delt Fly", channel: "Functional AF", verifiedAt: VERIFIED_AT },
-  "side-lying-abduction": { id: "s6lDpy4AO6w", title: "Sidelying Hip Abduction", channel: "E3 Rehab Exercise Library", verifiedAt: VERIFIED_AT },
-  "pushup": { id: "WDIpL0pjun0", title: "How to do a Push-Up | Proper Form & Technique | NASM", channel: "National Academy of Sports Medicine (NASM)", verifiedAt: VERIFIED_AT },
-  "bird-dog-hold": { id: "haljYutC2Vw", title: "How To Properly Do A Bird Dog with Hold - Strength and Posture Exercises - Wellen", channel: "Wellen", verifiedAt: VERIFIED_AT },
-  "reverse-hyper-light": { id: "80vSt6iDywo", title: "How To Do Reverse Hyperextensions to Fix Low Back Pain (Posterior Pelvic Tilt)", channel: "Dr. Josh Jagoda", verifiedAt: VERIFIED_AT },
+export type VideoEntry = {
+  host: VideoHost;
+  id: string;
+  title: string;
+  author: string;
+  authorUrl: string;
+  /** seconds, from oEmbed */
+  duration: number;
+  /** native size from oEmbed, used for the frame's aspect ratio */
+  width: number;
+  height: number;
+  match: "exact" | "close";
+  verifiedAt: string;
+  /** the player page itself was seen loading from the build box (see note above) */
+  playerChecked: boolean;
+  /** optional start offset in seconds */
+  start?: number;
 };
 
-/** Deliberate fallbacks: no verified clip of that exact movement. These keep the "Find a demo video" search link. */
+export const VERIFIED_AT = "2026-10-05";
+
+export const VIDEO_LIBRARY = { host: "vimeo" as const, author: "Erin Stern", url: "https://vimeo.com/erinstern" };
+
+const v = (id: string, title: string, duration: number, width: number, height: number, match: "exact" | "close", playerChecked: boolean): VideoEntry => ({
+  host: "vimeo",
+  id,
+  title,
+  author: VIDEO_LIBRARY.author,
+  authorUrl: VIDEO_LIBRARY.url,
+  duration,
+  width,
+  height,
+  match,
+  verifiedAt: VERIFIED_AT,
+  playerChecked,
+});
+
+export const VIDEOS: Record<string, VideoEntry> = {
+  "dead-bug": v("472985316", "Dead bugs", 15, 426, 240, "exact", true),
+  "clamshell": v("382073937", "Side lying clam", 12, 426, 240, "exact", true),
+  "band-walks": v("382082557", "Banded side steps", 15, 426, 240, "exact", true),
+  "plank": v("1042343867", "Plank", 36, 240, 300, "exact", false),
+  "pallof": v("382892058", "Palloff press", 22, 240, 240, "exact", true),
+  "neutral-pullup": v("344219307", "Pull Ups - Neutral Grip", 27, 426, 240, "exact", true),
+  "chest-supported-row": v("363548502", "Supine Rows - Dumbbell", 29, 426, 240, "close", true),
+  "half-kneeling-pulldown": v("397466103", "Single-Arm Pulldown", 14, 426, 240, "close", true),
+  "face-pull": v("388229309", "Face Pulls", 22, 426, 240, "exact", true),
+  "straight-arm-pulldown": v("1042343360", "Rope straight arm pushdowns", 37, 240, 300, "exact", false),
+  "reverse-crunch": v("388228068", "Reverse Crunches", 6, 426, 240, "exact", true),
+  "cable-crunch": v("393285873", "Cable crunches", 12, 426, 240, "exact", true),
+  "hack-squat": v("982699537", "Hack squat machine", 65, 240, 300, "exact", false),
+  "heel-elevated-goblet": v("683470013", "Heel-elevated goblet squat", 12, 240, 320, "exact", true),
+  "bulgarian-split-squat": v("341669853", "Bulgarian Split Squats", 40, 426, 240, "exact", true),
+  "leg-press": v("393286049", "Machine leg press", 11, 426, 240, "exact", true),
+  "leg-extension": v("941687235", "Leg extensions", 52, 240, 300, "exact", false),
+  "standing-calf-raise": v("683469263", "Standing dumbbell calf raise", 12, 240, 320, "exact", true),
+  "incline-db-press": v("347319864", "Dumbbell incline bench press", 30, 426, 240, "exact", true),
+  "landmine-press": v("1142414776", "Kneeling landmine shoulder press", 21, 240, 300, "close", false),
+  "weighted-pushup": v("382073397", "Push ups", 15, 426, 240, "close", true),
+  "low-high-fly": v("381715532", "Cable incline flyes", 40, 240, 240, "close", true),
+  "cable-lateral-raise": v("381693241", "Lateral raise - cable", 45, 426, 240, "exact", true),
+  "overhead-rope-triceps": v("537000406", "Cable overhead triceps extension", 13, 426, 240, "exact", true),
+  "hip-thrust": v("937917670", "Barbell hip thrust", 54, 240, 300, "exact", false),
+  "machine-hip-thrust": v("1164665323", "Hip thrust machine", 29, 240, 300, "exact", false),
+  "bstance-rdl": v("341669771", "B-Stance RDLs", 51, 426, 240, "exact", true),
+  "leg-curl": v("1042344101", "Seated leg curl", 42, 240, 300, "exact", false),
+  "lying-leg-curl": v("342013944", "Lying leg curl", 31, 240, 240, "exact", true),
+  "reverse-lunge": v("382075041", "Reverse lunges", 12, 426, 240, "exact", true),
+  "box-step-up": v("400928242", "Weighted Step Ups", 11, 426, 240, "exact", true),
+  "back-extension-45": v("522365419", "45 degree back hyper (toes out)", 11, 426, 240, "exact", true),
+  "cable-hip-abduction": v("939620596", "Glute medius leg lifts - cable", 61, 240, 300, "exact", false),
+  "seated-calf-raise": v("394065041", "Seated calf raise machine", 15, 426, 240, "exact", true),
+  "shoulder-press": v("342271556", "Seated dumbbell shoulder press", 27, 240, 240, "exact", true),
+  "reverse-pec-deck": v("374270600", "Reverse flyes on pec deck", 25, 426, 240, "exact", true),
+  "y-raise": v("342015132", "Y-Raise", 21, 426, 240, "exact", true),
+  "incline-db-curl": v("943676055", "Incline curls", 29, 240, 300, "exact", false),
+  "rope-pressdown": v("943677306", "Triceps push downs", 30, 240, 300, "exact", false),
+  "farmer-carry": v("441077323", "Farmer’s carries", 5, 426, 240, "exact", true),
+  "adductor-machine": v("394065217", "Adductor Machine", 14, 426, 240, "exact", true),
+  "sumo-goblet": v("666343493", "Dumbbell sumo squat", 13, 320, 240, "close", true),
+  "high-low-fly": v("342626247", "Decline Flyes - Cable", 28, 240, 240, "close", true),
+  "hammer-curl": v("388229474", "Hammer Curls", 16, 426, 240, "exact", true),
+  "band-pull-apart": v("386067508", "Band pull aparts", 10, 426, 240, "exact", true),
+  "lat-pulldown": v("949268043", "Wide grip lat pulldown", 33, 240, 300, "exact", false),
+  "seated-cable-row": v("472608975", "Cable low row", 9, 426, 240, "exact", true),
+  "side-plank": v("497051978", "Side plank", 5, 426, 240, "exact", true),
+  "hanging-knee-raise": v("391501964", "Hanging Knee Raises", 23, 426, 240, "close", true),
+  "cable-woodchop": v("513051858", "Wood chopper low to high", 8, 426, 240, "exact", true),
+  "glute-bridge": v("513047635", "Body weight glute bridge", 7, 426, 240, "exact", true),
+  "cable-pull-through": v("344218224", "Pull Throughs", 34, 426, 240, "exact", true),
+  "sl-glute-bridge": v("388227392", "Glute Bridge - Single-leg", 14, 426, 240, "exact", true),
+  "ball-leg-curl": v("441078130", "Swiss ball leg curls", 10, 426, 240, "exact", true),
+  "nordic-curl": v("512608356", "Nordic curl - toes under machine", 21, 426, 240, "exact", true),
+  "leg-press-narrow": v("683465388", "Narrow stance leg press", 8, 240, 320, "exact", true),
+  "assisted-dip": v("1141626909", "Dips", 19, 240, 300, "close", false),
+  "wall-sit": v("497052707", "Wall sit", 5, 426, 240, "exact", true),
+  "sl-calf-raise-press": v("393286127", "Calf raise on leg press", 8, 426, 240, "close", true),
+  "skull-crusher": v("397863107", "Skullcrushers - EZ Bar", 9, 240, 426, "exact", true),
+  "close-grip-pushup": v("493483617", "Kettlebell close grip push-ups", 9, 426, 240, "close", true),
+  "preacher-curl": v("683467884", "Preacher curls on cable row machine", 11, 240, 320, "close", true),
+  "cable-front-raise": v("382086323", "Front raise - cable", 21, 240, 240, "exact", true),
+  "chest-supported-rear-fly": v("499280692", "Incline rear delt raise", 18, 426, 240, "exact", true),
+  "side-lying-abduction": v("393284377", "Lying abductor leg lift", 8, 426, 240, "exact", true),
+  "pushup": v("382073397", "Push ups", 15, 426, 240, "exact", true),
+  "reverse-hyper-light": v("453350047", "Reverse hypers", 23, 426, 240, "exact", true),
+};
+
+/** Moves with no clip, and why. They keep the real photos (photo loop) and, failing that, the diagram. */
 export const NO_VIDEO: Record<string, string> = {
-  "battle-rope-squat": "Unusual page-2 note. Only low-reputation clips of battle-rope squat waves were found, so it keeps the search link.",
-  "mobility-flow": "The PDF gives a time window, not a sequence, so no single video is right.",
-  zone2: "Cardio pace guidance, not a movement to demo.",
-  "tuesday-cardio": "Cardio choice (incline walk, bike or elliptical), not a single movement.",
-  "wednesday-cardio": "Optional easy cardio, not a single movement.",
-  "saturday-cardio": "Cardio choice, not a single movement.",
+  "ppt": "Lying posterior pelvic tilt: the library's only tilt clip is a hanging variation, so the photos/diagram are kept.",
+  "pt-shoulder-flexion": "No clip of the pelvic-tilt + shoulder-flexion hold in the library; photos/diagram kept.",
+  "bird-dog": "No bird-dog clip in the Vimeo library used; photos/diagram kept.",
+  "bracing-marches": "No braced supine-march clip in the library; photos/diagram kept.",
+  "single-leg-stand": "Balance hold with no clip in the library; photos/diagram kept.",
+  "seated-pigeon": "Seated stretch with no clip in the library; photos/diagram kept.",
+  "suitcase-carry": "No one-sided carry clip in the library; photos/diagram kept.",
+  "mobility-flow": "A multi-move warm-up flow, not one movement; no single clip fits.",
+  "zone2": "Steady cardio block (any machine), not a lift; no clip needed.",
+  "tuesday-cardio": "Cardio block, not a lift; no clip needed.",
+  "wednesday-cardio": "Cardio block, not a lift; no clip needed.",
+  "saturday-cardio": "Cardio block, not a lift; no clip needed.",
+  "assisted-pullup": "No assisted pull-up machine clip in the library; photos/diagram kept.",
+  "incline-shrug": "No incline-bench shrug clip in the library; photos/diagram kept.",
+  "tibialis-raise": "No tibialis raise clip in the library; photos/diagram kept.",
+  "machine-chest-press": "No seated machine chest press clip found in the library; photos/diagram kept.",
+  "machine-shoulder-press": "No machine shoulder press clip in the library; photos/diagram kept.",
+  "btb-lateral-raise": "No behind-the-back cable lateral raise clip in the library; photos/diagram kept.",
+  "ez-curl": "No EZ-bar curl clip found in the library; photos/diagram kept.",
+  "cross-body-cable-ext": "No cross-body cable triceps extension clip in the library; photos/diagram kept.",
+  "battle-rope-squat": "No battle-rope squat clip in the library; photos/diagram kept.",
+  "pec-deck": "No forward pec-deck fly clip found in the library; photos/diagram kept.",
+  "incline-machine-press": "Library clip found was a plate-press (holding a weight plate), not the machine; photos/diagram kept.",
+  "wrist-curl": "No wrist curl clip in the library; photos/diagram kept.",
+  "dead-hang": "No dead-hang clip in the library; photos/diagram kept.",
+  "cable-external-rotation": "Library external-rotation clip was ambiguous about setup; photos/diagram kept.",
+  "tbar-chest-supported": "Library T-bar clip is a landmine row, not chest-supported; photos/diagram kept.",
+  "cable-shrug": "No cable shrug clip in the library; photos/diagram kept.",
+  "machine-lateral-raise": "No lateral raise machine clip in the library; photos/diagram kept.",
+  "bird-dog-hold": "No bird-dog clip in the library; photos/diagram kept.",
 };
 
 export function videoFor(exerciseId: string): VideoEntry | undefined {
   return VIDEOS[exerciseId];
 }
 
-const ID_RE = /^[A-Za-z0-9_-]{11}$/;
-export const isVideoId = (id: string): boolean => ID_RE.test(id);
+export function isVimeoId(id: string): boolean {
+  return /^\d{6,12}$/.test(id);
+}
 
-/** Plain YouTube page for a reference video (a link, never an embed). */
-export const watchUrl = (id: string): string => `https://www.youtube.com/watch?v=${id}`;
+/** The only embed URL the app builds: Vimeo's official player, muted autoplay loop, inline, Do Not Track. */
+export function vimeoEmbedUrl(v: Pick<VideoEntry, "id" | "start">): string {
+  const base = `https://player.vimeo.com/video/${v.id}?autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0&dnt=1`;
+  return v.start ? `${base}#t=${Math.max(0, Math.round(v.start))}s` : base;
+}
+
+export function vimeoPageUrl(id: string): string {
+  return `https://vimeo.com/${id}`;
+}
+
+export function videoCredit(v: Pick<VideoEntry, "title" | "author">): string {
+  return `Video: ${v.title} by ${v.author} on Vimeo`;
+}
