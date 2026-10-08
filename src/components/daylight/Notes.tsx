@@ -31,10 +31,11 @@ export function Notes() {
   return (
     <div>
       <PageHead
-        eyebrow="Gym & food observations"
+        eyebrow="Capture"
         title="Notes"
+        helper="Gym, food, and plan-builder notes stay on this device."
         right={
-          <Button tone="sun" onClick={() => state.setOverlay({ type: "note" })}>
+          <Button tone="primary" onClick={() => state.setOverlay({ type: "note" })}>
             <Pencil className="size-4" /> New
           </Button>
         }
@@ -68,8 +69,8 @@ export function Notes() {
           </div>
 
           {activeTrials.length && tab === "all" ? (
-            <Card className="mt-4 border-teal/40">
-              <h2 className="font-display text-xl">Active {activeTrials.length === 1 ? "trial" : "trials"}</h2>
+            <Card className="mt-4 border-info/40">
+              <h2 className="t-title">Active {activeTrials.length === 1 ? "trial" : "trials"}</h2>
               {activeTrials.map((trial) => {
                 const origin = state.observations.find((o) => o.id === trial.observationId);
                 return (
@@ -107,7 +108,7 @@ export function Notes() {
       )}
 
       <Card className="mt-8">
-        <h2 className="font-display text-xl">Back up your notes</h2>
+        <h2 className="t-title">Back up your notes</h2>
         <p className="mt-1 text-sm text-ink-soft">Notes live only on this device. Export them as JSON; import merges by note id, so nothing is duplicated.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button tone="outline" onClick={() => downloadText(`daylight-notes-${localDate()}.json`, state.exportNotesJson())}>
@@ -130,7 +131,7 @@ export function Notes() {
             }}
           />
         </div>
-        {msg ? <p className="mt-2 text-sm font-semibold text-forest" role="status">{msg}</p> : null}
+        {msg ? <p className="mt-2 text-sm font-semibold text-accent" role="status">{msg}</p> : null}
       </Card>
     </div>
   );
@@ -143,7 +144,7 @@ function NoteCard({ note: n }: { note: Observation }) {
   const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, n.context.muscleId ? muscleName(n.context.muscleId) : null].filter(Boolean);
   return (
     <li>
-      <article className={cn("card p-3.5", n.forNextPlan && "border-copper/50")}>
+      <article className={cn("card p-3.5", n.forNextPlan && "border-warn/50")}>
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-ink-faint">
@@ -162,7 +163,7 @@ function NoteCard({ note: n }: { note: Observation }) {
             aria-pressed={Boolean(n.forNextPlan)}
             aria-label={n.forNextPlan ? "Remove flag for next plan" : "Flag for next plan"}
             onClick={() => state.updateNote(n.id, { forNextPlan: !n.forNextPlan })}
-            className={cn("tap grid size-10 shrink-0 place-items-center rounded-full", n.forNextPlan ? "bg-copper text-white" : "bg-surface-2 text-ink-soft")}
+            className={cn("tap grid size-10 shrink-0 place-items-center rounded-full", n.forNextPlan ? "bg-warn text-white" : "bg-surface-2 text-ink-soft")}
           >
             <Flag className="size-4" fill={n.forNextPlan ? "currentColor" : "none"} />
           </button>
@@ -228,8 +229,8 @@ function Digest() {
     <div className="mt-4 space-y-4">
       <Card>
         <div className="flex items-center gap-2">
-          <FileText className="size-5 text-forest" />
-          <h2 className="font-display text-xl">Plan-builder digest</h2>
+          <FileText className="size-5 text-accent" />
+          <h2 className="t-title">Plan-builder digest</h2>
         </div>
         <p className="mt-1 text-sm text-ink-soft">Your plan, weekly sets per muscle (planned vs logged), underserved areas, and your notes — grouped and ready to paste into an AI chat to build the next plan.</p>
         <label className="mt-3 block">
@@ -268,7 +269,7 @@ function Digest() {
           <GroupBlock title="By muscle" groups={grouped.muscle} />
           {grouped.general.length ? (
             <Card>
-              <h3 className="font-display text-lg">Other</h3>
+              <h3 className="t-title">Other</h3>
               <ul className="mt-1 space-y-1 text-sm">
                 {grouped.general.map((n) => (
                   <li key={n.id}>{prettyDate(n.context.date).split(",")[0]} · {n.text}</li>
@@ -286,7 +287,7 @@ function GroupBlock({ title, groups }: { title: string; groups: { key: string; l
   if (!groups.length) return null;
   return (
     <Card>
-      <h3 className="font-display text-lg">{title}</h3>
+      <h3 className="t-title">{title}</h3>
       <ul className="mt-2 space-y-3">
         {groups.map((g) => (
           <li key={g.key}>

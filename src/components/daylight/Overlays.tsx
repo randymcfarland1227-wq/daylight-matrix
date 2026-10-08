@@ -142,14 +142,14 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
         type="button"
         aria-pressed={flag}
         onClick={() => setFlag((v) => !v)}
-        className={cn("tap mt-3 flex min-h-12 w-full items-center gap-3 rounded-2xl border px-3 text-left font-bold", flag ? "border-copper bg-copper/15 text-copper-deep" : "border-line bg-surface")}
+        className={cn("tap mt-3 flex min-h-12 w-full items-center gap-3 rounded-2xl border px-3 text-left font-bold", flag ? "border-warn bg-warn/15 text-warn" : "border-line bg-surface")}
       >
         <Flag className="size-5" fill={flag ? "currentColor" : "none"} />
         <span className="flex-1">For the next plan</span>
-        <span className={cn("grid size-6 place-items-center rounded-full border", flag ? "border-copper bg-copper text-white" : "border-line")}>{flag ? <Check className="size-4" strokeWidth={3} /> : null}</span>
+        <span className={cn("grid size-6 place-items-center rounded-full border", flag ? "border-warn bg-warn text-white" : "border-line")}>{flag ? <Check className="size-4" strokeWidth={3} /> : null}</span>
       </button>
 
-      <button type="button" className="tap mt-3 text-sm font-bold text-forest underline underline-offset-4" onClick={() => setShowLink((v) => !v)}>
+      <button type="button" className="tap mt-3 text-sm font-bold text-accent underline underline-offset-4" onClick={() => setShowLink((v) => !v)}>
         {showLink ? "Hide links" : "Link to a move or muscle"}
       </button>
       {showLink ? (
@@ -234,9 +234,9 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
       </div>
       <ul className="mt-4 space-y-1.5">
         {moves.map(({ slot, id, logs }) => (
-          <li key={slot.id} className={cn("rounded-xl border px-3 py-2", logs.length ? "border-forest/40 bg-forest/5" : "border-line")}>
+          <li key={slot.id} className={cn("rounded-xl border px-3 py-2", logs.length ? "border-accent/40 bg-accent/5" : "border-line")}>
             <div className="flex items-center gap-2">
-              {logs.length ? <Check className="size-4 text-forest" strokeWidth={3} /> : <span className="size-4 rounded-full border border-line" />}
+              {logs.length ? <Check className="size-4 text-accent" strokeWidth={3} /> : <span className="size-4 rounded-full border border-line" />}
               <p className="flex-1 font-semibold">{exerciseLabel(id)}</p>
               <p className="text-xs text-ink-soft">
                 {logs.length}
@@ -252,9 +252,9 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
           <p className="eyebrow">Notes from today ({notes.length})</p>
           <ul className="mt-1 space-y-1 text-sm">
             {notes.map((n) => (
-              <li key={n.id} className="rounded-xl bg-teal/10 px-3 py-1.5">
+              <li key={n.id} className="rounded-xl bg-info/10 px-3 py-1.5">
                 {n.text}
-                {n.forNextPlan ? <span className="ml-1 text-copper-deep">★</span> : null}
+                {n.forNextPlan ? <span className="ml-1 text-warn">★</span> : null}
               </li>
             ))}
           </ul>
@@ -287,7 +287,7 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-2xl bg-surface-2 p-3">
-      <p className="font-display text-3xl tabular-nums leading-none">{value}</p>
+      <p className="t-display tabular-nums leading-none">{value}</p>
       <p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink-soft">
         {label}
         {sub ? ` (${sub})` : ""}
@@ -446,7 +446,7 @@ function LogDrink({ onClose }: { onClose: () => void }) {
         </label>
       </div>
       <label className="mt-2 flex min-h-11 items-center gap-2 text-sm">
-        <input type="checkbox" checked={drafts.saveDrinkSize} onChange={(e) => patch({ saveDrinkSize: e.target.checked })} className="size-5 accent-[var(--forest)]" />
+        <input type="checkbox" checked={drafts.saveDrinkSize} onChange={(e) => patch({ saveDrinkSize: e.target.checked })} className="size-5 accent-[var(--accent)]" />
         Save this size as a button
       </label>
       <Button className="mt-2 w-full" onClick={() => logDrink()}>

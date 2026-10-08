@@ -49,7 +49,7 @@ export function Moves() {
               <div className="flex items-start gap-3">
                 <MoveThumb exerciseId={e.id} size={56} />
                 <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
-                  <h3 className="font-display text-lg leading-tight">{e.name}</h3>
+                  <h3 className="t-title">{e.name}</h3>
                   {e.extra ? <Badge tone="sun">idea · not in PDF</Badge> : null}
                 </div>
               </div>
@@ -65,7 +65,7 @@ export function Moves() {
                   <Badge tone={e.back === "friendly" ? "teal" : e.back === "caution" ? "copper" : "plain"}>{e.back === "friendly" ? "back-friendly" : e.back === "caution" ? "go easy on back" : "neutral"}</Badge> {e.backNote}
                 </p>
               ) : null}
-              {e.pdfNote ? <p className="mt-2 text-sm italic text-copper-deep">“{e.pdfNote}” — your note</p> : null}
+              {e.pdfNote ? <p className="mt-2 text-sm italic text-warn">“{e.pdfNote}” — your note</p> : null}
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button size="sm" tone="soft" data-testid="moves-form" onClick={() => state.setOverlay({ type: "form", exerciseId: e.id })}>
                   Form guide &amp; demo
@@ -103,11 +103,11 @@ export function PtBoard() {
               <Card className="h-full">
                 <div className="flex items-center gap-3">
                   <MoveThumb exerciseId={ref.exerciseId} size={52} />
-                  <h3 className="font-display text-lg leading-tight">{ex?.name}</h3>
+                  <h3 className="t-title">{ex?.name}</h3>
                 </div>
-                {ref.pdfNote ? <p className="mt-1 font-display text-lg italic text-copper-deep">“{ref.pdfNote}”</p> : null}
+                {ref.pdfNote ? <p className="mt-1 t-title italic text-warn">“{ref.pdfNote}”</p> : null}
                 <p className="mt-1 text-sm">{ref.parameters}</p>
-                {ref.discrepancy ? <p className="mt-1 rounded-lg bg-sun/20 px-2 py-1 text-sm">{ref.discrepancy}</p> : null}
+                {ref.discrepancy ? <p className="mt-1 rounded-lg bg-accent/20 px-2 py-1 text-sm">{ref.discrepancy}</p> : null}
                 <label className="mt-2 block">
                   <span className="text-xs font-bold uppercase tracking-wider text-ink-soft">Your note</span>
                   <textarea className="field mt-1 min-h-16 py-2" value={notes[ref.id] ?? ""} onChange={(e) => setPtNote(ref.id, e.target.value)} />
@@ -125,13 +125,13 @@ export function PtBoard() {
           );
         })}
         <li>
-          <Card className="h-full border-sun/50">
+          <Card className="h-full border-accent/50">
             <Badge tone="sun">featured on page 2</Badge>
             <div className="mt-1 flex items-center gap-3">
               <MoveThumb exerciseId="battle-rope-squat" size={52} />
-              <h3 className="font-display text-lg">Battle Rope Squats</h3>
+              <h3 className="t-title">Battle Rope Squats</h3>
             </div>
-            <p className="mt-1 font-display text-lg italic text-copper-deep">“Meta!” · “Oscilate Anchor when needed” · “S Tier”</p>
+            <p className="mt-1 t-title italic text-warn">“Meta!” · “Oscilate Anchor when needed” · “S Tier”</p>
             <p className="mt-1 text-sm text-ink-soft">{UNSCHEDULED.note}</p>
             <div className="mt-2">
               <MuscleChips exerciseId="battle-rope-squat" />
@@ -169,7 +169,7 @@ export function PlanEditor() {
           </Chip>
         ))}
       </div>
-      <h2 className="mt-4 font-display text-2xl">{day.name}</h2>
+      <h2 className="mt-4 t-title">{day.name}</h2>
       <ul className="mt-2 grid gap-2">
         {day.slots.map((slot, index) => (
           <li key={slot.id} className="card flex items-center gap-2 px-3 py-2">
@@ -204,7 +204,7 @@ export function PlanEditor() {
         <Button onClick={() => state.savePlanVersion(null)} disabled={!draft}>Save new plan version</Button>
         {draft ? <Button tone="ghost" onClick={() => state.discardDraft()}>Discard draft</Button> : null}
       </div>
-      <h2 className="mt-8 font-display text-2xl">Versions</h2>
+      <h2 className="mt-8 t-title">Versions</h2>
       <ul className="mt-2 grid gap-2 text-sm">
         {state.planVersions
           .slice()
@@ -215,7 +215,7 @@ export function PlanEditor() {
             </li>
           ))}
       </ul>
-      <h2 className="mt-8 font-display text-2xl">What was imported from the PDF</h2>
+      <h2 className="mt-8 t-title">What was imported from the PDF</h2>
       <ul className="mt-2 grid list-disc gap-1.5 pl-5 text-sm text-ink-soft">
         {IMPORT_NOTES.map((n) => (
           <li key={n}>{n}</li>

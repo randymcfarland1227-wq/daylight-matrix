@@ -213,3 +213,13 @@ Randy's call: keep the site public and show real exercise motion clips, using on
 - **Service worker**: v5 (`dm-v5-vimeo`). vimeo.com, player.vimeo.com and *.vimeocdn.com (plus every YouTube host) bail out before any caching branch, so they are never intercepted or cached. Checked in a browser: the cache holds no Vimeo URLs.
 - **Tests**: every entry has host/id/title/author/duration/size/date; every key is a real exercise; every plan move has a clip or an explicit fallback (with photos or the diagram behind it); the only iframe in the source is MoveMedia's Vimeo player; no YouTube host anywhere; the SW deny-list covers the Vimeo and YouTube hosts.
 - **Risks**: third-party clips can be removed or made private by the owner at any time (the app then falls back to photos after 15 s). Erin Stern's library likely accompanies her paid programs; it is public and embeddable today but she could restrict it. Autoplay needs muted; iOS Low Power Mode may show a play button instead. Re-run the oEmbed check periodically.
+
+## Round 7: UX / visual system (site still public)
+
+Randy: flow felt horrendous and confusing — type, containers, and colors clashed across screens.
+
+- **Design system**: `DESIGN.md` locks type (display / title / body / caption / meta), spacing (4–32), radii, one steel-blue accent, muted weekday chips, navigation rules, and screen flows.
+- **Tokens**: `styles.css` adds `accent` / `warn` / `info` (legacy `forest` / `sun` / `copper` / `teal` alias to them). Type utilities `.t-display` `.t-title` `.t-body` `.t-caption` `.t-meta` `.t-clock`. Content column ~40rem on mobile.
+- **Screens**: Today & Train session heroes are calm cards (no full-bleed weekday gradients). Gym mode: one accent CTA, quieter secondaries, muted PSA. Shared `PageHead` + helpers on Food / Body / Notes / Settings / Week. Day switcher uses accent when selected.
+- **SW**: folds the live `#1` own-files scope fix; version `dm-v7-ux`.
+- Features / Vimeo / photos / schema unchanged.

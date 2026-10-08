@@ -129,7 +129,7 @@ export function MoveMedia({ exerciseId, compact, className }: { exerciseId: stri
     return (
       <figure className={cn("space-y-1.5", className)} data-testid="move-media" data-media="video">
         <MoveVideo video={video} compact={compact} reduced={reduced} onFail={onFail} />
-        <figcaption className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-[0.7rem] leading-snug text-ink-faint">
+        <figcaption className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-xs leading-snug text-ink-faint">
           <span data-testid="video-credit">
             {video.match === "close" ? <b className="mr-1 text-ink-soft" data-testid="video-close-match">Closest clip in the library.</b> : null}
             <a href={vimeoPageUrl(video.id)} target="_blank" rel="noreferrer noopener" className="underline">{videoCredit(video)}</a>
@@ -151,7 +151,7 @@ export function MoveMedia({ exerciseId, compact, className }: { exerciseId: stri
     <div className={cn("space-y-1", className)}>
       <PhotoLoop exerciseId={exerciseId} compact={compact} />
       {note || canPlayVideo ? (
-        <p className="flex flex-wrap items-center gap-2 px-1 text-[0.7rem] text-ink-faint" data-testid="video-fallback-note">
+        <p className="flex flex-wrap items-center gap-2 px-1 text-xs text-ink-faint" data-testid="video-fallback-note">
           {note ? <span>{note}</span> : null}
           {canPlayVideo ? (
             <button
@@ -183,11 +183,11 @@ function PhotoStills({ exerciseId }: { exerciseId: string }) {
         {(["START", "END"] as const).map((tag, i) => (
           <div key={tag} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
             <img src={photos.images[i]} alt={`${tag} position`} loading="lazy" decoding="async" crossOrigin="anonymous" referrerPolicy="no-referrer" onError={() => setFailed(true)} className="size-full object-contain" />
-            <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[0.65rem] font-bold tracking-widest text-white">{tag}</span>
+            <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-bold tracking-widest text-white">{tag}</span>
           </div>
         ))}
       </div>
-      <p className="px-1 text-[0.7rem] leading-snug text-ink-faint" data-testid="photo-credit">
+      <p className="px-1 text-xs leading-snug text-ink-faint" data-testid="photo-credit">
         {photos.match === "close" ? <span className="mr-1 font-bold text-ink-soft" data-testid="photo-close-match">Closest photo match: {photos.name} ({photos.equipment}).</span> : null}
         <a href={PHOTO_SOURCE.url} target="_blank" rel="noreferrer noopener" className="underline">{PHOTO_SOURCE.attribution}</a>
       </p>
@@ -230,7 +230,7 @@ function PhotoLoop({ exerciseId, compact, className }: { exerciseId: string; com
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-surface-2" data-testid="move-loop" data-playing={playing ? "true" : "false"} data-frame={frame}>
         {img(start, frame === 0, "move-photo-start")}
         {img(end, frame === 1, "move-photo-end")}
-        <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-[0.7rem] font-bold tracking-widest text-white" data-testid="move-loop-label">{frame === 0 ? "START" : "END"}</span>
+        <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-bold tracking-widest text-white" data-testid="move-loop-label">{frame === 0 ? "START" : "END"}</span>
         <button
           type="button"
           onClick={() => (reduced ? setFrame((f) => (f === 0 ? 1 : 0)) : setPaused((p) => !p))}
@@ -238,7 +238,7 @@ function PhotoLoop({ exerciseId, compact, className }: { exerciseId: string; com
           data-testid="move-loop-toggle"
           className="tap absolute bottom-2 right-2 grid size-10 place-items-center rounded-full bg-black/60 text-white"
         >
-          {reduced ? <span className="text-[0.65rem] font-bold">flip</span> : playing ? <Pause className="size-5" /> : <Play className="size-5" />}
+          {reduced ? <span className="text-xs font-bold">flip</span> : playing ? <Pause className="size-5" /> : <Play className="size-5" />}
         </button>
       </div>
       {compact ? null : (
@@ -249,12 +249,12 @@ function PhotoLoop({ exerciseId, compact, className }: { exerciseId: string; com
           ].map(([tag, src]) => (
             <div key={tag} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
               <img src={src} alt={`${tag} position`} loading="lazy" decoding="async" crossOrigin="anonymous" referrerPolicy="no-referrer" className="size-full object-contain" />
-              <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[0.65rem] font-bold tracking-widest text-white">{tag}</span>
+              <span className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-bold tracking-widest text-white">{tag}</span>
             </div>
           ))}
         </div>
       )}
-      <figcaption className="px-1 text-[0.7rem] leading-snug text-ink-faint" data-testid="photo-credit">
+      <figcaption className="px-1 text-xs leading-snug text-ink-faint" data-testid="photo-credit">
         {photos.match === "close" ? (
           <span className="mr-1 font-bold text-ink-soft" data-testid="photo-close-match">Closest photo match: {photos.name} ({photos.equipment}).</span>
         ) : null}

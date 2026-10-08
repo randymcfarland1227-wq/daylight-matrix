@@ -29,10 +29,10 @@ export function Button({
         size === "sm" && "min-h-10 px-3 text-sm",
         size === "md" && "min-h-12 px-4 text-base",
         size === "lg" && "min-h-14 px-6 text-lg",
-        tone === "primary" && "bg-forest text-on-forest hover:bg-forest-deep",
-        tone === "sun" && "bg-sun text-on-sun hover:brightness-95",
-        tone === "soft" && "bg-surface-2 text-ink hover:brightness-95",
-        tone === "ghost" && "px-2 text-forest hover:bg-surface-2",
+        tone === "primary" && "bg-accent text-on-accent hover:bg-accent-deep",
+        tone === "sun" && "bg-accent text-on-accent hover:bg-accent-deep", /* sun = primary; one accent only */
+        tone === "soft" && "bg-surface-2 text-ink hover:bg-surface-2/80",
+        tone === "ghost" && "px-2 text-accent hover:bg-surface-2",
         tone === "outline" && "border border-line bg-surface text-ink hover:bg-surface-2",
         tone === "danger" && "bg-danger text-white hover:brightness-95",
         className,
@@ -57,7 +57,11 @@ export function Chip({
   tone?: "forest" | "sun" | "teal";
   title?: string;
 }) {
-  const on = tone === "sun" ? "bg-sun text-on-sun border-sun" : tone === "teal" ? "bg-teal text-on-forest border-teal" : "bg-forest text-on-forest border-forest";
+  const on = tone === "sun" || tone === "forest"
+    ? "bg-accent text-on-accent border-accent"
+    : tone === "teal"
+      ? "bg-info/20 text-info border-info/40"
+      : "bg-accent text-on-accent border-accent";
   return (
     <button
       type="button"
@@ -81,11 +85,11 @@ export function Badge({ children, tone = "plain", className }: { children: React
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold",
         tone === "plain" && "bg-surface-2 text-ink-soft",
-        tone === "sun" && "bg-sun/25 text-copper-deep",
-        tone === "teal" && "bg-teal/15 text-teal",
+        tone === "sun" && "bg-accent/15 text-accent",
+        tone === "teal" && "bg-info/15 text-info",
         tone === "danger" && "bg-danger/15 text-danger",
-        tone === "forest" && "bg-forest/15 text-forest",
-        tone === "copper" && "bg-copper/15 text-copper-deep",
+        tone === "forest" && "bg-accent/15 text-accent",
+        tone === "copper" && "bg-warn/15 text-warn",
         className,
       )}
     >
@@ -157,7 +161,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
       >
         <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-line md:hidden" />
         <div className="flex shrink-0 items-center justify-between gap-3 px-5 pb-2 pt-3">
-          <h2 className="text-2xl leading-tight">{title}</h2>
+          <h2 className="t-display text-[1.5rem]!">{title}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="tap grid size-10 place-items-center rounded-full bg-surface-2 text-ink">
             <X className="size-5" />
           </button>
@@ -172,7 +176,7 @@ export function Ring({
   value,
   size = 72,
   stroke = 8,
-  color = "var(--forest)",
+  color = "var(--accent)",
   track = "var(--surface-2)",
   children,
   label,
@@ -210,21 +214,22 @@ export function Ring({
   );
 }
 
-export function Card({ children, className, as: Tag = "section" }: { children: ReactNode; className?: string; as?: "section" | "div" | "article" | "li" }) {
-  return <Tag className={cn("card p-4 md:p-5", className)}>{children}</Tag>;
+export function Card({ children, className, as: Tag = "section", ...rest }: { children: ReactNode; className?: string; as?: "section" | "div" | "article" | "li" } & Record<string, unknown>) {
+  return <Tag className={cn("card p-4 md:p-5", className)} {...rest}>{children}</Tag>;
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn("eyebrow", className)}>{children}</p>;
 }
 
-export function PageHead({ eyebrow, title, right, children }: { eyebrow?: string; title: string; right?: ReactNode; children?: ReactNode }) {
+export function PageHead({ eyebrow, title, helper, right, children }: { eyebrow?: string; title: string; helper?: ReactNode; right?: ReactNode; children?: ReactNode }) {
   return (
     <header className="mb-4">
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-          <h1 className="text-[2rem] font-semibold leading-[1.05] md:text-4xl">{title}</h1>
+          <h1 className="t-display mt-0.5">{title}</h1>
+          {helper ? <p className="t-caption mt-1 text-ink-soft">{helper}</p> : null}
         </div>
         {right}
       </div>
@@ -233,11 +238,21 @@ export function PageHead({ eyebrow, title, right, children }: { eyebrow?: string
   );
 }
 
+/** Shared section title inside a card or screen stack. */
+export function SectionTitle({ children, right, className }: { children: ReactNode; right?: ReactNode; className?: string }) {
+  return (
+    <div className={cn("flex items-baseline justify-between gap-3", className)}>
+      <h2 className="t-title">{children}</h2>
+      {right}
+    </div>
+  );
+}
+
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line px-4 py-6 text-center">
-      <p className="font-display text-lg">{title}</p>
-      {children ? <div className="mt-1 text-sm text-ink-soft">{children}</div> : null}
+    <div className="rounded-[1.25rem] border border-dashed border-line px-4 py-8 text-center">
+      <p className="t-title">{title}</p>
+      {children ? <div className="t-caption mt-2 text-ink-soft">{children}</div> : null}
     </div>
   );
 }
@@ -269,7 +284,7 @@ export function Stepper({
   };
   return (
     <div>
-      <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+      <span className="t-meta mb-1 block text-ink-soft">
         {label}
         {unit ? <span className="ml-1 normal-case tracking-normal text-ink-faint">{unit}</span> : null}
       </span>
@@ -283,7 +298,7 @@ export function Stepper({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-12 w-full min-w-0 bg-transparent text-center font-display text-2xl tabular-nums text-ink outline-none placeholder:text-ink-faint/60"
+          className="t-title min-h-12 w-full min-w-0 bg-transparent text-center tabular-nums text-ink outline-none placeholder:text-ink-faint/60"
         />
         <button type="button" aria-label={`${label} up`} onClick={() => bump(step)} className="tap w-11 shrink-0 text-xl font-bold text-ink-soft hover:bg-surface-2">
           +

@@ -42,8 +42,8 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2.5 px-2">
           <Logo size={34} />
           <div>
-            <p className="font-display text-xl leading-none">Daylight</p>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">Matrix</p>
+            <p className="t-title leading-none">Daylight</p>
+            <p className="t-meta text-ink-soft">Matrix</p>
           </div>
         </div>
         <nav aria-label="Primary" className="mt-8 flex flex-col gap-1">
@@ -55,7 +55,7 @@ export function Shell({ children }: { children: ReactNode }) {
               aria-current={current === item.id ? "page" : undefined}
               className={cn(
                 "tap flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left text-base font-bold",
-                current === item.id ? "bg-forest text-on-forest" : "text-ink hover:bg-surface-2",
+                current === item.id ? "bg-accent text-on-accent" : "text-ink hover:bg-surface-2",
               )}
             >
               <item.icon aria-hidden="true" className="size-5" strokeWidth={2} />
@@ -63,7 +63,7 @@ export function Shell({ children }: { children: ReactNode }) {
             </button>
           ))}
         </nav>
-        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sun px-3 font-bold text-on-sun">
+        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 px-3 font-bold text-ink">
           <PenLine className="size-5" /> Quick note
         </button>
         <button
@@ -80,13 +80,13 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="sticky top-0 z-20 flex items-center justify-between bg-canvas/90 px-4 py-2.5 backdrop-blur md:hidden" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
           <button type="button" onClick={() => setView("today")} className="flex items-center gap-2" aria-label="Daylight Matrix home">
             <Logo size={26} />
-            <span className="font-display text-lg leading-none">Daylight Matrix</span>
+            <span className="t-title text-[1.125rem]! leading-none">Daylight Matrix</span>
           </button>
           <button type="button" onClick={() => setView("settings")} aria-label="Settings and backup" className="tap grid size-10 place-items-center rounded-full bg-surface-2">
             <Gear className="size-5" />
           </button>
         </div>
-        <main className="mx-auto w-full max-w-3xl px-4 pb-44 pt-3 md:max-w-5xl md:px-8 md:pb-16 md:pt-8">{children}</main>
+        <main className="mx-auto w-full max-w-xl px-4 pb-44 pt-3 md:max-w-5xl md:px-8 md:pb-16 md:pt-8">{children}</main>
       </div>
 
       <RestBar />
@@ -94,7 +94,7 @@ export function Shell({ children }: { children: ReactNode }) {
         type="button"
         onClick={quickNote}
         aria-label="Quick note"
-        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-sun text-on-sun shadow-[0_10px_30px_-8px_rgba(0,0,0,.5)] md:hidden"
+        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_10px_30px_-8px_rgba(0,0,0,.5)] md:hidden"
       >
         <PenLine className="size-6" strokeWidth={2.2} />
       </button>
@@ -108,9 +108,9 @@ export function Shell({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => setView(item.id)}
               aria-current={active ? "page" : undefined}
-              className={cn("tap relative flex min-h-16 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-bold", active ? "text-forest" : "text-ink-soft")}
+              className={cn("tap relative flex min-h-16 flex-col items-center justify-center gap-0.5 text-xs font-bold", active ? "text-accent" : "text-ink-soft")}
             >
-              <span className={cn("grid h-8 w-14 place-items-center rounded-full transition-colors", active && "bg-forest/15")}>
+              <span className={cn("grid h-8 w-14 place-items-center rounded-full transition-colors", active && "bg-accent/15")}>
                 <item.icon aria-hidden="true" className="size-[1.35rem]" strokeWidth={active ? 2.4 : 1.9} />
               </span>
               {item.label}
@@ -129,8 +129,8 @@ export function Opening() {
         <div className="sun-bob mx-auto w-fit">
           <Logo size={64} />
         </div>
-        <p className="mt-4 font-display text-4xl">Daylight Matrix</p>
-        <p className="mt-1 text-base text-ink-soft">Opening your day.</p>
+        <p className="t-display mt-4">Daylight Matrix</p>
+        <p className="t-caption mt-1 text-ink-soft">Opening your day.</p>
       </div>
     </div>
   );

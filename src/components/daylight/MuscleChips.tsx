@@ -31,8 +31,8 @@ export function MuscleChips({ exerciseId, max = 8, small }: { exerciseId: string
             title={w >= 1 ? "Primary" : w >= 0.5 ? "Secondary" : "Minor"}
             className={cn(
               "tap rounded-full px-2 py-0.5 font-bold",
-              small ? "text-[0.68rem]" : "text-xs",
-              w >= 1 ? "bg-copper/20 text-copper-deep" : w >= 0.5 ? "border border-copper/40 text-copper-deep" : "border border-line text-ink-faint",
+              small ? "text-[0.7rem]" : "text-xs",
+              w >= 1 ? "bg-accent/15 text-accent" : w >= 0.5 ? "border border-accent/40 text-accent" : "border border-line text-ink-faint",
             )}
           >
             {muscleName(id)}

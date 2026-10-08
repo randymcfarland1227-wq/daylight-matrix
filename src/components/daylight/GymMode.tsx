@@ -112,8 +112,8 @@ export function GymMode({ weekday }: { weekday: number }) {
             <X className="size-5" /> Exit
           </button>
           <div className="min-w-0 flex-1 text-center">
-            <p className="truncate text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">{WEEKDAY_NAMES[weekday]}{weekday !== new Date().getDay() ? " · logs count for today" : ""}</p>
-            <p className="truncate font-display text-lg leading-tight">{day.name}</p>
+            <p className="t-meta truncate text-ink-soft">{WEEKDAY_NAMES[weekday]}{weekday !== new Date().getDay() ? " · logs count for today" : ""}</p>
+            <p className="t-title truncate">{day.name}</p>
           </div>
           <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-2xl bg-surface-2">
             <ListChecks className="size-5" />
@@ -121,7 +121,7 @@ export function GymMode({ weekday }: { weekday: number }) {
         </div>
         <div className="mx-auto mt-2 max-w-xl">
           <div className="h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct * 100)} aria-label="Session progress">
-            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: st.color === "#5a5750" ? "var(--sun)" : "var(--sun)" }} />
+            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: "var(--accent)" }} />
           </div>
           <p className="mt-1 flex justify-between text-xs font-semibold text-ink-soft tabular-nums">
             <span>{movesDone} of {real.length} moves</span>
@@ -133,9 +133,9 @@ export function GymMode({ weekday }: { weekday: number }) {
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-xl px-4 pb-10 pt-3">
           {day.psa ? (
-            <button type="button" onClick={() => setPsaOpen((v) => !v)} className="mb-3 w-full rounded-2xl border border-copper/40 bg-copper/10 px-4 py-3 text-left" data-testid="gym-psa" aria-expanded={psaOpen}>
-              <Eyebrow className="text-copper-deep">{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
-              <p className={cn("mt-0.5 font-display text-[1.05rem] leading-snug", !psaOpen && "line-clamp-2")}>{day.psa}</p>
+            <button type="button" onClick={() => setPsaOpen((v) => !v)} className="mb-3 w-full rounded-2xl border border-line bg-surface-2 px-4 py-3 text-left" data-testid="gym-psa" aria-expanded={psaOpen}>
+              <Eyebrow>{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
+              <p className={cn("t-caption mt-1 text-ink", !psaOpen && "line-clamp-2")}>{day.psa}</p>
             </button>
           ) : null}
           <RestStrip />
@@ -146,8 +146,8 @@ export function GymMode({ weekday }: { weekday: number }) {
                 const done = s.type === "move" ? finishedOf(s.slot!) : s.type === "pt" ? s.slots!.every(finishedOf) : false;
                 return (
                   <li key={s.key}>
-                    <button type="button" onClick={() => (setCur(i), setShowList(false))} className={cn("tap flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold", i === idx ? "bg-sun/15" : "hover:bg-surface-2")}>
-                      <span className={cn("grid size-6 place-items-center rounded-full text-xs font-extrabold", done ? "bg-forest text-on-forest" : "bg-surface-2 text-ink-soft")}>{done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}</span>
+                    <button type="button" onClick={() => (setCur(i), setShowList(false))} className={cn("tap flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold", i === idx ? "bg-accent/15" : "hover:bg-surface-2")}>
+                      <span className={cn("grid size-6 place-items-center rounded-full text-xs font-extrabold", done ? "bg-accent text-on-accent" : "bg-surface-2 text-ink-soft")}>{done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}</span>
                       <span className="min-w-0 flex-1 truncate">{label}</span>
                       {s.type === "move" && s.slot!.optional ? <Badge>optional</Badge> : null}
                     </button>
@@ -219,12 +219,12 @@ function RestStrip() {
   const pct = Math.max(0, Math.min(1, 1 - left / rest.total));
   return (
     <div className="mb-3 overflow-hidden rounded-2xl bg-ink text-canvas" role="timer" aria-label="Rest timer" data-testid="gym-rest">
-      <div className="h-1.5 bg-canvas/20"><div className="h-full bg-sun transition-[width] duration-300" style={{ width: `${pct * 100}%` }} /></div>
+      <div className="h-1.5 bg-canvas/20"><div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct * 100}%` }} /></div>
       <div className="flex items-center gap-3 px-4 py-2.5">
         <Timer className="size-6 shrink-0 text-sun" />
         <div className="min-w-0 flex-1">
-          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-canvas/60">{done ? "Rest done" : "Rest"}</p>
-          <p className="font-display text-3xl leading-none tabular-nums">{done ? "Go" : formatSeconds(left)}</p>
+          <p className="t-meta text-canvas/60">{done ? "Rest done" : "Rest"}</p>
+          <p className="t-title text-[1.5rem]! leading-none tabular-nums">{done ? "Go" : formatSeconds(left)}</p>
         </div>
         <button type="button" className="tap min-h-11 rounded-2xl bg-canvas/15 px-4 text-sm font-bold" onClick={() => startRest(Math.max(15, left + 15))}>+15s</button>
         <button type="button" className="tap min-h-11 rounded-2xl bg-canvas/15 px-4 text-sm font-bold" onClick={() => clear()}>{done ? "Hide" : "Skip"}</button>
@@ -250,7 +250,7 @@ function PtBlock({ slots, session, weekday, onDone, onEach, onFlow }: { slots: P
         <Badge tone="teal">back-friendly start</Badge>
         <Eyebrow>PT activation first</Eyebrow>
       </div>
-      <h1 className="mt-1 font-display text-[2rem] leading-tight">Warm-up block</h1>
+      <h1 className="t-display mt-1">Warm-up block</h1>
       <ul className="mt-3 space-y-2">
         {slots.map((s) => {
           const id = session ? chosenExerciseId(s, session.chosenExercise) : s.exerciseId;
@@ -259,10 +259,10 @@ function PtBlock({ slots, session, weekday, onDone, onEach, onFlow }: { slots: P
             <li key={s.id} className="card flex items-center gap-3 p-2.5">
               <MoveThumb exerciseId={id} size={54} />
               <span className="min-w-0 flex-1">
-                <span className="block font-display text-lg leading-tight">{exerciseLabel(id)}</span>
+                <span className="t-title block">{exerciseLabel(id)}</span>
                 <span className="block text-sm font-bold text-ink-soft">{targetLine(s)}</span>
               </span>
-              {done ? <span className="grid size-8 place-items-center rounded-full bg-forest text-on-forest"><Check className="size-5" strokeWidth={3} /></span> : null}
+              {done ? <span className="grid size-8 place-items-center rounded-full bg-accent text-on-accent"><Check className="size-5" strokeWidth={3} /></span> : null}
             </li>
           );
         })}
@@ -360,18 +360,18 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
         {ex?.back === "caution" ? <Badge tone="copper">back: go easy</Badge> : null}
         {finished ? <Badge tone="forest">done</Badge> : null}
       </div>
-      <h1 className="mt-1 font-display text-[2.1rem] leading-[1.05]" data-testid="gym-move-name">{exerciseLabel(exerciseId)}</h1>
-      <p className="mt-1 text-xl font-bold" data-testid="gym-dose">{dose || "Open slot"}</p>
-      {replaced ? <p className="mt-1 rounded-xl bg-sun/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
+      <h1 className="t-display mt-1" data-testid="gym-move-name">{exerciseLabel(exerciseId)}</h1>
+      <p className="t-title mt-1 text-ink-soft" data-testid="gym-dose">{dose || "Open slot"}</p>
+      {replaced ? <p className="mt-1 rounded-xl bg-accent/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
 
       <div className="mt-3">
         <MoveMedia key={exerciseId} exerciseId={exerciseId} compact />
       </div>
 
       {slot.sourceCue ? (
-        <div className="mt-3 rounded-xl bg-sun/20 p-3">
-          <Eyebrow className="text-copper-deep">Your plan cue</Eyebrow>
-          <p className="mt-0.5 text-lg font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
+        <div className="mt-3 rounded-xl bg-surface-2 p-3">
+          <Eyebrow>Your plan cue</Eyebrow>
+          <p className="t-body mt-1 font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
         </div>
       ) : null}
       {prev ? <p className="mt-2 text-sm text-ink-soft">Last time: {[prev.reps, prev.load != null ? `${prev.load} ${prev.loadUnit}` : null, prev.seconds ? `${prev.seconds}s` : null].filter(Boolean).join(" · ") || "done"}</p> : null}
@@ -393,20 +393,20 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
         </div>
       ) : null}
 
-      <Button size="lg" tone="sun" className="mt-4 min-h-[4.25rem] w-full text-xl leading-tight" data-testid="gym-done" onClick={complete}>
-        <Check className="size-7 shrink-0" strokeWidth={3} />
+      <Button size="lg" tone="primary" className="mt-4 w-full" data-testid="gym-done" onClick={complete}>
+        <Check className="size-6 shrink-0" strokeWidth={3} />
         <span className="text-left">
           {finished ? "Already done · next" : done > 0 && done < planned ? `Finish remaining ${remaining} set${remaining > 1 ? "s" : ""}` : slot.sets ? `Done ${num(sets) ?? planned} set${(num(sets) ?? planned) > 1 ? "s" : ""} as prescribed` : "Done as prescribed"}
           {summary && !finished ? <span className="block text-sm font-semibold opacity-80">{summary}</span> : null}
         </span>
       </Button>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <Button tone="outline" size="lg" aria-pressed={adjust} data-testid="gym-adjust-toggle" onClick={() => setAdjust((v) => !v)}>
-          {adjust ? "Hide adjust" : "Adjust sets / reps / load"}
+        <Button tone="outline" size="md" aria-pressed={adjust} data-testid="gym-adjust-toggle" onClick={() => setAdjust((v) => !v)}>
+          {adjust ? "Hide adjust" : "Adjust"}
         </Button>
         {kind !== "cardio" || slot.durationLabel ? (
-          <Button tone="outline" size="lg" data-testid="gym-guide" onClick={onFlow}>
-            <Play className="size-5" /> Guide me
+          <Button tone="outline" size="md" data-testid="gym-guide" onClick={onFlow}>
+            <Play className="size-4" /> Guide me
           </Button>
         ) : null}
       </div>
@@ -421,17 +421,17 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
         </Button>
       ) : null}
 
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <Button tone="soft" data-testid="gym-form" onClick={() => state.setOverlay({ type: "form", exerciseId })}>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button tone="soft" size="sm" data-testid="gym-form" onClick={() => state.setOverlay({ type: "form", exerciseId })}>
           <PlayCircle className="size-4" /> Form &amp; demo
         </Button>
-        <Button tone="soft" data-testid="gym-swap" onClick={() => state.setOverlay({ type: "swap-move", weekday, slotId: slot.id })}>
-          <Repeat className="size-4" /> Swap move
+        <Button tone="soft" size="sm" data-testid="gym-swap" onClick={() => state.setOverlay({ type: "swap-move", weekday, slotId: slot.id })}>
+          <Repeat className="size-4" /> Swap
         </Button>
-        <Button tone="soft" data-testid="gym-else" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: slot.id })}>
-          <Shuffle className="size-4" /> I did something else
+        <Button tone="soft" size="sm" data-testid="gym-else" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: slot.id })}>
+          <Shuffle className="size-4" /> Did else
         </Button>
-        <Button tone="soft" onClick={() => state.setOverlay({ type: "note", exerciseId, weekday, kind: "gym" })}>
+        <Button tone="soft" size="sm" onClick={() => state.setOverlay({ type: "note", exerciseId, weekday, kind: "gym" })}>
           <Pencil className="size-4" /> Note
         </Button>
       </div>
@@ -449,12 +449,12 @@ function EndStep({ weekday, session, totals, movesDone, total }: { weekday: numb
   const extras = session?.extras ?? [];
   return (
     <section className="animate-rise text-center" data-testid="gym-end">
-      <div className="mx-auto mt-4 grid size-20 place-items-center rounded-full bg-sun text-on-sun"><Check className="size-10" strokeWidth={3} /></div>
-      <h1 className="mt-3 font-display text-4xl">{movesDone >= total && total > 0 ? "That’s the session." : "End of the list"}</h1>
-      <p className="mt-1 text-lg text-ink-soft">
+      <div className="mx-auto mt-4 grid size-20 place-items-center rounded-full bg-accent text-on-accent"><Check className="size-10" strokeWidth={3} /></div>
+      <h1 className="t-display mt-3">{movesDone >= total && total > 0 ? "That’s the session." : "End of the list"}</h1>
+      <p className="t-caption mt-1 text-ink-soft">
         {movesDone} of {total} moves · {Math.round(totals.done)} sets{extras.length ? ` · ${extras.length} off-plan` : ""}
       </p>
-      <Button size="lg" tone="sun" className="mt-6 min-h-16 w-full text-xl" data-testid="gym-finish" onClick={() => state.setOverlay({ type: "finish", weekday })}>
+      <Button size="lg" tone="primary" className="mt-6 w-full" data-testid="gym-finish" onClick={() => state.setOverlay({ type: "finish", weekday })}>
         <Flag className="size-6" /> Finish session
       </Button>
       <Button tone="outline" size="lg" className="mt-2 w-full" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
@@ -553,15 +553,15 @@ export function GuidedRun({ slots, session, weekday, onClose, onFinished }: { sl
       </div>
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-5 text-center">
         <p className="text-sm font-bold uppercase tracking-widest text-ink-soft">{p.kind === "ready" ? "Get ready" : p.kind === "rest" ? "Rest" : p.side ? `${p.side === "left" ? "Left" : "Right"} side` : "Go"}</p>
-        <h2 className="mt-1 font-display text-4xl leading-tight" data-testid="guided-name">{p.label}</h2>
+        <h2 className="t-display mt-1" data-testid="guided-name">{p.label}</h2>
         {p.kind !== "ready" ? <p className="mt-1 text-lg font-bold text-ink-soft">Set {p.set} of {p.sets}</p> : null}
         <div className="relative mt-4 grid size-56 place-items-center" aria-live="off">
           <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden="true">
             <circle cx="50" cy="50" r="45" fill="none" stroke="var(--surface-2)" strokeWidth="6" />
-            <circle cx="50" cy="50" r="45" fill="none" stroke={p.kind === "work" ? "var(--sun)" : "var(--teal)"} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${pct * 283} 283`} />
+            <circle cx="50" cy="50" r="45" fill="none" stroke={p.kind === "work" ? "var(--accent)" : "var(--info)"} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${pct * 283} 283`} />
           </svg>
           <div>
-            <p className="font-display text-7xl leading-none tabular-nums" data-testid="guided-clock">{formatSeconds(left)}</p>
+            <p className="t-clock" data-testid="guided-clock">{formatSeconds(left)}</p>
             {rep ? <p className="mt-1 text-xl font-bold text-ink-soft tabular-nums" data-testid="guided-rep">rep {rep} of {p.reps}</p> : null}
           </div>
         </div>

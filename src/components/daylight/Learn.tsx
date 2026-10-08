@@ -17,7 +17,7 @@ export function Learn() {
 
   return (
     <main className="max-w-2xl">
-      <h1 className="text-4xl">Learn</h1>
+      <h1 className="t-display">Learn</h1>
       <p className="mt-2 text-base text-ink-soft">Short notes for this plan. General education stays separate from the PDF and from any clinician note.</p>
       <Button tone="ghost" className="mt-2" onClick={() => setAll((value) => !value)}>
         {all ? "Show plan lessons" : "Browse all"}
@@ -35,7 +35,7 @@ export function Learn() {
             {open.href ? (
               <>
                 {" "}
-                <a className="text-forest underline" href={open.href} target="_blank" rel="noreferrer">
+                <a className="text-accent underline" href={open.href} target="_blank" rel="noreferrer">
                   Open source
                 </a>
               </>

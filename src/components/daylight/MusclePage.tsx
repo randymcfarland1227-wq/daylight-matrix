@@ -120,7 +120,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
           <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-ink-soft">
             <i className="inline-block size-3 rounded-sm" style={{ background: hue }} /> {kind === "group" ? "Muscle group" : kind === "region" ? "Muscle" : "Sub-muscle"}
           </p>
-          <h1 className="font-display text-4xl leading-tight">{name}</h1>
+          <h1 className="t-display">{name}</h1>
           <p className="mt-1 max-w-xl text-sm text-ink-soft">{blurb}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -149,8 +149,8 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
           ) : null}
 
           {underserved ? (
-            <p className="flex items-start gap-2 rounded-2xl border border-teal/40 bg-teal/10 p-3 text-sm">
-              <Lightbulb className="mt-0.5 size-4 shrink-0 text-teal" />
+            <p className="flex items-start gap-2 rounded-2xl border border-info/40 bg-info/10 p-3 text-sm">
+              <Lightbulb className="mt-0.5 size-4 shrink-0 text-info" />
               <span>
                 <b>Your plan under-serves this one</b> ({STATUS_LABEL[st].toLowerCase()}). The moves under “Other moves that train this” are ideas to grow it. They are not in your PDF.
               </span>
@@ -159,7 +159,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
 
           <section aria-label="In your plan">
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl">In your plan</h2>
+              <h2 className="t-title">In your plan</h2>
               <span className="text-sm text-ink-soft">{planRows.length} move{planRows.length === 1 ? "" : "s"}</span>
             </div>
             {rows.length === 0 ? <p className="mt-2 text-sm text-ink-soft">Nothing in the plan trains this directly or indirectly.</p> : null}
@@ -187,7 +187,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
 
           <section aria-label="Other moves that train this">
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl">Other moves that train this</h2>
+              <h2 className="t-title">Other moves that train this</h2>
               <span className="text-sm text-ink-soft">{otherRows.length}</span>
             </div>
             <p className="mt-1 text-sm text-ink-soft">From the library, strongest and back-friendly first. General movement information, not medical advice.</p>
@@ -203,7 +203,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
 
           <Card>
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl">Your notes here</h2>
+              <h2 className="t-title">Your notes here</h2>
               <Button size="sm" tone="soft" onClick={() => state.setOverlay({ type: "note", muscleId: id, kind: "gym" })}>
                 <Pencil className="size-4" /> Add
               </Button>
@@ -214,7 +214,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
                 <li key={n.id} className="text-sm">
                   <span className="text-ink-faint">{n.context.date.slice(5)} · </span>
                   {n.text}
-                  {n.forNextPlan ? <span className="ml-1 text-copper-deep">★</span> : null}
+                  {n.forNextPlan ? <span className="ml-1 text-warn">★</span> : null}
                 </li>
               ))}
             </ul>
@@ -228,7 +228,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
               <span>Advanced (sub-muscles)</span>
               <input
                 type="checkbox"
-                className="size-5 accent-[var(--sun)]"
+                className="size-5 accent-[var(--accent)]"
                 checked={detail === "advanced"}
                 onChange={(e) => state.setBody({ bodyDetail: e.target.checked ? "advanced" : "standard" })}
                 aria-label="Advanced: show sub-muscles"
@@ -244,7 +244,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
           </div>
 
           <Card>
-            <h2 className="font-display text-lg">Filter moves</h2>
+            <h2 className="t-title">Filter moves</h2>
             <fieldset className="mt-2">
               <legend className="text-xs font-extrabold uppercase tracking-wider text-ink-soft">Equipment</legend>
               <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5">
@@ -252,7 +252,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
                   <label key={c} className="tap flex min-h-9 cursor-pointer items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      className="size-4 accent-[var(--sun)]"
+                      className="size-4 accent-[var(--accent)]"
                       checked={equip.has(c)}
                       onChange={(e) => {
                         const n = new Set(equip);
@@ -279,7 +279,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
               />
             </div>
             <label className="tap mt-2 flex min-h-9 cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" className="size-4 accent-[var(--sun)]" checked={minor} onChange={(e) => setMinor(e.target.checked)} data-testid="show-minor" />
+              <input type="checkbox" className="size-4 accent-[var(--accent)]" checked={minor} onChange={(e) => setMinor(e.target.checked)} data-testid="show-minor" />
               Include moves where it only helps a little (tertiary)
             </label>
             {equip.size || diff !== "any" || minor ? (
@@ -319,7 +319,7 @@ function MoveCard({ row, muscleId, loggedSets, windowDays, showLogged }: { row: 
     <article className="overflow-hidden rounded-3xl border border-line bg-surface" data-testid="move-card" data-exercise={ex.id}>
       <header className="flex items-center gap-2 bg-surface-2 px-4 py-3">
         <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
-        <h3 className="min-w-0 flex-1 truncate font-display text-xl leading-tight">{ex.name}</h3>
+        <h3 className="min-w-0 flex-1 truncate t-title">{ex.name}</h3>
         <span className="hidden shrink-0 text-xs text-ink-soft sm:block">{ex.equipment}</span>
       </header>
       <div className="p-4">
@@ -346,7 +346,7 @@ function MoveCard({ row, muscleId, loggedSets, windowDays, showLogged }: { row: 
           <ol className="mt-3 space-y-1.5">
             {steps.map((s, i) => (
               <li key={i} className="flex gap-2.5 text-[0.95rem] leading-snug">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sun text-xs font-extrabold text-on-sun">{i + 1}</span>
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-accent text-xs font-extrabold text-on-accent">{i + 1}</span>
                 <span>{s}</span>
               </li>
             ))}

@@ -25,10 +25,10 @@ export function Settings() {
 
   return (
     <div className="space-y-4">
-      <PageHead eyebrow="This device" title="Settings & backup" />
+      <PageHead eyebrow="This device" title="Settings & backup" helper="Targets, look, and a copy of everything here." />
 
       <Card>
-        <h2 className="font-display text-xl">Targets — yours to set</h2>
+        <h2 className="t-title">Targets — yours to set</h2>
         <p className="text-sm text-ink-soft">These are the numbers the app measures against. Change them any time; nothing here is advice.</p>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <Num label="Protein goal, training days (g)" value={s.proteinGoal} onSave={(v) => s.setProteinGoal(v)} step={5} min={0} max={400} />
@@ -51,7 +51,7 @@ export function Settings() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl">Look</h2>
+        <h2 className="t-title">Look</h2>
         <div className="mt-2">
           <Segmented<ThemeChoice> label="Theme" value={s.theme} onChange={s.setTheme} options={[{ id: "dark", label: "Dusk (dark)" }, { id: "light", label: "Daylight (light)" }, { id: "auto", label: "Match device" }]} />
         </div>
@@ -60,14 +60,14 @@ export function Settings() {
             <span className="block font-medium">Open Train straight into gym mode</span>
             <span className="block text-xs text-ink-soft">On training days, the Train tab opens today's session as a focused full-screen flow. The full overview is one tap away.</span>
           </span>
-          <input type="checkbox" className="size-5 accent-[var(--sun)]" checked={s.gymDefault} onChange={(e) => s.setGymDefault(e.target.checked)} data-testid="gym-default-toggle" />
+          <input type="checkbox" className="size-5 accent-[var(--accent)]" checked={s.gymDefault} onChange={(e) => s.setGymDefault(e.target.checked)} data-testid="gym-default-toggle" />
         </label>
       </Card>
 
       <Card>
         <div className="flex items-center gap-2">
-          <Smartphone className="size-5 text-forest" />
-          <h2 className="font-display text-xl">Home screen</h2>
+          <Smartphone className="size-5 text-accent" />
+          <h2 className="t-title">Home screen</h2>
         </div>
         {standalone ? (
           <p className="mt-1 text-sm text-ink-soft">Running as an installed app.</p>
@@ -79,7 +79,7 @@ export function Settings() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl">Back up everything</h2>
+        <h2 className="t-title">Back up everything</h2>
         <p className="text-sm text-ink-soft">Plan versions, session logs, notes, food, pantry and settings. {s.saveStatus}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button tone="sun" onClick={() => downloadText(`daylight-matrix-backup-${localDate()}.json`, s.exportJson())}>
@@ -102,13 +102,13 @@ export function Settings() {
             }}
           />
         </div>
-        {msg ? <p className="mt-2 text-sm font-semibold text-forest" role="status">{msg}</p> : null}
+        {msg ? <p className="mt-2 text-sm font-semibold text-accent" role="status">{msg}</p> : null}
         <p className="mt-2 text-xs text-ink-faint">Older backups (from the previous version) restore fine; they are upgraded automatically.</p>
       </Card>
 
       <Card>
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl">Goals</h2>
+          <h2 className="t-title">Goals</h2>
           <Button size="sm" tone="soft" onClick={() => s.setOverlay({ type: "goal" })}><Plus className="size-4" /> Add</Button>
         </div>
         {s.goals.length === 0 ? <p className="mt-1 text-sm text-ink-soft">None yet. Add what you want the plan to move toward.</p> : null}
@@ -125,7 +125,7 @@ export function Settings() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl">History</h2>
+        <h2 className="t-title">History</h2>
         <ul className="mt-2 divide-y divide-line text-sm">
           {sessions.map((x) => (
             <li key={x.id} className="flex items-baseline gap-2 py-2">
@@ -138,7 +138,7 @@ export function Settings() {
         </ul>
         {s.activities.length ? (
           <>
-            <h3 className="mt-4 font-display text-lg">Other activity</h3>
+            <h3 className="mt-4 t-title">Other activity</h3>
             <ul className="mt-1 divide-y divide-line text-sm">
               {s.activities.slice().reverse().slice(0, 8).map((a) => (
                 <li key={a.id} className="flex gap-2 py-1.5">

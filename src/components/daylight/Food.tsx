@@ -17,7 +17,7 @@ export function Food() {
   const needShop = state.shopping.filter((s) => !s.checked).length;
   return (
     <div>
-      <PageHead eyebrow="Fuel for the plan" title="Food" />
+      <PageHead eyebrow="Fuel for the plan" title="Food" helper="Protein, water, and what’s on hand today." />
       <Segmented<Tab>
         label="Food sections"
         value={tab}
@@ -58,13 +58,13 @@ export function ProteinWaterRings({ size = 84 }: { size?: number }) {
   const n = useFoodNumbers();
   return (
     <div className="flex items-center gap-4">
-      <Ring value={n.goal ? n.protein.total / n.goal : 0} size={size} color="var(--copper)" label={`Protein ${n.protein.total} of ${n.goal} grams`}>
-        <span className="font-display text-xl tabular-nums">{n.protein.total}</span>
-        <span className="text-[0.6rem] font-bold uppercase text-ink-soft">/{n.goal} g</span>
+      <Ring value={n.goal ? n.protein.total / n.goal : 0} size={size} color="var(--accent)" label={`Protein ${n.protein.total} of ${n.goal} grams`}>
+        <span className="t-title tabular-nums">{n.protein.total}</span>
+        <span className="t-meta text-ink-soft">/{n.goal} g</span>
       </Ring>
-      <Ring value={n.waterGoal ? n.water / n.waterGoal : 0} size={size} color="var(--teal)" label={`Water ${n.water} of ${n.waterGoal} ounces`}>
-        <span className="font-display text-xl tabular-nums">{Math.round(n.water)}</span>
-        <span className="text-[0.6rem] font-bold uppercase text-ink-soft">/{n.waterGoal} oz</span>
+      <Ring value={n.waterGoal ? n.water / n.waterGoal : 0} size={size} color="var(--info)" label={`Water ${n.water} of ${n.waterGoal} ounces`}>
+        <span className="t-title tabular-nums">{Math.round(n.water)}</span>
+        <span className="t-meta text-ink-soft">/{n.waterGoal} oz</span>
       </Ring>
     </div>
   );
@@ -86,7 +86,7 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <Badge tone={n.kind === "heavy" ? "copper" : n.kind === "recovery" ? "teal" : "forest"}>{DAY_KIND_LABEL[n.kind]}</Badge>
-            <h2 className="mt-1 font-display text-2xl leading-tight">{note.title}</h2>
+            <h2 className="mt-1 t-title">{note.title}</h2>
           </div>
           <ProteinWaterRings size={78} />
         </div>
@@ -117,12 +117,12 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
 
       {planned.length ? (
         <Card>
-          <h3 className="font-display text-lg">Planned for today</h3>
+          <h3 className="t-title">Planned for today</h3>
           <ul className="mt-2 space-y-1.5">
             {planned.map((m) =>
               m ? (
                 <li key={m.id} className="flex items-center gap-2 rounded-xl border border-line px-3 py-2">
-                  {eatenIds.has(m.id) ? <Check className="size-5 text-forest" strokeWidth={3} /> : <span className="size-5 rounded-full border border-line" />}
+                  {eatenIds.has(m.id) ? <Check className="size-5 text-accent" strokeWidth={3} /> : <span className="size-5 rounded-full border border-line" />}
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{m.name}</p>
                     <p className="text-xs text-ink-soft">{m.proteinGrams != null ? `${m.proteinGrams} g protein` : "no protein number"}{m.minutes != null ? ` · ${m.minutes} min` : ""}</p>
@@ -139,7 +139,7 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
         </Card>
       ) : (
         <Card className="text-center">
-          <p className="font-display text-lg">Nothing planned for today</p>
+          <p className="t-title">Nothing planned for today</p>
           <Button tone="outline" className="mt-2" onClick={() => go("week")}>
             <CalendarPlus className="size-4" /> Plan the week
           </Button>
@@ -147,10 +147,10 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
       )}
 
       {soon.length ? (
-        <Card className="border-copper/40">
+        <Card className="border-warn/40">
           <div className="flex items-center gap-2">
-            <Leaf className="size-5 text-copper" />
-            <h3 className="font-display text-lg">Use soon — don’t waste it</h3>
+            <Leaf className="size-5 text-warn" />
+            <h3 className="t-title">Use soon — don’t waste it</h3>
           </div>
           <ul className="mt-2 space-y-1.5">
             {soon.slice(0, 4).map((i) => {
@@ -171,7 +171,7 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
 
       {ready.length ? (
         <Card>
-          <h3 className="font-display text-lg">Ready now (ingredients marked on hand)</h3>
+          <h3 className="t-title">Ready now (ingredients marked on hand)</h3>
           <div className="mt-2 flex flex-wrap gap-2">
             {ready.map((m) => (
               <Chip key={m.id} onClick={() => s.setOverlay({ type: "repeat-meal", mealId: m.id })}>
@@ -183,7 +183,7 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
       ) : null}
 
       <Card>
-        <h3 className="font-display text-lg">Today’s log</h3>
+        <h3 className="t-title">Today’s log</h3>
         {todayFood.length === 0 && todayWater.length === 0 ? <p className="mt-1 text-sm text-ink-soft">Nothing logged yet.</p> : null}
         <ul className="mt-1 divide-y divide-line">
           {todayFood.map((l) => (
@@ -246,9 +246,9 @@ function WeekPlan({ go }: { go: (t: Tab) => void }) {
           const goal = kind === "recovery" && s.proteinGoalRest ? s.proteinGoalRest : s.proteinGoal;
           return (
             <li key={d}>
-              <Card className={cn("h-full", d === todayIdx && "border-forest/60")}>
+              <Card className={cn("h-full", d === todayIdx && "border-accent/60")}>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display text-lg">{WEEKDAY_NAMES[d]}</h3>
+                  <h3 className="t-title">{WEEKDAY_NAMES[d]}</h3>
                   <Badge tone={kind === "heavy" ? "copper" : kind === "recovery" ? "teal" : "plain"}>{DAY_KIND_LABEL[kind]}</Badge>
                   <span className="ml-auto text-xs tabular-nums text-ink-soft">
                     {pp.grams}/{goal} g{pp.unknown ? ` +${pp.unknown}?` : ""}
@@ -289,8 +289,8 @@ function WeekPlan({ go }: { go: (t: Tab) => void }) {
 
       <Card>
         <div className="flex items-center gap-2">
-          <ShoppingBasket className="size-5 text-forest" />
-          <h3 className="font-display text-xl">Prep list for the week</h3>
+          <ShoppingBasket className="size-5 text-accent" />
+          <h3 className="t-title">Prep list for the week</h3>
         </div>
         {needs.length === 0 ? (
           <p className="mt-2 text-sm text-ink-soft">Plan some meals above and the ingredients you need show up here.</p>
@@ -334,13 +334,13 @@ function PrepTasks() {
   const [t, setT] = useState("");
   return (
     <Card>
-      <h3 className="font-display text-xl">Prep tasks</h3>
+      <h3 className="t-title">Prep tasks</h3>
       <p className="text-sm text-ink-soft">Tick them off on prep day (Thu or Sun works with the plan). Prepared portions show up as ready-to-eat on the Today tab.</p>
       <ul className="mt-2 space-y-2">
         {prep.map((task) => (
-          <li key={task.id} className={cn("rounded-xl border border-line p-3", task.status === "done" && "bg-forest/5")}>
+          <li key={task.id} className={cn("rounded-xl border border-line p-3", task.status === "done" && "bg-accent/5")}>
             <div className="flex items-start gap-2">
-              <button type="button" aria-pressed={task.status === "done"} aria-label={`Mark ${task.title} ${task.status === "done" ? "not done" : "done"}`} onClick={() => setStatus(task.id, task.status === "done" ? "planned" : "done")} className={cn("tap mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2", task.status === "done" ? "border-forest bg-forest text-on-forest" : "border-line")}>
+              <button type="button" aria-pressed={task.status === "done"} aria-label={`Mark ${task.title} ${task.status === "done" ? "not done" : "done"}`} onClick={() => setStatus(task.id, task.status === "done" ? "planned" : "done")} className={cn("tap mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2", task.status === "done" ? "border-accent bg-accent text-on-accent" : "border-line")}>
                 {task.status === "done" ? <Check className="size-4" strokeWidth={3} /> : null}
               </button>
               <div className="min-w-0 flex-1">
@@ -382,10 +382,10 @@ function Pantry() {
   return (
     <div className="space-y-4">
       {soon.length ? (
-        <Card className="border-copper/40">
+        <Card className="border-warn/40">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="size-5 text-copper" />
-            <h3 className="font-display text-xl">Use soon ({soon.length})</h3>
+            <AlertTriangle className="size-5 text-warn" />
+            <h3 className="t-title">Use soon ({soon.length})</h3>
           </div>
           <ul className="mt-2 space-y-2">
             {soon.map((i) => (
@@ -468,7 +468,7 @@ function Shop() {
   return (
     <div className="space-y-4">
       {lowItems.length ? (
-        <Card className="border-sun/60">
+        <Card className="border-accent/60">
           <p className="text-sm font-bold">{lowItems.length} pantry item{lowItems.length > 1 ? "s are" : " is"} low or out</p>
           <Button className="mt-2" size="sm" tone="sun" onClick={() => lowItems.forEach((i) => s.addShopping(i.name, "", `${i.name} is ${i.status}`))}>
             Add them to the list
@@ -476,7 +476,7 @@ function Shop() {
         </Card>
       ) : null}
       <Card>
-        <h3 className="font-display text-xl">Need ({need.length})</h3>
+        <h3 className="t-title">Need ({need.length})</h3>
         {need.length === 0 ? <Empty title="Nothing to buy">Plan meals and tap “Add to shopping list”, or add an item below.</Empty> : null}
         <ul className="mt-2 space-y-1.5">
           {need.map((item) => (
@@ -506,17 +506,17 @@ function Shop() {
           <input className="field" aria-label="Quantity" placeholder="Qty" value={qty} onChange={(e) => setQty(e.target.value)} />
           <Button type="submit">Add</Button>
         </form>
-        <a className="mt-3 inline-block text-sm font-bold text-forest underline" href={GROCERY_SHEET} target="_blank" rel="noreferrer">
+        <a className="mt-3 inline-block text-sm font-bold text-accent underline" href={GROCERY_SHEET} target="_blank" rel="noreferrer">
           Open your grocery planning sheet
         </a>
       </Card>
       {got.length ? (
         <Card>
-          <h3 className="font-display text-lg">Bought ({got.length})</h3>
+          <h3 className="t-title">Bought ({got.length})</h3>
           <ul className="mt-2 space-y-1">
             {got.map((item) => (
               <li key={item.id} className="flex items-center gap-2 text-sm">
-                <button type="button" aria-label={`Move ${item.name} back to need`} className="tap grid size-7 shrink-0 place-items-center rounded-full bg-forest text-on-forest" onClick={() => s.toggleShopping(item.id)}>
+                <button type="button" aria-label={`Move ${item.name} back to need`} className="tap grid size-7 shrink-0 place-items-center rounded-full bg-accent text-on-accent" onClick={() => s.toggleShopping(item.id)}>
                   <Check className="size-4" strokeWidth={3} />
                 </button>
                 <span className="flex-1 line-through opacity-70">{item.name}</span>
@@ -544,8 +544,8 @@ function Recipes() {
     <div className="space-y-4">
       <Card>
         <div className="flex items-center gap-2">
-          <Sparkles className="size-5 text-sun" />
-          <h3 className="font-display text-xl">Your meals</h3>
+          <Sparkles className="size-5 text-accent" />
+          <h3 className="t-title">Your meals</h3>
         </div>
         <p className="text-sm text-ink-soft">Add your own protein number per meal — it’s used for the daily total. Pin up to 3 favourites.</p>
         <ul className="mt-3 space-y-2">
@@ -601,7 +601,7 @@ function Recipes() {
         </ul>
       </Card>
       <Card>
-        <h3 className="font-display text-lg">Add a meal</h3>
+        <h3 className="t-title">Add a meal</h3>
         <form
           className="mt-2 grid gap-2"
           onSubmit={(e) => {

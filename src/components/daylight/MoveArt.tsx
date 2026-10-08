@@ -82,8 +82,8 @@ function Panel({ spec, pose, ghost, label, tag }: { spec: ArtSpec; pose: ArtSpec
         <Limb pts={[j.shoulder, j.elbow!, j.hand!]} w={3.8} />
         <circle cx={head[0]} cy={head[1]} r="5.4" className="fill-ink" />
       </svg>
-      <figcaption className="mt-1 text-center text-[0.72rem] font-semibold leading-tight text-ink-soft">
-        <span className="mr-1 rounded-full bg-sun px-1.5 py-px text-[0.62rem] font-extrabold text-on-sun">{tag}</span>
+      <figcaption className="mt-1 text-center text-xs font-semibold leading-tight text-ink-soft">
+        <span className="mr-1 rounded-full bg-accent px-1.5 py-px text-xs font-extrabold text-on-accent">{tag}</span>
         {label}
       </figcaption>
     </figure>
@@ -118,7 +118,7 @@ export function MoveArt({ exerciseId, className, compact }: { exerciseId: string
         {spec.hold && !spec.labels?.[1] ? null : <Panel spec={spec} pose={spec.b} ghost={spec.a} label={spec.labels?.[1]} tag={spec.hold ? "HOLD" : "END"} />}
       </div>
       {!compact && spec.look ? <p className="px-1 text-xs text-ink-soft"><span className="font-bold text-ink">Look for:</span> {spec.look}</p> : null}
-      {compact ? null : <p className="px-1 text-[0.68rem] text-ink-faint">Simplified side-view sketch (general education). Faint limb = the far side. Amber dashed arrow = how the movement travels.</p>}
+      {compact ? null : <p className="px-1 text-xs text-ink-faint">Simplified side-view sketch (general education). Faint limb = the far side. Amber dashed arrow = how the movement travels.</p>}
     </div>
   );
 }

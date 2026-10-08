@@ -1,12 +1,13 @@
 /* Daylight Matrix service worker: keeps the app usable offline at the gym.
    HTML is network-first (so a new build is never trapped behind a stale cache);
    hashed assets are cache-first. Your logs live in localStorage and are never touched here.
+   Round 7 UX pass keeps Round 6 video rules.
    Round 6: exercise clips play through Vimeo's official player iframe. Vimeo (vimeo.com, player.vimeo.com, vimeocdn.com) is NEVER cached
    or intercepted here: those requests go straight to the network, and offline the app shows the photos instead.
    The app loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is also left alone: never intercepted or cached.
    The only cross-origin thing cached is the exercise photo set (Free Exercise DB, public domain): cache-first, so photos you have seen work offline. */
 const THIRD_PARTY_MEDIA = /(^|\.)(vimeo\.com|vimeocdn\.com|youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
-const VERSION = "dm-v6-own-files";
+const VERSION = "dm-v7-ux";
 const PHOTOS = "dm-photos-v1"; // real exercise photos: kept across app versions, capped below
 const PHOTO_HOST = "raw.githubusercontent.com";
 const PHOTO_PATH = "/yuhonas/free-exercise-db/";

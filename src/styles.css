@@ -3,6 +3,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  Round 7 design tokens.
+  Prefer: accent (primary action), warn (caution), info (underserved).
+  Legacy aliases forest/sun/copper/teal still map so older class names keep working.
+*/
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -11,16 +16,23 @@
   --color-ink-soft: var(--ink-soft);
   --color-ink-faint: var(--ink-faint);
   --color-line: var(--line);
-  --color-forest: var(--forest);
-  --color-forest-deep: var(--forest-deep);
-  --color-on-forest: var(--on-forest);
-  --color-sun: var(--sun);
-  --color-on-sun: var(--on-sun);
-  --color-copper: var(--copper);
-  --color-copper-deep: var(--copper-deep);
-  --color-teal: var(--teal);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-on-accent: var(--on-accent);
+  --color-warn: var(--warn);
+  --color-warn-deep: var(--warn-deep);
+  --color-info: var(--info);
   --color-danger: var(--danger);
-  --color-day: var(--day);
+  /* legacy aliases */
+  --color-forest: var(--accent);
+  --color-forest-deep: var(--accent-deep);
+  --color-on-forest: var(--on-accent);
+  --color-sun: var(--accent);
+  --color-on-sun: var(--on-accent);
+  --color-copper: var(--warn);
+  --color-copper-deep: var(--warn-deep);
+  --color-teal: var(--info);
+  --color-day: var(--accent);
   --font-sans: "Outfit Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-display: "Outfit Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --radius-card: 1.25rem;
@@ -30,24 +42,21 @@
 }
 
 :root {
-  /* Light variant: cool paper, slate ink, one deep blue-teal accent. No green. */
+  /* Light: cool paper, slate ink, one deep steel-blue accent. No green. */
   --canvas: #f1f5f8;
   --surface: #ffffff;
   --surface-2: #e4ecf1;
   --ink: #112029;
   --ink-soft: #44596a;
-  --ink-faint: #55697a;
+  --ink-faint: #5a7080;
   --line: #d3dee6;
-  --forest: #14566b;          /* primary action: deep blue-teal */
-  --forest-deep: #0d4153;
-  --on-forest: #f2fafc;
-  --sun: #1f7a99;             /* the single accent: calm steel blue */
-  --on-sun: #ffffff;
-  --copper: #b0573f;
-  --copper-deep: #8e432e;
-  --teal: #2f6f8f;            /* info / underserved */
+  --accent: #14566b;
+  --accent-deep: #0d4153;
+  --on-accent: #f2fafc;
+  --warn: #b0573f;
+  --warn-deep: #8e432e;
+  --info: #2f6f8f;
   --danger: #b13e3e;
-  --day: #14566b;
   --muscle-idle: #d3dee6;
   --muscle-stroke: #f1f5f8;
   --body-skin: #c9d4de;
@@ -55,7 +64,7 @@
   color-scheme: light;
 }
 .dark {
-  /* Dark (default): cool slate, soft ice text, calm blue accent. */
+  /* Dark (default): cool slate, soft ice text, one calm steel-blue accent. */
   --canvas: #0e1418;
   --surface: #151d23;
   --surface-2: #1d2830;
@@ -63,16 +72,13 @@
   --ink-soft: #b2c0c8;
   --ink-faint: #93a3ad;
   --line: #2a3841;
-  --forest: #9bd0e0;          /* primary action: ice blue */
-  --forest-deep: #bfe3ef;
-  --on-forest: #0b1a21;
-  --sun: #5fb6cf;
-  --on-sun: #06222c;
-  --copper: #d08a74;
-  --copper-deep: #e2a18c;
-  --teal: #8bb4d8;
+  --accent: #9bd0e0;
+  --accent-deep: #bfe3ef;
+  --on-accent: #0b1a21;
+  --warn: #d08a74;
+  --warn-deep: #e2a18c;
+  --info: #8bb4d8;
   --danger: #e58a86;
-  --day: #9bd0e0;
   --muscle-idle: #28343c;
   --muscle-stroke: #172028;
   --body-skin: #222d35;
@@ -131,17 +137,16 @@
     cursor: pointer;
   }
   :focus-visible {
-    outline: 3px solid var(--sun);
+    outline: 3px solid var(--accent);
     outline-offset: 2px;
     border-radius: 0.5rem;
   }
   h1, h2, h3 {
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
     font-optical-sizing: auto;
     text-wrap: balance;
-    letter-spacing: -0.01em;
   }
   p { text-wrap: pretty; }
   input, textarea, select { font: inherit; }
@@ -156,6 +161,15 @@
 }
 
 @layer components {
+  /* Type scale — use these instead of one-off rem sizes */
+  .t-display { font-family: var(--font-display); font-size: 1.75rem; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
+  @media (min-width: 768px) { .t-display { font-size: 2rem; } }
+  .t-title { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.25; font-weight: 600; letter-spacing: -0.015em; }
+  .t-body { font-size: 1rem; line-height: 1.5; font-weight: 400; }
+  .t-caption { font-size: 0.875rem; line-height: 1.4; font-weight: 500; }
+  .t-meta { font-size: 0.75rem; line-height: 1.3; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .t-clock { font-family: var(--font-display); font-size: 3.5rem; line-height: 1; font-weight: 600; font-variant-numeric: tabular-nums; }
+
   .card {
     @apply rounded-[1.25rem] border border-line bg-surface;
     box-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 10px 28px -18px rgb(30 20 5 / 0.28);
@@ -164,8 +178,8 @@
   .field {
     @apply min-h-12 w-full rounded-xl border border-line bg-canvas px-3 text-base text-ink outline-none transition-colors;
   }
-  .field:focus { border-color: var(--sun); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sun) 25%, transparent); }
-  .eyebrow { @apply text-xs font-bold uppercase tracking-[0.14em] text-ink-soft; }
+  .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .eyebrow { font-size: 0.75rem; line-height: 1.3; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
   .tap { transition: transform 140ms ease-out, background-color 160ms, color 160ms, border-color 160ms, opacity 160ms; }
   .tap:active:not(:disabled) { transform: scale(0.96); }
   .no-scrollbar { scrollbar-width: none; }
@@ -177,16 +191,18 @@
   .stagger > *:nth-child(5) { animation-delay: 240ms; }
   .stagger > *:nth-child(6) { animation-delay: 300ms; }
   .stagger > *:nth-child(7) { animation-delay: 360ms; }
+  .screen { @apply mx-auto w-full max-w-xl space-y-4; }
+  .screen-wide { @apply mx-auto w-full max-w-5xl space-y-4; }
 }
 
-/* Body figure */
+/* Body figure — muscle hues live here only */
 .muscle { cursor: pointer; outline: none; }
 .muscle path { transition: fill 420ms ease, opacity 300ms ease, stroke 200ms; stroke: var(--muscle-stroke); stroke-width: 1.1; vector-effect: non-scaling-stroke; }
 .muscle:hover path, .muscle:focus-visible path { stroke: var(--ink); stroke-width: 1.6; }
 .muscle:hover path:first-child { filter: brightness(1.12); }
-.muscle[data-selected="true"] path { stroke: var(--ink); stroke-width: 2.2; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--sun) 60%, transparent)); }
+.muscle[data-selected="true"] path { stroke: var(--ink); stroke-width: 2.2; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 60%, transparent)); }
 .muscle[data-dim="true"] path { opacity: 0.32; }
-.muscle[data-under="true"] path { stroke: var(--teal); stroke-width: 2.2; stroke-dasharray: 5 3; animation: pulse-ring 2.2s ease-in-out infinite; }
+.muscle[data-under="true"] path { stroke: var(--info); stroke-width: 2.2; stroke-dasharray: 5 3; animation: pulse-ring 2.2s ease-in-out infinite; }
 .muscle[data-selected="true"][data-under="true"] path { stroke: var(--ink); stroke-dasharray: none; animation: none; }
 
 .sheet-in { animation: sheet-up 0.32s cubic-bezier(0.2, 0.9, 0.2, 1) both; }
@@ -196,14 +212,13 @@
 
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-/* Round 3 body chart: flat pale figure, coloured muscle regions */
 :root { --fig-bg: #e6edf3; --fig-ink: #15233a; }
 .dark { --fig-bg: #1d2731; --fig-ink: #e6edf5; }
 .mapreg { cursor: pointer; outline: none; }
 .mapreg .mr-fill { transition: fill 360ms ease, fill-opacity 260ms ease; }
 .mapreg:hover .mr-fill, .mapreg:focus-visible .mr-fill { filter: brightness(0.93) saturate(1.15); }
 .mapreg:hover .mr-edge, .mapreg:focus-visible .mr-edge { fill: #0f1830; stroke: #0f1830; }
-.mapreg[data-selected="true"] .mr-edge { fill: var(--sun); stroke: var(--sun); stroke-width: 4; }
+.mapreg[data-selected="true"] .mr-edge { fill: var(--accent); stroke: var(--accent); stroke-width: 4; }
 .mapreg[data-selected="true"] .mr-fill { stroke-width: 1.4; }
 .mapreg[data-dim="true"] { opacity: 0.35; }
 .mapreg .mr-under { animation: pulse-ring 2.2s ease-in-out infinite; }

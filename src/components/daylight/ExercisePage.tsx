@@ -34,7 +34,7 @@ function planUses(exerciseId: string, plan: ReturnType<typeof activePlan>): Plan
 function Section({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
   return (
     <section aria-label={title} id={id}>
-      <h2 className="font-display text-2xl">{title}</h2>
+      <h2 className="t-title">{title}</h2>
       <div className="mt-2">{children}</div>
     </section>
   );
@@ -42,7 +42,7 @@ function Section({ title, children, id }: { title: string; children: React.React
 
 function Para({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <p className="text-[0.98rem] leading-relaxed">
+    <p className="text-sm leading-relaxed">
       <b className="text-ink">{label}.</b> <span className="text-ink-soft">{children}</span>
     </p>
   );
@@ -124,7 +124,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
         <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-1">
           <header className="flex flex-wrap items-center gap-3 rounded-3xl bg-surface-2 px-5 py-4">
             <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
-            <h1 className="min-w-0 flex-1 font-display text-3xl leading-tight" data-testid="exercise-title">{name}</h1>
+            <h1 className="t-display min-w-0 flex-1" data-testid="exercise-title">{name}</h1>
             {ex?.equipment ? <span className="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink-soft">{ex.equipment}</span> : null}
           </header>
 
@@ -133,11 +133,11 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
               <MoveMedia key={exerciseId} exerciseId={exerciseId} />
 
               {uses.length ? (
-                <div className="space-y-2 rounded-2xl border border-sun/40 bg-sun/10 p-4" data-testid="plan-context">
-                  <Eyebrow className="text-copper-deep">In your plan</Eyebrow>
+                <div className="space-y-2 rounded-2xl border border-accent/40 bg-accent/10 p-4" data-testid="plan-context">
+                  <Eyebrow className="text-warn">In your plan</Eyebrow>
                   {mainUse?.psa ? (
                     <p className="text-sm" data-testid="exercise-psa">
-                      <b className="text-copper-deep">{mainUse.dayName} PSA · from your PDF:</b> {mainUse.psa}
+                      <b className="text-warn">{mainUse.dayName} PSA · from your PDF:</b> {mainUse.psa}
                     </p>
                   ) : null}
                   <ul className="space-y-1 text-sm">
@@ -150,21 +150,21 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </ul>
                   {mainUse?.cue ? (
                     <div className="pt-1">
-                      <Eyebrow className="text-copper-deep">Your plan cue · from your PDF</Eyebrow>
+                      <Eyebrow className="text-warn">Your plan cue · from your PDF</Eyebrow>
                       <p className="mt-0.5 text-base font-semibold leading-snug">{mainUse.cue[0]!.toUpperCase() + mainUse.cue.slice(1)}</p>
                     </div>
                   ) : null}
                   {ex?.pdfNote || ex?.page2Dose ? (
                     <p className="text-sm">
-                      <b className="text-copper-deep">Your page 2 board:</b> {ex?.page2Dose ?? ""}
+                      <b className="text-warn">Your page 2 board:</b> {ex?.page2Dose ?? ""}
                       {ex?.page2Dose && ex?.pdfNote ? " · " : ""}
                       {ex?.pdfNote ? `“${ex.pdfNote}”` : ""}
                     </p>
                   ) : null}
                 </div>
               ) : ex?.pdfNote || ex?.page2Dose ? (
-                <p className="rounded-2xl bg-sun/10 p-4 text-sm">
-                  <b className="text-copper-deep">Your page 2 board:</b> {ex?.page2Dose ?? ""} {ex?.pdfNote ? `“${ex.pdfNote}”` : ""}
+                <p className="rounded-2xl bg-accent/10 p-4 text-sm">
+                  <b className="text-warn">Your page 2 board:</b> {ex?.page2Dose ?? ""} {ex?.pdfNote ? `“${ex.pdfNote}”` : ""}
                 </p>
               ) : (
                 <p className="rounded-2xl bg-surface-2 p-3 text-sm text-ink-soft">This move is not in your PDF plan. It comes from the library.</p>
@@ -177,8 +177,8 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     {ex?.back === "friendly" ? <Badge tone="teal">back-friendly</Badge> : ex?.back === "caution" ? <Badge tone="copper">go easy on the back</Badge> : null}
                   </div>
                   {g.clarify ? (
-                    <p className="rounded-xl border border-copper/40 bg-copper/10 p-3 text-sm">
-                      <b className="text-copper-deep">About the PDF entry:</b> {g.clarify}
+                    <p className="rounded-xl border border-warn/40 bg-warn/10 p-3 text-sm">
+                      <b className="text-warn">About the PDF entry:</b> {g.clarify}
                     </p>
                   ) : null}
 
@@ -186,8 +186,8 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     <ol className="space-y-2.5" data-testid="quick-steps">
                       {g.s.map((step, i) => (
                         <li key={i} className="flex gap-3">
-                          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-sun text-sm font-extrabold text-on-sun">{i + 1}</span>
-                          <span className="pt-1 text-[1rem] leading-snug">{step}</span>
+                          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-sm font-extrabold text-on-accent">{i + 1}</span>
+                          <span className="pt-1 t-body leading-snug">{step}</span>
                         </li>
                       ))}
                     </ol>
@@ -217,7 +217,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   <Section title="Common mistakes">
                     <ul className="space-y-1.5">
                       {g.err.map((e) => (
-                        <li key={e} className="flex gap-2 text-[0.98rem]">
+                        <li key={e} className="flex gap-2 text-sm">
                           <span aria-hidden="true" className="text-danger">✕</span>
                           {e}
                         </li>
@@ -225,7 +225,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     </ul>
                   </Section>
                   <p className="flex items-start gap-1.5 rounded-xl bg-surface-2 p-3 text-sm">
-                    <Info className="mt-0.5 size-4 shrink-0 text-teal" />
+                    <Info className="mt-0.5 size-4 shrink-0 text-info" />
                     <span>
                       <b>Back-friendly note:</b> {g.back} <span className="text-ink-faint">General movement information, not medical advice.</span>
                     </span>
@@ -239,7 +239,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
             {/* ------------------------------------------------------------ right rail */}
             <aside className="space-y-4 lg:sticky lg:top-2" aria-label="Muscles and details">
               <div className="figure-panel card p-3" data-testid="exercise-muscle-map">
-                <h2 className="font-display text-lg">Muscles worked</h2>
+                <h2 className="t-title">Muscles worked</h2>
                 <div className="mt-1 grid grid-cols-2 gap-1">
                   {(["front", "back"] as const).map((v) => (
                     <MapFigure key={v} view={v} level="sub" className="mx-auto h-auto w-full max-w-[150px]" fill={fill} interactive={false} label={`${v} view, muscles this move works`} />
@@ -252,7 +252,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     </li>
                   ))}
                 </ul>
-                <p className="mt-1 text-center text-[0.68rem] opacity-70">Each area keeps its own colour; stronger colour means harder work.</p>
+                <p className="mt-1 text-center text-xs opacity-70">Each area keeps its own colour; stronger colour means harder work.</p>
               </div>
 
               <div className="rounded-2xl border border-line bg-surface p-4">
@@ -294,7 +294,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </div>
                 ))}
               </dl>
-              <p className="text-[0.68rem] text-ink-faint">Difficulty, force and mechanic are a simple editorial classification for this app, not a standard.</p>
+              <p className="text-xs text-ink-faint">Difficulty, force and mechanic are a simple editorial classification for this app, not a standard.</p>
             </aside>
           </div>
 
@@ -305,7 +305,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
           </div>
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
-            <a href={clip ? vimeoPageUrl(clip.id) : demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-forest px-4 font-bold text-on-forest" data-testid="demo-link">
+            <a href={clip ? vimeoPageUrl(clip.id) : demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-4 font-bold text-on-accent" data-testid="demo-link">
               <PlayCircle className="size-5" /> {clip ? "Open this clip on Vimeo" : "Search Vimeo for a demo"} <ExternalLink className="size-4" />
             </a>
             {mw ? (

@@ -98,7 +98,7 @@ export function Body() {
 
   return (
     <div>
-      <PageHead eyebrow="Muscles" title="Body map" />
+      <PageHead eyebrow="Muscles" title="Body map" helper="Tap a region to see volume, notes, and moves." />
       <div className="flex flex-wrap items-center gap-2">
         <Segmented<BodyMode>
           label="Body map mode"
@@ -130,7 +130,7 @@ export function Body() {
             onChange={(e) => state.setBody({ bodyDetail: e.target.checked ? "advanced" : "standard" })}
             aria-label="Advanced: show sub-muscles"
           />
-          <span aria-hidden="true" className="relative h-6 w-11 rounded-full bg-line transition-colors peer-checked:bg-sun peer-focus-visible:ring-2 peer-focus-visible:ring-ink">
+          <span aria-hidden="true" className="relative h-6 w-11 rounded-full bg-line transition-colors peer-checked:bg-accent peer-focus-visible:ring-2 peer-focus-visible:ring-ink">
             <span className={cn("absolute top-0.5 size-5 rounded-full bg-canvas shadow transition-all", detail === "advanced" ? "left-[1.375rem]" : "left-0.5")} />
           </span>
         </label>
@@ -188,7 +188,7 @@ export function Body() {
                     <RotateCcw className="size-4" />
                   </button>
                   {(["front", "right", "back", "left"] as const).map((v) => (
-                    <button key={v} type="button" data-testid={`turn-${v}`} aria-pressed={turnView === v} onClick={() => setTurnView(v)} className={cn("tap min-h-9 rounded-full px-3 text-xs font-bold shadow", turnView === v ? "bg-sun text-on-sun" : "bg-surface/90 text-ink")}>
+                    <button key={v} type="button" data-testid={`turn-${v}`} aria-pressed={turnView === v} onClick={() => setTurnView(v)} className={cn("tap min-h-9 rounded-full px-3 text-xs font-bold shadow", turnView === v ? "bg-accent text-on-accent" : "bg-surface/90 text-ink")}>
                       {v[0]!.toUpperCase() + v.slice(1)}
                     </button>
                   ))}
@@ -200,7 +200,7 @@ export function Body() {
               <p className="mt-2 text-xs text-ink-soft">Drag to turn. Tap a muscle to pick it. Reference male scaled to 6&apos;4&quot;. Not a scan of you and not a medical model; zones are approximate.</p>
               {turnSel ? (
                 <Card className="mt-2 flex flex-wrap items-center gap-2 p-3" >
-                  <MapPin className="size-4 text-teal" />
+                  <MapPin className="size-4 text-info" />
                   <span className="min-w-0 flex-1 font-bold" data-testid="turn-selected">{regionInfo(turnSel)?.name ?? turnSel}</span>
                   <Button size="sm" tone="sun" data-testid="turn-open" onClick={() => open(turnSel as AnyMuscleId)}>
                     See moves
@@ -265,8 +265,8 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
     <>
       <Card className="animate-rise">
         <div className="flex items-center gap-2">
-          <Target className="size-5 text-teal" />
-          <h2 className="font-display text-xl">{mode === "heat" ? (heat.source === "logged" ? "Where you actually are" : "Where the plan puts you") : "Underserved by your plan"}</h2>
+          <Target className="size-5 text-info" />
+          <h2 className="t-title">{mode === "heat" ? (heat.source === "logged" ? "Where you actually are" : "Where the plan puts you") : "Underserved by your plan"}</h2>
         </div>
         {under.length ? (
           <ul className="mt-3 space-y-1.5">
@@ -302,7 +302,7 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
         </label>
       </Card>
       <Card>
-        <h2 className="font-display text-xl">All groups</h2>
+        <h2 className="t-title">All groups</h2>
         <ul className="mt-2 space-y-1">
           {rows.slice().reverse().map(({ g, cell, st }) => (
             <li key={g.id}>
@@ -326,7 +326,7 @@ export function GrowPicker({ under, underSubs }: { under: GroupId[]; underSubs: 
   const state = useDaylight();
   return (
     <Card className="animate-rise">
-      <h2 className="font-display text-xl">Which area do you want to grow?</h2>
+      <h2 className="t-title">Which area do you want to grow?</h2>
       <p className="mt-1 text-sm text-ink-soft">Tap the body, or choose below. You will see each part of the group and ideas for it.</p>
       {under.length ? (
         <>
@@ -372,8 +372,8 @@ export function BodyNotes({ notes }: { notes: ReturnType<typeof bodyNotes>["list
   return (
     <Card className="animate-rise" >
       <div className="flex items-center gap-2" data-testid="body-notes">
-        <MapPin className="size-5 text-teal" />
-        <h2 className="flex-1 font-display text-xl">Body notes</h2>
+        <MapPin className="size-5 text-info" />
+        <h2 className="flex-1 t-title">Body notes</h2>
         <Badge tone="plain">{notes.length}</Badge>
       </div>
       {notes.length === 0 ? (
@@ -383,7 +383,7 @@ export function BodyNotes({ notes }: { notes: ReturnType<typeof bodyNotes>["list
           {notes.map((n) => (
             <li key={n.id} className="py-2.5">
               <button type="button" className="tap -mx-1 block w-[calc(100%+0.5rem)] rounded-lg px-1 text-left hover:bg-surface-2" onClick={() => state.setBody({ selectedMuscleId: n.region })}>
-                <p className="text-xs font-bold uppercase tracking-wide text-teal">
+                <p className="text-xs font-bold uppercase tracking-wide text-info">
                   {regionInfo(n.region)?.name ?? n.region} <span className="font-medium normal-case tracking-normal text-ink-faint">· {n.context.date}</span>
                 </p>
                 <p className="text-sm">{n.text}</p>

@@ -80,13 +80,12 @@ export function DaySwitcher({ value, onChange, plan }: { value: number; onChange
             onClick={() => onChange(d)}
             className={cn(
               "tap relative flex min-h-[3.75rem] min-w-[3.6rem] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 text-sm font-bold",
-              active ? "border-transparent text-white shadow-md" : "border-line bg-surface text-ink hover:bg-surface-2",
+              active ? "border-accent bg-accent text-on-accent shadow-sm" : "border-line bg-surface text-ink hover:bg-surface-2",
             )}
-            style={active ? { background: st.color } : undefined}
           >
-            <span className="text-[0.7rem] uppercase tracking-wider opacity-80">{st.short}</span>
+            <span className="t-meta opacity-80">{st.short}</span>
             <span className="text-base">{day?.scheduled ? day.slots.length : "–"}</span>
-            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-sun text-on-sun" : "bg-sun/80 text-on-sun")}>today</span> : null}
+            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-accent text-on-accent" : "bg-accent/80 text-on-accent")}>today</span> : null}
           </button>
         );
       })}
@@ -138,7 +137,7 @@ function SessionScreen() {
       <div>
         <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
         <Card className="mt-4 text-center">
-          <p className="font-display text-3xl">Open day</p>
+          <p className="t-display">Open day</p>
           <p className="mx-auto mt-2 max-w-md text-ink-soft">{day.why} The plan runs Monday to Saturday.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Button tone="soft" onClick={() => state.setTrainDay(1)}>See Monday</Button>
@@ -154,55 +153,52 @@ function SessionScreen() {
       <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
 
       {day.psa ? (
-        <section className="mt-4 rounded-[1.25rem] border border-copper/40 bg-copper/10 p-4" data-testid="day-psa" aria-label="Day PSA">
-          <Eyebrow className="text-copper-deep">{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
-          <p className="mt-1 font-display text-lg leading-snug">{day.psa}</p>
+        <section className="mt-4 rounded-[1.25rem] border border-warn/40 bg-warn/10 p-4" data-testid="day-psa" aria-label="Day PSA">
+          <Eyebrow className="text-warn">{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
+          <p className="mt-1 t-title">{day.psa}</p>
         </section>
       ) : null}
 
-      <section className="animate-rise relative mt-4 overflow-hidden rounded-[1.5rem] p-5 text-white" style={{ background: `linear-gradient(135deg, ${st.color}, ${st.deep})` }}>
-        <svg className="pointer-events-none absolute -right-8 -top-10 size-52 opacity-[0.13]" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="22" fill="#fff" />
-          {Array.from({ length: 12 }).map((_, i) => (
-            <rect key={i} x="48.5" y="6" width="3" height="14" rx="1.5" fill="#fff" transform={`rotate(${i * 30} 50 50)`} />
-          ))}
-        </svg>
-        <div className="relative flex items-start justify-between gap-3">
+      <Card className="animate-rise mt-4 border-accent/25" as="section" aria-label="Session overview">
+        <div className="flex items-center gap-2">
+          <span className="inline-block size-2.5 rounded-full" style={{ background: st.color }} aria-hidden="true" />
+          <Eyebrow>
+            {WEEKDAY_NAMES[weekday]} {isToday ? "· today" : "· not today"}
+          </Eyebrow>
+        </div>
+        <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/75">
-              {WEEKDAY_NAMES[weekday]} {isToday ? "· today" : "· not today"}
-            </p>
-            <h1 className="mt-1 text-[1.9rem] font-semibold leading-[1.05]">{day.name}</h1>
-            <p className="mt-2 text-sm text-white/80">
+            <h1 className="t-display">{day.name}</h1>
+            <p className="t-caption mt-1 text-ink-soft">
               {slots.filter((s) => !s.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} planned sets
             </p>
           </div>
-          <Ring value={pct} size={76} stroke={8} color="#8cd0e6" track="rgba(255,255,255,.25)" label={`${totals.done} of ${totals.target} sets done`}>
-            <span className="font-display text-xl text-white">{Math.round(pct * 100)}%</span>
+          <Ring value={pct} size={64} stroke={7} label={`${totals.done} of ${totals.target} sets done`}>
+            <span className="t-caption font-bold tabular-nums">{Math.round(pct * 100)}%</span>
           </Ring>
         </div>
-        <div className="relative mt-3 flex flex-wrap gap-1.5" aria-label="Muscles worked today">
+        <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Muscles worked today">
           {muscles.map((m) => (
-            <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-white/90 text-[#1d1a15]" : "border border-white/50 text-white")}>
+            <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-accent/15 text-accent" : "border border-line text-ink-soft")}>
               {muscleName(m.id)}
             </button>
           ))}
         </div>
         {!isToday ? (
-          <p className="relative mt-3 rounded-xl bg-black/20 px-3 py-2 text-sm">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
+          <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 text-ink-soft">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
         ) : null}
-        {finished ? <p className="relative mt-3 rounded-xl bg-black/20 px-3 py-2 text-sm font-bold">Finished. Logging another set re-opens it.</p> : null}
-        <Button size="lg" tone="sun" className="relative mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
+        {finished ? <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 font-bold">Finished. Logging another set re-opens it.</p> : null}
+        <Button size="lg" tone="primary" className="mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
           <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume in gym mode" : "Start gym mode"}
         </Button>
-      </section>
+      </Card>
 
       <div className="mt-5 space-y-6">
         {blocks.map((block, bi) => (
           <section key={block.id} aria-label={block.label}>
             <div className="mb-2 flex items-center gap-2 px-1">
-              <span className="grid size-6 place-items-center rounded-full bg-sun text-xs font-extrabold text-on-sun">{bi + 1}</span>
-              <h2 className="font-display text-xl">{block.label}</h2>
+              <span className="grid size-6 place-items-center rounded-full bg-accent text-xs font-extrabold text-on-accent">{bi + 1}</span>
+              <h2 className="t-title">{block.label}</h2>
               {block.id === "activation" ? <Badge tone="teal">back-friendly start</Badge> : null}
             </div>
             {block.id === "workout" && day.sectionPsa?.main ? <p className="mb-2 px-1 text-sm italic text-ink-soft">PSA: {day.sectionPsa.main}</p> : null}
@@ -267,7 +263,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
   const replaced = session ? (session.extras ?? []).filter((e) => e.slotId === slot.id) : [];
 
   return (
-    <article className={cn("card overflow-hidden transition-colors", complete && "border-forest/50 bg-forest/5", skipped && "opacity-60")}>
+    <article className={cn("card overflow-hidden transition-colors", complete && "border-accent/50 bg-accent/5", skipped && "opacity-60")}>
       <button
         type="button"
         className="tap flex w-full items-center gap-3 p-3.5 text-left"
@@ -276,11 +272,11 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
       >
         <span className="relative shrink-0">
           <MoveThumb exerciseId={exerciseId} size={56} />
-          {complete ? <span className="check-pop absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-forest text-on-forest"><Check className="size-4" strokeWidth={3} /></span> : null}
+          {complete ? <span className="check-pop absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-accent text-on-accent"><Check className="size-4" strokeWidth={3} /></span> : null}
           {skipped ? <span className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-surface-2 text-ink-soft"><SkipForward className="size-3.5" /></span> : null}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[1.12rem] leading-tight">{name}</span>
+          <span className="block t-title">{name}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-ink-soft">
             <span className="font-bold text-ink">{dose || "Open"}</span>
             {slot.optional ? <Badge>optional</Badge> : null}
@@ -292,7 +288,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           {slot.sets ? (
             <span className="mt-1.5 flex gap-1" aria-label={`${doneN} of ${target} sets done`}>
               {Array.from({ length: Math.ceil(slot.setsMax ?? slot.sets) }).map((_, i) => (
-                <span key={i} className={cn("h-1.5 flex-1 max-w-8 rounded-full transition-colors", i < doneN ? "bg-forest" : i < slot.sets! ? "bg-line" : "border border-dashed border-line")} />
+                <span key={i} className={cn("h-1.5 flex-1 max-w-8 rounded-full transition-colors", i < doneN ? "bg-accent" : i < slot.sets! ? "bg-line" : "border border-dashed border-line")} />
               ))}
             </span>
           ) : null}
@@ -314,14 +310,14 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
             </Button>
           </div>
           {slot.sourceCue ? (
-            <div className="rounded-xl bg-sun/20 p-3">
-              <Eyebrow className="text-copper-deep">Your plan cue · from your PDF</Eyebrow>
+            <div className="rounded-xl bg-accent/20 p-3">
+              <Eyebrow className="text-warn">Your plan cue · from your PDF</Eyebrow>
               <p className="mt-0.5 text-base font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
             </div>
           ) : null}
           {ex?.pdfNote ? (
             <p className="mt-2 text-sm">
-              <span className="font-bold text-copper-deep">Your note on page 2:</span> “{ex.pdfNote}”
+              <span className="font-bold text-warn">Your note on page 2:</span> “{ex.pdfNote}”
             </p>
           ) : null}
           {ex?.eduCue ? (
@@ -331,7 +327,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           ) : null}
           {ex?.backNote ? (
             <p className="mt-2 flex items-start gap-1.5 text-sm text-ink-soft">
-              <Info className="mt-0.5 size-4 shrink-0 text-teal" />
+              <Info className="mt-0.5 size-4 shrink-0 text-info" />
               <span>
                 <span className="font-bold">{ex.back === "friendly" ? "Back-friendly setup" : ex.back === "caution" ? "Go easy on the back" : "Setup"}:</span> {ex.backNote} <span className="text-ink-faint">General movement note, not medical advice.</span>
               </span>
@@ -360,7 +356,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
             <ul className="mt-3 space-y-1.5" aria-label="Logged sets">
               {logs.map((l, i) => (
                 <li key={l.id} className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-1.5 text-sm">
-                  <span className="grid size-6 place-items-center rounded-full bg-forest text-xs font-extrabold text-on-forest">{i + 1}</span>
+                  <span className="grid size-6 place-items-center rounded-full bg-accent text-xs font-extrabold text-on-accent">{i + 1}</span>
                   <span className="flex-1 font-semibold tabular-nums">{setSummary(l)}</span>
                   <button type="button" aria-label="Remove this set" className="tap grid size-8 place-items-center rounded-full text-ink-faint hover:bg-line" onClick={() => state.removeLog(l.id)}>
                     <Trash2 className="size-4" />
@@ -373,10 +369,10 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           {notes.length ? (
             <ul className="mt-3 space-y-1">
               {notes.slice(0, 3).map((n) => (
-                <li key={n.id} className="rounded-xl border border-teal/30 bg-teal/10 px-3 py-1.5 text-sm">
+                <li key={n.id} className="rounded-xl border border-info/30 bg-info/10 px-3 py-1.5 text-sm">
                   <span className="text-ink-faint">{n.context.date.slice(5)} · </span>
                   {n.text}
-                  {n.forNextPlan ? <span className="ml-1 text-copper-deep">★</span> : null}
+                  {n.forNextPlan ? <span className="ml-1 text-warn">★</span> : null}
                 </li>
               ))}
             </ul>
@@ -476,7 +472,7 @@ function SetLogger({ weekday, slot, exerciseId, session }: { weekday: number; sl
       {perSide ? (
         <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Side">
           {(["left", "right", "both"] as const).map((s) => (
-            <button key={s} type="button" aria-pressed={side === s} onClick={() => setSide(s)} className={cn("tap min-h-11 rounded-xl border text-sm font-bold capitalize", side === s ? "border-forest bg-forest text-on-forest" : "border-line bg-surface")}>
+            <button key={s} type="button" aria-pressed={side === s} onClick={() => setSide(s)} className={cn("tap min-h-11 rounded-xl border text-sm font-bold capitalize", side === s ? "border-accent bg-accent text-on-accent" : "border-line bg-surface")}>
               {s === "both" ? "Both" : s}
             </button>
           ))}
@@ -534,7 +530,7 @@ function WeekScreen() {
   const week = [1, 2, 3, 4, 5, 6, 0];
   return (
     <div>
-      <PageHead eyebrow={`${plan.name} · v${plan.version}`} title="The week" />
+      <PageHead eyebrow={`${plan.name} · v${plan.version}`} title="The week" helper="Pick a day, then start gym or walk the list." />
       <ul className="stagger grid gap-3 md:grid-cols-2">
         {week.map((d) => {
           const day = dayTemplate(plan, d);
@@ -552,14 +548,14 @@ function WeekScreen() {
                 }}
                 className="card tap w-full overflow-hidden text-left"
               >
-                <div className="flex items-center gap-3 px-4 py-3 text-white" style={{ background: `linear-gradient(120deg, ${st.color}, ${st.deep})` }}>
+                <div className="flex items-center gap-3 border-b border-line bg-surface-2 px-4 py-3">
                   <CalendarDays className="size-5" />
-                  <span className="font-display text-lg">{WEEKDAY_NAMES[d]}</span>
+                  <span className="t-title">{WEEKDAY_NAMES[d]}</span>
                   {d === todayIdx ? <Badge tone="sun" className="ml-auto">today</Badge> : null}
-                  {session?.status === "finished" ? <Badge tone="forest" className="ml-auto bg-white/90">finished</Badge> : null}
+                  {session?.status === "finished" ? <Badge tone="forest" className="ml-auto">finished</Badge> : null}
                 </div>
                 <div className="px-4 py-3">
-                  <p className="font-display text-xl leading-tight">{day.scheduled ? day.name : "Open day"}</p>
+                  <p className="t-title">{day.scheduled ? day.name : "Open day"}</p>
                   {day.scheduled ? (
                     <>
                       <p className="mt-1 text-sm text-ink-soft">
@@ -567,7 +563,7 @@ function WeekScreen() {
                       </p>
                       <div className="mt-2 flex flex-wrap gap-1">
                         {muscles.map((m) => (
-                          <span key={m.id} className="rounded-full bg-copper/15 px-2 py-0.5 text-[0.7rem] font-bold text-copper-deep">
+                          <span key={m.id} className="rounded-full bg-surface px-2 py-0.5 text-xs font-bold text-ink-soft">
                             {muscleName(m.id)}
                           </span>
                         ))}
@@ -610,7 +606,7 @@ export function ExtrasList({ weekday, session }: { weekday: number; session: Wor
     <section aria-label="Off-plan and swapped work">
       <div className="mb-2 flex items-center gap-2 px-1">
         <Shuffle className="size-5 text-ink-soft" />
-        <h2 className="font-display text-xl">Off-plan &amp; swaps</h2>
+        <h2 className="t-title">Off-plan &amp; swaps</h2>
       </div>
       {extras.length ? (
         <ul className="space-y-2" data-testid="extras-list">

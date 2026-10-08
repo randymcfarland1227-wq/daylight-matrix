@@ -24,13 +24,13 @@ export function RestBar() {
   return (
     <div className="animate-pop fixed inset-x-3 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-sm overflow-hidden rounded-2xl bg-ink text-canvas shadow-xl md:inset-x-auto md:bottom-6 md:right-6 md:mx-0 md:w-80" role="timer" aria-label="Rest timer">
       <div className="h-1 bg-canvas/20">
-        <div className="h-full bg-sun transition-[width] duration-300" style={{ width: `${pct * 100}%` }} />
+        <div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct * 100}%` }} />
       </div>
       <div className="flex items-center gap-3 px-3 py-2">
-        <Timer className="size-5 shrink-0 text-sun" />
+        <Timer className="size-5 shrink-0 text-accent" />
         <div className="min-w-0 flex-1">
-          <p className="text-[0.65rem] font-bold uppercase tracking-widest text-canvas/60">{done ? "Rest done" : "Rest"}</p>
-          <p className="font-display text-2xl leading-none tabular-nums">{done ? "Go lift" : formatSeconds(left)}</p>
+          <p className="t-meta text-canvas/60">{done ? "Rest done" : "Rest"}</p>
+          <p className="t-title leading-none tabular-nums">{done ? "Go lift" : formatSeconds(left)}</p>
         </div>
         <button type="button" className="tap rounded-full bg-canvas/15 px-3 py-1.5 text-sm font-bold" onClick={() => startRest(Math.max(15, left + 15))}>
           +15s
