@@ -14,15 +14,15 @@ test('offline release changes when a lazy chunk or bundled photo changes, and is
     await writeFile(join(root, 'dist/client/assets/body.js'), 'export const body = 1;');
     await writeFile(join(root, 'dist/client/media/exercises/demo.jpg'), 'photo-one');
     await writeFile(join(root, 'dist/client/human-man.obj'), 'model-one');
-    await writeFile(join(root, 'dist/client/sw.js'), 'const VERSION = "dm-v9-editorial-media";');
+    await writeFile(join(root, 'dist/client/sw.js'), 'const VERSION = "dm-v10-body-journal";');
     const run = async () => {
       execFileSync(process.execPath, [script], {cwd:root, stdio:'pipe'});
       return readFile(join(root, 'dist/client/sw.js'), 'utf8');
     };
     const initial = await run();
-    assert.match(initial, /dm-v9-editorial-media-[a-f0-9]{12}/);
+    assert.match(initial, /dm-v10-body-journal-[a-f0-9]{12}/);
     assert.equal(await run(), initial);
-    assert.deepEqual(JSON.parse(await readFile(join(root, 'dist/client/offline-assets.json'), 'utf8')), ['./assets/body.js', './human-man.obj']);
+    assert.deepEqual(JSON.parse(await readFile(join(root, 'dist/client/offline-assets.json'), 'utf8')), ['./assets/body.js']);
     await writeFile(join(root, 'dist/client/assets/body.js'), 'export const body = 2;');
     const changedChunk = await run();
     assert.notEqual(changedChunk, initial);
@@ -30,6 +30,6 @@ test('offline release changes when a lazy chunk or bundled photo changes, and is
     const changedPhoto = await run();
     assert.notEqual(changedPhoto, changedChunk);
     await writeFile(join(root, 'dist/client/human-man.obj'), 'model-two');
-    assert.notEqual(await run(), changedPhoto);
+    assert.equal(await run(), changedPhoto, 'unused legacy model does not trigger or burden offline installs');
   } finally { await rm(root, {recursive:true, force:true}); }
 });

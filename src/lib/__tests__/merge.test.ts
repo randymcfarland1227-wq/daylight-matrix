@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { bodyNotes, noteRegion } from "../daylight/bodyNotes.ts";
+import { bodyNotes, noteRegion, noteArea, observationsForArea } from "../daylight/bodyNotes.ts";
+import { buildDigest } from "../daylight/digest.ts";
+import { seedPlan } from "../daylight/plan.ts";
 import { migratePersisted } from "../daylight/migrate.ts";
 import { OLD_REGION_TO_MUSCLE, REGIONS } from "../daylight/muscles.ts";
 import { ALL_ZONES, ZONES } from "../daylight/turnZones.ts";
@@ -46,4 +48,30 @@ test("a blob saved by the live main build (original v1 store + region-attached n
   assert.equal(out.observations[0]!.context.muscleId, OLD_REGION_TO_MUSCLE["abs"]);
   assert.equal(out.observations[1]!.context.muscleId, OLD_REGION_TO_MUSCLE["calf-front-left"]);
   assert.deepEqual(bodyNotes(out.observations).pins, { "rg-abs": 1, "rg-calves": 1 });
+});
+
+
+test("area journal keeps dates and sides, includes child areas and excludes adjacent areas", () => {
+  const notes = [obs("old", { regionId: "lower-back", date: "2026-09-01", bodySide: "left" }), obs("sub", { muscleId: "erectors", date: "2026-10-02" }), obs("adjacent", { muscleId: "rg-lats" }), obs("group", { muscleId: "back" }), obs("plain", {})];
+  assert.equal(noteArea(notes[0]!), "erectors");
+  assert.deepEqual(observationsForArea(notes, "rg-lowback").map((n) => n.id), ["sub", "old"]);
+  assert.deepEqual(observationsForArea(notes, "back").map((n) => n.id), ["adjacent", "group", "sub", "old"]);
+  assert.equal(observationsForArea(notes, "rg-lowback", "2026-09-01")[0]!.context.bodySide, "left");
+  assert.equal(observationsForArea(notes, "rg-lowback", "2026-10-08").length, 0);
+  assert.equal(observationsForArea(notes).length, 4);
+});
+
+test("body observation dates and sides survive migration without being replaced by today", () => {
+  const n = obs("dated", { muscleId: "rg-lowback", date: "2026-09-07", bodySide: "right" });
+  const out = migratePersisted({ schemaVersion: 3, observations: [n] }) as { observations: Observation[] };
+  assert.deepEqual(out.observations[0]!.context, n.context);
+});
+
+
+test("next-plan brief includes body area, observation date and side", () => {
+  const n = { ...obs("Keep this observation", { muscleId: "rg-lowback", date: "2026-09-07", bodySide: "left" }), forNextPlan: true };
+  const brief = buildDigest({ notes: [n], plan: seedPlan(), sessions: [], weeklyTarget: 10, planContext: "", units: "lb", today: "2026-10-08" });
+  assert.match(brief, /Lower back/);
+  assert.match(brief, /2026-09-07[^\n]*left/);
+  assert.match(brief, /Keep this observation/);
 });

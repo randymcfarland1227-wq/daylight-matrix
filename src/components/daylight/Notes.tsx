@@ -3,6 +3,7 @@ import { Copy, Download, Flag, Pencil, Trash2, Upload, Check, FileText } from "l
 import { WEEKDAY_NAMES, localDate, prettyDate, shortDate } from "@/lib/daylight/dates";
 import { buildDigest, groupNotes } from "@/lib/daylight/digest";
 import { exerciseLabel } from "@/lib/daylight/names";
+import { noteArea } from "@/lib/daylight/bodyNotes";
 import { muscleName } from "@/lib/daylight/muscles";
 import { activePlan } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
@@ -22,7 +23,7 @@ export function Notes() {
   const list = useMemo(() => {
     let l = tab === "next" ? flagged : state.observations;
     if (tag) l = l.filter((n) => n.tags.includes(tag));
-    if (q.trim()) l = l.filter((n) => `${n.text} ${n.tags.join(" ")} ${n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : ""}`.toLowerCase().includes(q.toLowerCase()));
+    if (q.trim()) l = l.filter((n) => `${n.text} ${n.context.date} ${n.context.bodySide ?? ""} ${noteArea(n) ? muscleName(noteArea(n)!) : ""} ${n.tags.join(" ")} ${n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : ""}`.toLowerCase().includes(q.toLowerCase()));
     return l;
   }, [state.observations, flagged, tab, tag, q]);
   const usedTags = [...new Set(state.observations.flatMap((n) => n.tags))];
@@ -143,7 +144,7 @@ function NoteCard({ note: n }: { note: Observation }) {
   const state = useDaylight();
   const [edit, setEdit] = useState(false);
   const [text, setText] = useState(n.text);
-  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, n.context.muscleId ? muscleName(n.context.muscleId) : null].filter(Boolean);
+  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, noteArea(n) ? muscleName(noteArea(n)!) : null, n.context.bodySide ? (n.context.bodySide === "both" ? "Both sides" : n.context.bodySide === "left" ? "Left" : "Right") : null].filter(Boolean);
   return (
     <li>
       <article className={cn("card p-3.5", n.forNextPlan && "border-warn/50")}>

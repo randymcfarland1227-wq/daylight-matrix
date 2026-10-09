@@ -68,7 +68,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
   const quickTags = kind === "gym" ? GYM_TAGS : kind === "food" ? ["Easy to make", "Too much prep", "Enjoyed this", "Remember next time"] : ["Felt good", "Felt difficult", "Remember next time"];
   const [exerciseId, setExerciseId] = useState<string | undefined>(init.exerciseId);
   const [muscleId, setMuscleId] = useState<string | undefined>(init.muscleId);
-  const [showLink, setShowLink] = useState(Boolean(init.exerciseId || init.muscleId));
+  const [showLink, setShowLink] = useState(Boolean(init.exerciseId));
   const ref = useRef<HTMLTextAreaElement>(null);
   const weekday = init.weekday ?? new Date().getDay();
   const plan = activePlan(state.planVersions, localDate());

@@ -143,6 +143,7 @@ type Data = {
   bodyDetail: "standard" | "advanced";
   /** Body map surface: the flat front + back chart, or the turnable 6'4" figure. */
   bodyStyle: "map" | "turn";
+  bodyWorkspace: "journal" | "training";
   schemaVersion: number;
   theme: ThemeChoice;
   /** Fluid ounces per day. Yours to set. */
@@ -291,7 +292,7 @@ type Actions = {
   addGoal: () => void;
   setPtNote: (id: string, note: string) => void;
   // body / ui
-  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail" | "bodyStyle">>) => void;
+  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail" | "bodyStyle" | "bodyWorkspace">>) => void;
   setTheme: (theme: ThemeChoice) => void;
   setWeeklyTarget: (n: number) => void;
   setPlanContext: (text: string) => void;
@@ -370,6 +371,7 @@ const seed = (): Data => ({
   selectedMuscleId: null,
   bodyDetail: "standard",
   bodyStyle: "map",
+  bodyWorkspace: "journal",
   schemaVersion: SCHEMA_VERSION,
   theme: "light",
   waterGoal: 96,
@@ -1314,7 +1316,7 @@ export const useDaylight = create<Data & Actions>()(
   ),
 );
 
-const EPHEMERAL = new Set(["selectedMuscleId", "gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["bodyWorkspace", "selectedMuscleId", "gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};

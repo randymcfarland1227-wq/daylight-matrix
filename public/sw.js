@@ -7,7 +7,7 @@
    The app loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is also left alone: never intercepted or cached.
    The only cross-origin thing cached is the exercise photo set (Free Exercise DB, public domain): cache-first, so photos you have seen work offline. */
 const THIRD_PARTY_MEDIA = /(^|\.)(vimeo\.com|vimeocdn\.com|youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
-const VERSION = "dm-v9-editorial-media";
+const VERSION = "dm-v10-body-journal";
 const PHOTOS = "dm-photos-v1"; // real exercise photos: kept across app versions, capped below
 const PHOTO_HOST = "raw.githubusercontent.com";
 const PHOTO_PATH = "/yuhonas/free-exercise-db/";

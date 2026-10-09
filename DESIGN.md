@@ -1,29 +1,33 @@
-# Daylight Matrix — editorial movement studio
+# Daylight Matrix — body, training and daily intake
 
-The app should make eating, training and reflecting feel approachable. Every visual choice supports one clear next action and a visible reason for doing it.
+Daylight is a personal workspace for doing a session, keeping food manageable and recording what changes in the body. It should make the next action obvious and keep the reason close. Use exact labels and show only the controls needed for the task at hand.
 
-## Appearance
+## Visual system
 
-Warm ivory canvas (#f6f3ec), near-black ink (#252620), sand surfaces and restrained rust (#9c4028). Dark mode uses warm charcoal and pale terracotta. Respect an existing saved theme; new installations start in light mode. Avoid gradients, decorative metric grids, stacked pills and oversized nested containers.
+Use bundled Manrope throughout. Page headings are 32px, section headings 22–28px, reading text 14–16px and supporting labels 12–13px. Small uppercase metadata provides context; it must never carry the primary instruction. Use sentence case, clear hierarchy and consistent spacing. Avoid oversized editorial headings or decorative exercise posters.
 
-Manrope is the reading and control font. Fraunces is reserved for page and editorial headings. Use clear sentence case, a small uppercase eyebrow for context, and generous space around the primary action. Section labels use Manrope. Numerals and timers use Manrope for legibility. Both fonts are bundled, with no external font request.
+The canvas is cool neutral (#f2f5f6), surfaces white, ink graphite (#172d38), and primary actions petrol (#126b67). A navy session panel distinguishes the daily training task. Dark mode respects saved preferences and uses the same hierarchy. Anatomy hues are reserved for the training map; journal colours mean only selected area or existing observations. Use fine borders and 8–14px corners. Desktop has compact horizontal navigation; phone navigation stays at the bottom with Learn and Settings in the header. Existing motion timings remain unchanged.
 
-Cards use a 12px radius, controls 8px, badges 6px, fine borders, and no floating shadows. Circles belong to actual circular controls and map legends. Shared tokens and components govern every page, sheet, exercise reference and workout screen. Navigation uses a quiet left rule and a restrained active surface. Motion behavior is unchanged in this visual pass.
+## Today and Train
 
-## Daily flow
+Today offers the current session, a body check-in and a familiar meal. Show the actual date, session name, required exercise count, real plan blocks, the PDF reminder and Start/Resume/Review. Exercise completion percentages use the same denominator as the exercise count. A small real photograph opens form reference. Physical therapy and training coverage are explicit links. Keep the user's purpose visible above the workspace. Keep all food work inside Food.
 
-The daily page presents movement first, then food and observations. Show the actual day, session title, PDF reminder, current progress, and Start/Resume/Review. A real photograph from a movement in that session opens its demonstration and form cues. The purpose line stays visible above the session. Physical therapy and the muscle map remain one action away.
+Train keeps session browsing separate from the focused workout. Day buttons fit seven across on phones; Today stays inside its button. A plan reminder belongs inside the overview. Avoid repeating a generic explanation that a workout appears on that weekday. Browse-screen actions stay in the page instead of covering the session overview.
 
-Food repeats a familiar meal with explicit ingredient availability; inventory, recipes, shopping and prep remain inside Food. Notes save an observation immediately and support reviewing a specific change later. No fabricated progress, automatic plan changes, new intake targets or motivational pressure.
+## Body journal and training guide
 
-## Real instruction media
+Body defaults to Area journal. Clicking a muscle or group selects it and opens an inline observation form, never a list of exercises. On phones, selection brings the observation panel into view. The date defaults to today and can be changed to an earlier date. Side is optional. Saving records the area, date, optional side and text in the existing observation store. History shows the year, area and side; it can be filtered to an exact date. Group history includes its smaller parts. A note attached to an entire group must not be presented as an observation specific to one smaller muscle. Old region-attached notes remain available. Editing and next-plan flags are available in the journal.
 
-Use real exercise photographs and official creator video players. Generated movement drawings are no longer rendered as instruction or list thumbnails. The body diagram remains an explicitly anatomical interface, separate from demonstration media.
+Training guide is separate: Planned work, Logged sets and Compare areas. Logged sets means actual recorded exercise sets, never body notes and never a substituted plan. Exercise links from Train explicitly open this guide. A secondary link from an area journal opens related exercises, with a direct return to that area's journal.
 
-82 catalog movements have a video; 69 have a locally bundled pair of photographs. All five remaining entries are composite mobility or cardio blocks. A related clip or photo must say what differs, especially the PDF’s pelvic tilt plus shoulder-flexion combination. A video of pelvic tilt alone must never imply it demonstrates that combination.
+Use the front and back maps and the named-area selector for reliable selection. The previous clay turning viewer is removed from the interface. Do not restore it or imply that the current diagram is a 3D model. Detailed anatomy is an explicit option.
 
-Videos load only after a user chooses Play. Label the creator and source. Handle unavailable players with written cues, available photographs, retry and the creator link. Photos show two labeled positions; do not animate stills to imply a filmed demonstration. Keep source URLs, public-domain license, endpoint audit and playback checks in the repository. Third-party videos remain online, embedded through official players, and are never downloaded or cached.
+## Data, reflection and media
 
-## Verification
+Preserve the existing daylight-matrix-v1 key, schema, workout logs, food data, observations and backups. Body observations also appear in Notes, where area, date and side are searchable. Next-plan briefs include the date and side. Flags support considered changes; saving a body observation never changes a training plan automatically.
 
-Check desktop and 390px mobile layouts, every primary destination, the focused workout flow, actual player controls, related-variation labels, and a cold reload with the local server stopped. Keep all logs and backups under the existing storage key. Build output includes a manifest of code, styles, fonts and the body model for first-install offline caching, alongside the photographs.
+Retain actual creator videos and the 138 locally bundled, licensed exercise photographs. Label related variations accurately. Load the official player only after Play and offer photographs, written cues, retry and creator links when needed. Do not simulate a video with stills. Third-party videos need a connection and are never cached. The body map is an interface, separate from instructional media. Offline installs include application assets and photographs; they no longer download the unused turning model.
+
+## Acceptance
+
+Verify selection → dated note → save → area history → exact-date filter → edit → reload, including optional side, group scope and legacy notes. Verify the guide remains separate. Check 390px and narrow phone widths, the seven day buttons, all main destinations and the production build. Keep source and publication changes on review branches; production changes only after the publication pull request is merged.

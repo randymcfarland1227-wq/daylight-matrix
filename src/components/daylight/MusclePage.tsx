@@ -204,7 +204,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
           <Card>
             <div className="flex items-center justify-between">
               <h2 className="t-title">Your notes here</h2>
-              <Button size="sm" tone="soft" onClick={() => state.setOverlay({ type: "note", muscleId: id, kind: "gym" })}>
+              <Button size="sm" tone="soft" onClick={() => state.setBody({ bodyWorkspace: "journal", selectedMuscleId: id })}>
                 <Pencil className="size-4" /> Add
               </Button>
             </div>

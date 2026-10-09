@@ -22,7 +22,7 @@ export function Train() {
   const norm: TrainingTab = (["session", "week", "moves", "pt", "plan"] as string[]).includes(tab) ? tab : "session";
   return (
     <div className="training-page">
-      <PageHead eyebrow="Movement with purpose" title="Training" helper="Browse your plan, read a cue, or start a session when you’re ready." />
+      <PageHead title="Train" helper="Your session, form cues and physical therapy. Follow your plan one exercise at a time." />
       <Segmented
         label="Training sections"
         value={norm}
@@ -47,14 +47,13 @@ export function Train() {
 
 /* ---------------------------------------------------------------- Day switcher */
 
-export function DaySwitcher({ value, onChange, plan }: { value: number; onChange: (d: number) => void; plan: { days: DayTemplate[] } }) {
+export function DaySwitcher({ value, onChange }: { value: number; onChange: (d: number) => void; plan: { days: DayTemplate[] } }) {
   const todayIdx = new Date().getDay();
   const order = [1, 2, 3, 4, 5, 6, 0];
   return (
-    <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Choose a day">
+    <div className="day-switcher" role="tablist" aria-label="Choose a day">
       {order.map((d) => {
         const st = DAY_STYLE[d]!;
-        const day = plan.days.find((x) => x.weekday === d);
         const active = value === d;
         return (
           <button
@@ -64,13 +63,13 @@ export function DaySwitcher({ value, onChange, plan }: { value: number; onChange
             aria-selected={active}
             onClick={() => onChange(d)}
             className={cn(
-              "tap relative flex min-h-[3.75rem] min-w-[3.6rem] shrink-0 flex-col items-center justify-center rounded-lg border px-2 text-sm font-bold",
+              "tap day-tab",
               active ? "border-accent bg-accent text-on-accent shadow-sm" : "border-line bg-surface text-ink hover:bg-surface-2",
             )}
           >
-            <span className="t-meta opacity-80">{st.short}</span>
-            <span className="text-base">{day?.scheduled ? day.slots.length : "–"}</span>
-            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-accent text-on-accent" : "bg-accent/80 text-on-accent")}>today</span> : null}
+            <span>{st.short}</span>
+
+            {d === todayIdx ? <small>Today</small> : <small aria-hidden="true">&nbsp;</small>}
           </button>
         );
       })}
@@ -123,13 +122,6 @@ function SessionScreen() {
     <div>
       <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
 
-      {day.psa ? (
-        <section className="mt-4 rounded-[1.25rem] border border-warn/40 bg-warn/10 p-4" data-testid="day-psa" aria-label="Session reminder">
-          <Eyebrow className="text-warn">{WEEKDAY_NAMES[weekday]} reminder · from your PDF</Eyebrow>
-          <p className="mt-1 t-title">{day.psa}</p>
-        </section>
-      ) : null}
-
       <Card className="animate-rise mt-4 border-accent/25" as="section" aria-label="Session overview">
         <div className="flex items-center gap-2">
           <span className="inline-block size-2.5 rounded-full" style={{ background: st.color }} aria-hidden="true" />
@@ -139,7 +131,7 @@ function SessionScreen() {
         </div>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="t-display">{day.name}</h2>
+            <h2 className="session-overview-title">{day.name}</h2>
             <p className="t-caption mt-1 text-ink-soft">
               {totals.total} exercises · {totals.completed} completed{totals.skipped ? ` · ${totals.skipped} skipped` : ""}
             </p>
@@ -148,7 +140,7 @@ function SessionScreen() {
             <span className="t-caption font-bold tabular-nums">{totals.completed}/{totals.total}</span>
           </Ring>
         </div>
-        <p className="reason-block mt-3 text-sm"><span className="eyebrow block mb-2">Why this session is here</span>{day.why}</p>
+        <div className="reason-block mt-4 text-sm" data-testid="day-psa"><Eyebrow>Your reminder · from your plan</Eyebrow><p className="mt-2 leading-relaxed text-ink-soft">{day.psa || day.why}</p></div>
         <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Muscles in this session">
           {muscles.map((m) => (
             <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-accent/15 text-accent" : "border border-line text-ink-soft")}>
@@ -197,7 +189,7 @@ function SessionScreen() {
         ) : null}
       </div>
 
-      <div className="safe-bottom sticky bottom-[4.9rem] z-10 mt-6 md:bottom-4">
+      <div className="mt-6">
         <div className="flex gap-2 rounded-lg border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note

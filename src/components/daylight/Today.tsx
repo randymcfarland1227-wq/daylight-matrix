@@ -1,89 +1,322 @@
-import { ArrowRight, BookOpen, Check, Dumbbell, Footprints, PenLine, Play, Utensils } from "lucide-react";
-import { localDate, prettyDate } from "@/lib/daylight/dates";
+import {
+  ArrowRight,
+  Check,
+  Dumbbell,
+  Footprints,
+  MapPin,
+  PenLine,
+  Play,
+  Utensils,
+} from "lucide-react";
+import { localDate, prettyDate, recordDate } from "@/lib/daylight/dates";
 import { mealReady, progressLabel, sessionProgress } from "@/lib/daylight/logic";
-import { activePlan, dayTemplate } from "@/lib/daylight/plan";
+import { activePlan, dayBlocks, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { photosFor } from "@/lib/daylight/exImages";
-import { videoFor } from "@/lib/daylight/videos";
+import { noteArea, observationsForArea } from "@/lib/daylight/bodyNotes";
+import { muscleName } from "@/lib/daylight/muscles";
 import { useFoodNumbers } from "./Food";
-import { Badge, Button, Card, Eyebrow } from "./ui";
+import { MapFigure } from "./MapFigure";
+import { Badge, Button, Eyebrow } from "./ui";
 
 export function Today() {
   const s = useDaylight();
   const today = localDate();
   const weekday = new Date().getDay();
-  const plan = activePlan(s.planVersions, today);
-  const day = dayTemplate(plan, weekday);
+  const day = dayTemplate(activePlan(s.planVersions, today), weekday);
   const session = s.sessions.find((x) => x.localDate === today && x.weekday === weekday) ?? null;
   const slots = session?.snapshot ?? day.slots;
   const progress = sessionProgress(slots, session);
-  const featured = slots.find((slot) => slot.section === "main" && photosFor(slot.exerciseId)?.match === "exact") ?? slots.find((slot) => photosFor(slot.exerciseId)?.match === "exact") ?? slots.find((slot) => videoFor(slot.exerciseId));
+  const blocks = dayBlocks(day, slots);
+  const completedFraction = progress.total ? progress.completed / progress.total : 0;
+  const featured =
+    slots.find(
+      (slot) => slot.section === "main" && photosFor(slot.exerciseId)?.match === "exact",
+    ) ?? slots.find((slot) => photosFor(slot.exerciseId)?.match === "exact");
   const featuredExercise = featured ? exerciseById(featured.exerciseId) : null;
   const featuredPhoto = featured ? photosFor(featured.exerciseId) : undefined;
-  const featuredVideo = featured ? videoFor(featured.exerciseId) : undefined;
-  const featuredImage = featuredPhoto?.images[0] ?? featuredVideo?.thumbnail;
   const food = useFoodNumbers();
   const lastLog = [...s.foodLogs].reverse().find((x) => x.mealId);
   const lastMeal = s.savedMeals.find((m) => m.id === lastLog?.mealId);
   const ready = s.savedMeals.find((m) => mealReady(m, s.inventory));
   const repeat = lastMeal ?? ready ?? s.savedMeals.find((m) => m.pinned);
-  const latest = s.observations[0];
+  const latest = observationsForArea(s.observations)[0];
   const flagged = s.observations.filter((x) => x.forNextPlan).length;
   const hasWork = Boolean(session?.logs.length);
   const finished = session?.status === "finished";
-  const overview = () => { s.setTrainDay(weekday); s.setTrainingTab("session"); };
+  const overview = () => {
+    s.setTrainDay(weekday);
+    s.setTrainingTab("session");
+  };
+  const body = (area?: string) => {
+    s.setBody({ bodyWorkspace: "journal", selectedMuscleId: area ?? null });
+    s.setView("body");
+  };
   return (
     <div className="daily-page">
-      <header className="page-intro">
-        <div><Eyebrow>{prettyDate(today)}</Eyebrow><h1 className="daily-title">Your daily practice.</h1></div>
-        <p className="intro-note">A place to move well, make eating easier, and use what you notice.</p>
+      <header className="daily-heading">
+        <div>
+          <Eyebrow>{prettyDate(today)}</Eyebrow>
+          <h1>Today</h1>
+          <p>Move well. Eat with less effort. Notice what helps.</p>
+        </div>
+        <Button tone="outline" size="sm" onClick={() => s.setOverlay({ type: "activity" })}>
+          <Footprints className="size-4" />
+          Log activity
+        </Button>
       </header>
-      <button type="button" className="purpose-strip" onClick={() => s.setOverlay({ type: "purpose" })}>
-        <span className="purpose-mark"><Footprints className="size-5" /></span>
-        <span className="min-w-0 flex-1"><span className="eyebrow block">What I’m working toward</span><span className="mt-1 block text-sm">{s.purposeIsProposal ? "Set a reason that matters to you." : s.purpose}</span></span>
-        <PenLine className="size-4 shrink-0 text-ink-faint" aria-hidden="true" />
+      <button
+        type="button"
+        className="daily-purpose"
+        onClick={() => s.setOverlay({ type: "purpose" })}
+      >
+        <span className="purpose-icon">
+          <Footprints className="size-4" />
+        </span>
+        <span>
+          <b>My reason</b>
+          <span>
+            {s.purposeIsProposal
+              ? "Set the reason behind your training and daily habits."
+              : s.purpose}
+          </span>
+        </span>
+        <PenLine className="size-4 shrink-0" />
       </button>
-      <div className="daily-grid">
-        <Card className="training-feature" aria-label="Today's session">
-          <div className="training-feature-inner">
-            <div className="training-feature-copy">
-              <div className="flex flex-wrap items-center gap-2"><Eyebrow>01 / Today’s movement</Eyebrow><Badge className="ml-auto">{finished ? "Saved" : hasWork ? "In progress" : "From your plan"}</Badge></div>
-              <h2 className="session-title">{day.scheduled ? day.name : "A day left open."}</h2>
-              <p className="mt-3 text-sm text-ink-soft">{day.scheduled ? `${slots.filter((x) => !x.optional).length} exercises · activation first` : "Choose a session, log another activity, or leave today open."}</p>
-              <div className="reason-block"><p className="eyebrow">Why this session is here</p><p className="mt-2 text-sm leading-relaxed">{day.psa || day.why || "Your plan leaves this day open."}</p></div>
-              {day.scheduled ? <>
-                {hasWork ? <p className="mt-4 text-sm text-ink-soft">{progress.completed} of {progress.total} exercises completed{progress.skipped ? ` · ${progress.skipped} skipped` : ""}{progress.changed ? ` · ${progress.changed} replaced` : ""}</p> : null}
-                {session && !finished && hasWork ? <p className="mt-1 text-sm font-medium">Continue: {progressLabel(session)}</p> : null}
-                <Button size="lg" className="mt-5 w-full sm:w-auto" data-testid="start-gym" onClick={finished ? overview : () => s.setGymMode(weekday)}>{finished ? <Check className="size-4" /> : <Play className="size-4" fill="currentColor" />}{finished ? "Review session" : hasWork ? "Resume session" : "Start session"}<ArrowRight className="size-4" /></Button>
-                <button type="button" className="tap mt-2 block min-h-11 text-sm text-ink-soft underline-offset-4 hover:underline" onClick={overview}>View exercises and form cues</button>
-              </> : <Button tone="outline" className="mt-5" onClick={() => s.setTrainingTab("week")}>Choose a session<ArrowRight className="size-4" /></Button>}
+      <div className="today-workspace">
+        <section className="session-dashboard" aria-label="Today's session">
+          <div className="dashboard-label">
+            <Dumbbell className="size-4" />
+            <Eyebrow>Today’s training</Eyebrow>
+            <Badge className="ml-auto">
+              {finished ? "Finished" : hasWork ? "In progress" : "Your plan"}
+            </Badge>
+          </div>
+          <h2>{day.scheduled ? day.name : "An open day"}</h2>
+          <p className="text-sm text-ink-soft mt-2">
+            {day.scheduled
+              ? `${progress.total} required exercises${slots.some((x) => x.optional) ? " · optional work available" : ""}`
+              : "Choose a session or record another activity."}
+          </p>
+          {day.scheduled ? (
+            <>
+              <div
+                className="session-stages"
+                style={{ gridTemplateColumns: `repeat(${blocks.length}, minmax(0,1fr))` }}
+              >
+                {blocks.map((block, i) => (
+                  <div key={block.id}>
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                    <b>
+                      {block.id === "activation"
+                        ? "Activate"
+                        : block.id === "workout"
+                          ? "Main work"
+                          : "Finish"}
+                    </b>
+                    <small>
+                      {block.slots.length
+                        ? `${block.slots.length} ${block.slots.length === 1 ? "exercise" : "exercises"}`
+                        : (day.sectionNote?.finisher ?? "None scheduled")}
+                    </small>
+                  </div>
+                ))}
+              </div>
+              <div className="session-reason">
+                <Eyebrow>Keep in mind</Eyebrow>
+                <p>{day.psa || day.why}</p>
+              </div>
+              {hasWork ? (
+                <div className="session-progress">
+                  <div>
+                    <span>
+                      {progress.completed} of {progress.total} exercises completed
+                    </span>
+                    <span>{Math.round(completedFraction * 100)}%</span>
+                  </div>
+                  <progress max="1" value={completedFraction} aria-label="Session completion" />
+                  {!finished ? <p>{progressLabel(session!)}</p> : null}
+                </div>
+              ) : null}
+              <div className="session-actions">
+                <Button
+                  size="lg"
+                  data-testid="start-gym"
+                  onClick={finished ? overview : () => s.setGymMode(weekday)}
+                >
+                  {finished ? (
+                    <Check className="size-4" />
+                  ) : (
+                    <Play className="size-4" fill="currentColor" />
+                  )}
+                  {finished ? "Review session" : hasWork ? "Resume session" : "Start session"}
+                  <ArrowRight className="size-4" />
+                </Button>
+                <Button tone="ghost" onClick={overview}>
+                  View exercises
+                </Button>
+              </div>
+            </>
+          ) : (
+            <Button className="mt-5" onClick={() => s.setTrainingTab("week")}>
+              Choose a session
+              <ArrowRight className="size-4" />
+            </Button>
+          )}
+          {featuredPhoto && featured ? (
+            <button
+              type="button"
+              className="daily-form-reference"
+              onClick={() => s.setOverlay({ type: "form", exerciseId: featured.exerciseId })}
+            >
+              <img
+                src={featuredPhoto.images[0]}
+                alt={`${featuredExercise?.name}: starting position`}
+              />
+              <span>
+                <small>Form reference</small>
+                <b>{featuredExercise?.name}</b>
+                <span>Photos, video and cues</span>
+              </span>
+              <Play className="size-5 ml-auto shrink-0" />
+            </button>
+          ) : null}
+          <div className="session-links">
+            <button
+              type="button"
+              onClick={() => {
+                s.setTrainDay(weekday);
+                s.setTrainingTab("pt");
+              }}
+            >
+              <Footprints className="size-4" />
+              Physical therapy
+              <ArrowRight className="size-3.5 ml-auto" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                s.setBody({ bodyWorkspace: "training", bodyMode: "plan", selectedMuscleId: null });
+                s.setView("body");
+              }}
+            >
+              <Dumbbell className="size-4" />
+              Training coverage
+              <ArrowRight className="size-3.5 ml-auto" />
+            </button>
+          </div>
+        </section>
+        <section className="daily-body" aria-label="Body check-in">
+          <div className="dashboard-label">
+            <MapPin className="size-4" />
+            <Eyebrow>Body check-in</Eyebrow>
+          </div>
+          <h2>How does your body feel?</h2>
+          <p className="mt-2 text-sm text-ink-soft">Choose an area. Save what you notice.</p>
+          <div className="daily-mini-map">
+            {(["front", "back"] as const).map((view) => (
+              <MapFigure
+                key={view}
+                view={view}
+                level="region"
+                fill={() => "var(--journal-idle)"}
+                onSelect={(id) => body(id)}
+                className="h-48 w-auto"
+              />
+            ))}
+          </div>
+          <Button tone="outline" className="w-full" onClick={() => body()}>
+            Open body journal
+            <ArrowRight className="size-4" />
+          </Button>
+          {latest ? (
+            <button
+              type="button"
+              className="daily-latest-note"
+              onClick={() => body(noteArea(latest)!)}
+            >
+              <small>
+                {muscleName(noteArea(latest)!)} · {recordDate(latest.context.date)}
+              </small>
+              <span>{latest.text}</span>
+            </button>
+          ) : (
+            <p className="mt-4 text-xs text-ink-soft">
+              Your dated observations help you spot changes and decide what to review.
+            </p>
+          )}
+        </section>
+        <section className="daily-food" aria-label="Food today">
+          <div className="dashboard-label">
+            <Utensils className="size-4" />
+            <Eyebrow>Food today</Eyebrow>
+          </div>
+          <div className="daily-food-content">
+            <div>
+              <h2>{repeat ? repeat.name : "Make your next meal easier"}</h2>
+              <p className="mt-2 text-sm text-ink-soft">
+                {repeat
+                  ? lastMeal
+                    ? "A familiar meal you’ve logged before."
+                    : "One of your saved meals."
+                  : "Meals, ingredients, shopping and prep—all together."}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {repeat ? (
+                  <Button onClick={() => s.setOverlay({ type: "repeat-meal", mealId: repeat.id })}>
+                    Repeat this meal
+                    <ArrowRight className="size-4" />
+                  </Button>
+                ) : (
+                  <Button onClick={() => s.setView("food")}>
+                    Choose a meal
+                    <ArrowRight className="size-4" />
+                  </Button>
+                )}
+                <Button tone="outline" onClick={() => s.setOverlay({ type: "log-food" })}>
+                  Log food
+                </Button>
+                <Button tone="ghost" onClick={() => s.setOverlay({ type: "log-drink" })}>
+                  Log a drink
+                </Button>
+              </div>
             </div>
-            {featuredImage && featured ? <div className="training-image">
-              <img src={featuredImage} alt={`${featuredExercise?.name ?? "Exercise"}: ${featuredPhoto ? "starting position" : "video preview"}`} />
-              <span className="training-image-credit">{featuredPhoto ? "Free Exercise DB · Public domain" : `Video by ${featuredVideo?.author}`}</span>
-              <button type="button" className="tap training-image-caption" onClick={() => s.setOverlay({ type: "form", exerciseId: featured.exerciseId })}><Play className="size-5 text-accent" /><span><b className="text-sm">{featuredExercise?.name}</b><small>See the demonstration and form cues</small></span><ArrowRight className="ml-auto size-4" /></button>
-            </div> : <div className="training-image"><Dumbbell className="size-16 text-ink-faint" /></div>}
+            <div className="intake-totals">
+              <div>
+                <b>
+                  {food.protein.total}
+                  <small> g</small>
+                </b>
+                <span>Protein logged{food.protein.unknown ? " · some unknown" : ""}</span>
+              </div>
+              <div>
+                <b>
+                  {Math.round(food.water)}
+                  <small> oz</small>
+                </b>
+                <span>Fluid logged</span>
+              </div>
+            </div>
           </div>
-          <div className="feature-footer">
-            <button type="button" onClick={() => { s.setTrainDay(weekday); s.setTrainingTab("pt"); }}><span className="link-icon"><Footprints className="size-4" /></span><span><b>Physical therapy</b><small>Your reference board and cues</small></span><ArrowRight className="ml-auto size-4" /></button>
-            <button type="button" onClick={() => { s.setBody({ bodyMode: "plan", selectedMuscleId: null }); s.setView("body"); }}><span className="link-icon"><Dumbbell className="size-4" /></span><span><b>Muscles in this session</b><small>Explore the body map</small></span><ArrowRight className="ml-auto size-4" /></button>
-          </div>
-        </Card>
-        <Card className="food-feature" aria-label="Food today">
-          <div className="flex items-center gap-2"><Utensils className="size-4 text-accent" /><Eyebrow>02 / Make eating easier</Eyebrow></div>
-          <h2 className="section-display mt-4">What can I eat?</h2>
-          <p className="mt-2 text-sm text-ink-soft">Repeat a familiar meal or choose from what you have.</p>
-          {repeat ? <div className="meal-shortcut"><p className="eyebrow">{lastMeal ? "A meal you’ve logged before" : ready ? "Ingredients marked available" : "A meal you pinned"}</p><p className="mt-2 text-lg font-medium">{repeat.name}</p><Button tone="outline" size="sm" className="mt-3" onClick={() => s.setOverlay({ type: "repeat-meal", mealId: repeat.id })}>Repeat this meal<ArrowRight className="size-4" /></Button></div> : <div className="meal-shortcut"><p className="text-sm text-ink-soft">Your meals and ingredients are together in Food.</p><Button tone="outline" className="mt-3" onClick={() => s.setView("food")}>Choose something to eat<ArrowRight className="size-4" /></Button></div>}
-          <div className="mt-4 flex flex-wrap gap-2"><Button tone="soft" size="sm" onClick={() => s.setOverlay({ type: "log-food" })}>Log food</Button><Button tone="soft" size="sm" onClick={() => s.setOverlay({ type: "log-drink" })}>Log a drink</Button><Button tone="ghost" size="sm" onClick={() => s.setView("food")}>Open Food<ArrowRight className="size-3" /></Button></div>
-          <div className="food-summary"><span><b>{food.protein.total} g</b> protein logged{food.protein.unknown ? " · some unknown" : ""}</span><span><b>{Math.round(food.water)} oz</b> fluid logged</span></div>
-        </Card>
-        <Card className="notes-feature" aria-label="Your observations">
-          <div className="notes-feature-copy"><div className="flex items-center gap-2"><PenLine className="size-4 text-accent" /><Eyebrow>03 / Learn from your day</Eyebrow></div><h2 className="section-display mt-3">What did you notice?</h2><p className="mt-2 max-w-lg text-sm text-ink-soft">A movement felt different. Lunch took too much effort. Save it now; decide what to change when you’re ready.</p><div className="mt-4 flex flex-wrap gap-2"><Button tone="outline" onClick={() => s.setOverlay({ type: "note", kind: "general" })}>Add an observation</Button><Button tone="ghost" onClick={() => s.setView("notes")}>{flagged ? `Review ${flagged} flagged observation${flagged === 1 ? "" : "s"}` : "Review observations"}<ArrowRight className="size-4" /></Button></div></div>
-          <div className="observation-preview"><p className="eyebrow">{latest ? "Your latest observation" : "A small note can guide the next plan"}</p><p className="mt-3 text-sm leading-relaxed text-ink-soft">{latest ? latest.text : "You don’t need to measure everything. Start with what stood out."}</p><p className="mt-4 text-xs text-ink-faint">Notice → try a change → review what helped</p></div>
-        </Card>
+        </section>
       </div>
-      <div className="daily-utilities"><button type="button" onClick={() => s.setOverlay({ type: "activity" })}><Footprints className="size-4" />Log another activity</button><button type="button" onClick={() => s.setView("learn")}><BookOpen className="size-4" />Learn about movement</button><span>Saved on this device</span></div>
+      <section className="daily-reflection">
+        <div>
+          <h2>Turn observations into a better plan</h2>
+          <p>Save a note now. Flag what matters. Review before making a change.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button tone="outline" onClick={() => s.setOverlay({ type: "note", kind: "general" })}>
+            <PenLine className="size-4" />
+            Add a note
+          </Button>
+          <Button tone="ghost" onClick={() => s.setView("notes")}>
+            {flagged ? `Review ${flagged} flagged` : "Review notes"}
+            <ArrowRight className="size-4" />
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }

@@ -171,6 +171,7 @@ export type ObservationContext = {
   /** Old 24-region body map id, kept so old notes still resolve. */
   regionId?: string;
   muscleId?: string;
+  bodySide?: "left" | "right" | "both";
   exerciseId?: string;
   mealId?: string;
   sessionId?: string;

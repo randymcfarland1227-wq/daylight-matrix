@@ -55,3 +55,8 @@ export const WEEKDAY_NAMES = [
   "Friday",
   "Saturday",
 ] as const;
+
+/** Include the year when reviewing an observation from any point in the journal. */
+export function recordDate(date: string): string {
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}

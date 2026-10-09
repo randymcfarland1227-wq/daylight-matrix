@@ -1,4 +1,5 @@
 import { WEEKDAY_NAMES, localDate } from "./dates";
+import { noteArea } from "./bodyNotes";
 import { exerciseById } from "./exercises";
 import { GROUPS, SUBS, subInfo, muscleName, targetFor, type MuscleId } from "./muscles";
 import { dayBlocks } from "./plan";
@@ -31,8 +32,9 @@ export function groupNotes(notes: Observation[]) {
       byExercise.set(n.context.exerciseId, [...(byExercise.get(n.context.exerciseId) ?? []), n]);
       placed = true;
     }
-    if (n.context.muscleId) {
-      byMuscle.set(n.context.muscleId, [...(byMuscle.get(n.context.muscleId) ?? []), n]);
+    const area = noteArea(n);
+    if (area) {
+      byMuscle.set(area, [...(byMuscle.get(area) ?? []), n]);
       placed = true;
     }
     if (!placed) general.push(n);
@@ -47,9 +49,10 @@ export function groupNotes(notes: Observation[]) {
 function noteLine(n: Observation): string {
   const bits: string[] = [n.context.date];
   if (n.context.weekday != null) bits[0] = `${n.context.date} ${WEEKDAY_NAMES[n.context.weekday]?.slice(0, 3)}`;
+  const side = n.context.bodySide ? ` · ${n.context.bodySide === "both" ? "both sides" : n.context.bodySide}` : "";
   const tags = n.tags.length ? ` [${n.tags.join("; ")}]` : "";
   const flag = n.forNextPlan ? " ★ for next plan" : "";
-  return `- (${bits[0]}) ${n.text.replace(/\s+/g, " ").trim()}${tags}${flag}`;
+  return `- (${bits[0]}${side}) ${n.text.replace(/\s+/g, " ").trim()}${tags}${flag}`;
 }
 
 export function lastLogged(sessions: WorkoutSession[], exerciseId: string, units: string): string | null {
