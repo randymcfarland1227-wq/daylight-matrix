@@ -149,7 +149,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
           ) : null}
 
           {underserved ? (
-            <p className="flex items-start gap-2 rounded-2xl border border-info/40 bg-info/10 p-3 text-sm">
+            <p className="flex items-start gap-2 rounded-lg border border-info/40 bg-info/10 p-3 text-sm">
               <Lightbulb className="mt-0.5 size-4 shrink-0 text-info" />
               <span>
                 <b>Your plan under-serves this one</b> ({STATUS_LABEL[st].toLowerCase()}). The moves under “Other moves that train this” are ideas to grow it. They are not in your PDF.
@@ -316,7 +316,7 @@ function MoveCard({ row, muscleId, loggedSets, windowDays, showLogged }: { row: 
   const steps = guide?.s.slice(0, 3) ?? [];
   const hue = GROUP_HUE[groupOfAny(muscleId)];
   return (
-    <article className="overflow-hidden rounded-3xl border border-line bg-surface" data-testid="move-card" data-exercise={ex.id}>
+    <article className="overflow-hidden rounded-xl border border-line bg-surface" data-testid="move-card" data-exercise={ex.id}>
       <header className="flex items-center gap-2 bg-surface-2 px-4 py-3">
         <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
         <h3 className="min-w-0 flex-1 truncate t-title">{ex.name}</h3>

@@ -144,7 +144,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
         type="button"
         aria-pressed={flag}
         onClick={() => setFlag((v) => !v)}
-        className={cn("tap mt-3 flex min-h-12 w-full items-center gap-3 rounded-2xl border px-3 text-left font-bold", flag ? "border-warn bg-warn/15 text-warn" : "border-line bg-surface")}
+        className={cn("tap mt-3 flex min-h-12 w-full items-center gap-3 rounded-lg border px-3 text-left font-bold", flag ? "border-warn bg-warn/15 text-warn" : "border-line bg-surface")}
       >
         <Flag className="size-5" fill={flag ? "currentColor" : "none"} />
         <span className="flex-1">For the next plan</span>
@@ -179,7 +179,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
           </div>
           <div>
             <p className="eyebrow mb-1">Muscle</p>
-            <div className="figure-panel mb-2 grid grid-cols-2 gap-1 rounded-2xl p-2" data-testid="note-figure">
+            <div className="figure-panel mb-2 grid grid-cols-2 gap-1 rounded-lg p-2" data-testid="note-figure">
               {(["front", "back"] as const).map((v) => (
                 <MapFigure key={v} view={v} level="region" className="mx-auto h-auto w-full max-w-[150px]" fill={(id) => (muscleId === id ? "#4aa3d8" : FIG_SKIN)} selected={muscleId} onSelect={(id) => setMuscleId(id)} />
               ))}
@@ -288,7 +288,7 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-2xl bg-surface-2 p-3">
+    <div className="rounded-lg bg-surface-2 p-3">
       <p className="t-display tabular-nums leading-none">{value}</p>
       <p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink-soft">
         {label}

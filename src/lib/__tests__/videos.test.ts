@@ -30,7 +30,7 @@ test("videos: every entry is a Vimeo clip with a numeric id, title, author, dura
     assert.ok(v.title.trim().length > 3, `${key}: missing title`);
     assert.ok(v.author.trim().length > 1, `${key}: missing author`);
     assert.match(v.authorUrl, /^https:\/\/vimeo\.com\//, `${key}: author url`);
-    assert.ok(v.duration > 0 && v.duration < 180, `${key}: short demo expected, got ${v.duration}s`);
+    assert.ok(v.duration > 0 && v.duration <= 600, `${key}: demo or tutorial expected, got ${v.duration}s`);
     assert.ok(v.width > 0 && v.height > 0, `${key}: size`);
     assert.ok(v.match === "exact" || v.match === "close", `${key}: match`);
     assert.equal(typeof v.playerChecked, "boolean");
@@ -69,8 +69,8 @@ test("videos: the only embed URL is Vimeo's official player (muted autoplay loop
   assert.equal(vimeoEmbedUrl({ id: "123456", start: 7 }).endsWith("#t=7s"), true);
   assert.equal(vimeoPageUrl(v.id), `https://vimeo.com/${v.id}`);
   assert.equal(videoCredit(v), `Video: ${v.title} by ${v.author} on Vimeo`);
-  assert.equal(videoFor("battle-rope-squat"), undefined);
-  assert.match(demoUrl("battle-rope-squat"), /^https:\/\/vimeo\.com\/search\?q=/);
+  assert.equal(videoFor("battle-rope-squat")?.id, "706946382");
+  assert.match(demoUrl("mobility-flow"), /^https:\/\/vimeo\.com\/search\?q=/);
 });
 
 const walk = (dir: string): string[] => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? walk(join(dir, f)) : [join(dir, f)]));
@@ -91,7 +91,8 @@ test("round 6: iframes only for player.vimeo.com; no YouTube host anywhere in th
   assert.equal(iframes, 1, "exactly one iframe (the Vimeo player)");
   const vsrc = readFileSync(join(root, "lib/daylight/videos.ts"), "utf8");
   const embedHosts = new Set([...vsrc.matchAll(/https:\/\/([a-z0-9.-]+)\/video\//gi)].map((m) => m[1]));
-  assert.deepEqual([...embedHosts], ["player.vimeo.com"]);
+  assert.ok(embedHosts.has("player.vimeo.com"));
+  for (const host of embedHosts) assert.ok(["player.vimeo.com", "i.vimeocdn.com"].includes(host));
 });
 
 test("photos: every entry names its source and license, and has start+end https image URLs from the licensed dataset", () => {
@@ -133,4 +134,24 @@ test("service worker: never touches Vimeo or YouTube; caches only the licensed p
   assert.ok(/THIRD_PARTY_MEDIA\.test\(url\.hostname\)/.test(sw));
   assert.ok(/origin !== self\.location\.origin/.test(sw), "other cross-origin requests must stay un-cached");
   assert.ok(sw.includes('PHOTO_PATH = "/yuhonas/free-exercise-db/"') && sw.includes('PHOTO_HOST = "raw.githubusercontent.com"'));
+});
+
+// Local files, rather than fragile remote photo URLs, are the offline instruction source.
+test("every photograph returned to the interface exists in the offline bundle", () => {
+  const publicDir = new URL("../../../public/", import.meta.url).pathname;
+  for (const id of Object.keys(EX_IMAGES)) for (const url of photosFor(id)!.images) {
+    assert.match(url, /^\/media\/exercises\/[a-z0-9-]+-[01]\.jpg$/);
+    const bytes = readFileSync(join(publicDir, url));
+    assert.equal(bytes[0], 0xff, `${id}: JPEG signature`);
+    assert.equal(bytes[1], 0xd8);
+    assert.ok(bytes.length > 1000);
+  }
+});
+
+test("custom PT combination and cable variant are explicitly related", () => {
+  const combined = videoFor("pt-shoulder-flexion")!;
+  assert.equal(combined.match, "close");
+  assert.match(combined.matchNote!, /combined movement is not demonstrated/);
+  assert.equal(videoFor("cross-body-cable-ext")?.match, "close");
+  assert.match(videoFor("cross-body-cable-ext")!.matchNote!, /single-cable/);
 });

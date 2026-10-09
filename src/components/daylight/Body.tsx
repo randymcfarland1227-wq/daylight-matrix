@@ -106,9 +106,9 @@ export function Body() {
           onChange={(v) => state.setBody({ bodyMode: v })}
           className="w-full basis-full"
           options={[
-            { id: "plan", label: "Planned work" },
-            { id: "heat", label: "Recorded work" },
-            { id: "grow", label: "Compare areas" },
+            { id: "plan", label: "Planned" },
+            { id: "heat", label: "Recorded" },
+            { id: "grow", label: "Compare" },
           ]}
         />
         <Segmented<"map" | "turn">
@@ -120,7 +120,7 @@ export function Body() {
             { id: "turn", label: "Turn" },
           ]}
         />
-        <label className={cn("tap flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl bg-surface-2 px-3 text-sm font-bold", style === "turn" && "pointer-events-none opacity-50")} data-testid="advanced-toggle">
+        <label className={cn("tap flex min-h-12 cursor-pointer items-center gap-2 rounded-lg bg-surface-2 px-3 text-sm font-bold", style === "turn" && "pointer-events-none opacity-50")} data-testid="advanced-toggle">
           <span>Advanced</span>
           <input
             type="checkbox"
@@ -226,7 +226,7 @@ export function Body() {
 
 export function Legend({ mode }: { mode: BodyMode }) {
   return (
-    <div className="mt-3 rounded-2xl bg-surface-2 p-3 text-xs text-ink-soft" data-testid="map-legend">
+    <div className="mt-3 rounded-lg bg-surface-2 p-3 text-xs text-ink-soft" data-testid="map-legend">
       {mode === "heat" ? (
         <div>
           <div className="h-3 w-full rounded-full" style={{ background: RAMP_CSS }} />
@@ -267,7 +267,7 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
           <Target className="size-5 text-info" />
           <h2 className="t-title">{mode === "heat" ? (heat.source === "logged" ? "Recorded muscle coverage" : "Where the plan puts you") : "Areas below your comparison range"}</h2>
         </div>
-        {mode === "heat" && heat.totalSets === 0 ? <p className="mt-3 text-sm text-ink-soft">No sets recorded in this window. The map stays uncoloured until you log work. Use Planned work to explore your program.</p> : under.length ? (
+        {mode === "heat" && heat.totalSets === 0 ? <p className="mt-3 text-sm text-ink-soft">No sets recorded in this window. The map stays uncoloured until you log work. Use Planned to explore your program.</p> : under.length ? (
           <ul className="mt-3 space-y-1.5">
             {under.map(({ g, cell, st }) => (
               <li key={g.id}>

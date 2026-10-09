@@ -1,0 +1,1 @@
+Exercise photographs: Free Exercise DB, https://github.com/yuhonas/free-exercise-db. Released under The Unlicense: https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md. Original image URLs and exercise mappings are recorded in src/lib/daylight/exImages.ts. Downloaded and validated 2026-10-08. Video files are not included or rehosted.

@@ -17,10 +17,10 @@ const ITEMS: { id: AppView; label: string; icon: typeof SunMedium }[] = [
 export function Logo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#151d23" />
-      <circle cx="16" cy="19" r="7.2" fill="#5fb6cf" />
-      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#2c4352" />
-      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#5fb6cf" strokeWidth="1.7" strokeLinecap="round" />
+      <rect width="32" height="32" rx="9" fill="#9c4028" />
+      <circle cx="16" cy="19" r="7.2" fill="#f6f3ec" />
+      <path d="M3 22 Q16 12 29 22 V29 H3Z" fill="#bd7459" />
+      <path d="M16 3.5v4M7 7l2.7 2.7M25 7l-2.7 2.7" stroke="#f6f3ec" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }
@@ -37,12 +37,12 @@ export function Shell({ children }: { children: ReactNode }) {
   };
   const current = view === "history" || view === "goals" || view === "review" ? "settings" : view;
   return (
-    <div className="min-h-dvh bg-canvas text-ink md:grid app-shell md:grid-cols-[13rem_minmax(0,1fr)]">
+    <div className="min-h-dvh bg-canvas text-ink md:grid app-shell md:grid-cols-[12rem_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line app-sidebar px-4 py-8 md:flex">
         <div className="flex items-center gap-2.5 px-2">
           <Logo size={34} />
           <div>
-            <p className="t-title leading-none">Daylight</p>
+            <p className="brand-name leading-none">Daylight</p>
             <p className="t-meta text-ink-soft">Matrix</p>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function Shell({ children }: { children: ReactNode }) {
               onClick={() => setView(item.id)}
               aria-current={current === item.id ? "page" : undefined}
               className={cn(
-                "tap flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left text-base font-bold",
+                "tap flex min-h-12 items-center gap-3 rounded-lg px-3 text-left text-base font-bold",
                 current === item.id ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-surface-2",
               )}
             >
@@ -63,16 +63,16 @@ export function Shell({ children }: { children: ReactNode }) {
             </button>
           ))}
         </nav>
-        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 px-3 font-bold text-ink">
+        <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line bg-surface-2 px-3 font-bold text-ink">
           <PenLine className="size-5" /> Quick note
         </button>
-        <button type="button" onClick={() => setView("learn")} aria-current={current === "learn" ? "page" : undefined} className="tap mt-4 flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left font-semibold text-ink-soft"><BookOpen className="size-5" /> Learn</button>
+        <button type="button" onClick={() => setView("learn")} aria-current={current === "learn" ? "page" : undefined} className="tap mt-4 flex min-h-12 items-center gap-3 rounded-lg px-3 text-left font-semibold text-ink-soft"><BookOpen className="size-5" /> Learn</button>
         <p className="mt-8 px-3 text-xs leading-relaxed text-ink-faint">Move with purpose.<br />Make eating easier.<br />Learn what works for you.</p>
         <button
           type="button"
           onClick={() => setView("settings")}
           aria-current={current === "settings" ? "page" : undefined}
-          className={cn("tap mt-auto flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left font-semibold", current === "settings" ? "bg-surface-2" : "text-ink-soft hover:bg-surface-2")}
+          className={cn("tap mt-auto flex min-h-12 items-center gap-3 rounded-lg px-3 text-left font-semibold", current === "settings" ? "bg-surface-2" : "text-ink-soft hover:bg-surface-2")}
         >
           <Gear className="size-5" /> Settings &amp; backup
         </button>
@@ -82,7 +82,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="sticky top-0 z-20 flex items-center justify-between bg-canvas/90 px-4 py-2.5 backdrop-blur md:hidden" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
           <button type="button" onClick={() => setView("today")} className="flex items-center gap-2" aria-label="Daylight Matrix home">
             <Logo size={26} />
-            <span className="t-title text-[1.125rem]! leading-none">Daylight Matrix</span>
+            <span className="brand-name text-[1.25rem]! leading-none">Daylight Matrix</span>
           </button>
           <button type="button" onClick={() => setView("settings")} aria-label="Settings and backup" className="tap grid size-10 place-items-center rounded-full bg-surface-2">
             <Gear className="size-5" />

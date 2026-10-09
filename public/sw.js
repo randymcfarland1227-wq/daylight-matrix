@@ -7,7 +7,7 @@
    The app loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is also left alone: never intercepted or cached.
    The only cross-origin thing cached is the exercise photo set (Free Exercise DB, public domain): cache-first, so photos you have seen work offline. */
 const THIRD_PARTY_MEDIA = /(^|\.)(vimeo\.com|vimeocdn\.com|youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
-const VERSION = "dm-v8-daily-flow";
+const VERSION = "dm-v9-editorial-media";
 const PHOTOS = "dm-photos-v1"; // real exercise photos: kept across app versions, capped below
 const PHOTO_HOST = "raw.githubusercontent.com";
 const PHOTO_PATH = "/yuhonas/free-exercise-db/";
@@ -15,7 +15,20 @@ const PHOTO_MAX = 400;
 const CORE = ["./", "./manifest.webmanifest", "./favicon.svg", "./icon-192.png"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).catch(() => {}));
+  e.waitUntil(caches.open(VERSION).then(async (c) => {
+    await c.addAll(CORE);
+    for (const manifest of ["./offline-assets.json", "./media/exercises/index.json"]) {
+      try {
+        const response = await fetch(manifest, { cache: "no-store" });
+        if (!response.ok) continue;
+        const assets = await response.json();
+        // Small batches keep installation responsive. Remote videos are never cached.
+        for (let i = 0; i < assets.length; i += 8) {
+          await Promise.all(assets.slice(i, i + 8).map((url) => c.add(url).catch(() => {})));
+        }
+      } catch { /* The next online visit can cache anything not available yet. */ }
+    }
+  }).catch(() => {}));
   self.skipWaiting();
 });
 self.addEventListener("activate", (e) => {
@@ -29,7 +42,7 @@ self.addEventListener("fetch", (e) => {
   // Only Daylight's own files. Other sites share this address in their own folders (/frontier/,
   // /flow-hub/, /peculiar-command-center/…) and must never be answered from this cache — it was
   // serving Life Hub old copies of its data. Bumping VERSION above also clears what was saved.
-  if (url.origin === self.location.origin && /^\/[^/]+\//.test(url.pathname) && !/^\/(assets|__grok)\//.test(url.pathname)) return;
+  if (url.origin === self.location.origin && /^\/[^/]+\//.test(url.pathname) && !/^\/(assets|__grok|media\/exercises)\//.test(url.pathname)) return;
   if (THIRD_PARTY_MEDIA.test(url.hostname)) return; // Vimeo / YouTube: never intercepted, never cached
   if (req.method === "GET" && url.hostname === PHOTO_HOST && url.pathname.startsWith(PHOTO_PATH) && /\.(jpe?g|png|webp)$/i.test(url.pathname)) {
     e.respondWith(

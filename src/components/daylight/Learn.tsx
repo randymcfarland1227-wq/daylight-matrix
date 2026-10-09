@@ -23,7 +23,7 @@ export function Learn() {
         {all ? "Show plan lessons" : "Browse all"}
       </Button>
       {open ? (
-        <article className="mt-5 rounded-2xl border border-line bg-surface px-4 py-4">
+        <article className="mt-5 rounded-lg border border-line bg-surface px-4 py-4">
           <h2 className="text-3xl">{open.title}</h2>
           <Section label="What moves?" text={open.moves} />
           <Section label="Which muscles participate?" text={open.muscles} />

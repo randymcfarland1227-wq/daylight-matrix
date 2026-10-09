@@ -64,7 +64,7 @@ export function DaySwitcher({ value, onChange, plan }: { value: number; onChange
             aria-selected={active}
             onClick={() => onChange(d)}
             className={cn(
-              "tap relative flex min-h-[3.75rem] min-w-[3.6rem] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 text-sm font-bold",
+              "tap relative flex min-h-[3.75rem] min-w-[3.6rem] shrink-0 flex-col items-center justify-center rounded-lg border px-2 text-sm font-bold",
               active ? "border-accent bg-accent text-on-accent shadow-sm" : "border-line bg-surface text-ink hover:bg-surface-2",
             )}
           >
@@ -198,7 +198,7 @@ function SessionScreen() {
       </div>
 
       <div className="safe-bottom sticky bottom-[4.9rem] z-10 mt-6 md:bottom-4">
-        <div className="flex gap-2 rounded-2xl border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
+        <div className="flex gap-2 rounded-lg border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note
           </Button>
@@ -433,7 +433,7 @@ function SetLogger({ weekday, slot, exerciseId, session }: { weekday: number; sl
   const holdElapsed = holdStart != null ? Math.round((now - holdStart) / 1000) : 0;
 
   return (
-    <div className="mt-4 rounded-2xl bg-surface-2 p-3">
+    <div className="mt-4 rounded-lg bg-surface-2 p-3">
       <div className="flex items-center justify-between">
         <p className="text-sm font-bold">
           {allDone ? "All sets logged" : slot.sets ? `Set ${nextNo} of ${slot.sets}${slot.setsMax ? `–${slot.setsMax}` : ""}` : "Log it"}

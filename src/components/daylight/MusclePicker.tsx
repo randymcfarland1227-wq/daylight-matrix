@@ -31,7 +31,7 @@ export function MusclePicker({ value, onChange, multi = true }: { value: string[
         ))}
       </div>
       {open ? (
-        <div className="mt-2 rounded-2xl bg-surface-2 p-2.5" data-testid="muscle-picker-parts">
+        <div className="mt-2 rounded-lg bg-surface-2 p-2.5" data-testid="muscle-picker-parts">
           <div className="flex flex-wrap gap-1.5">
             <Chip active={value.includes(open)} tone="sun" onClick={() => toggle(open)}>
               Whole group

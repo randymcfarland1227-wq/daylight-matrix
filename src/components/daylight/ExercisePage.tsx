@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowLeft, ChevronRight, ExternalLink, Info, PencilLine, PlayCircle } from "lucide-react";
 import { localDate } from "@/lib/daylight/dates";
 import { exerciseById } from "@/lib/daylight/exercises";
@@ -48,9 +48,10 @@ function Para({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-/** Full-screen exercise reference page: steps, diagrams, how to perform, muscle diagram, metadata, tags, demo links. */
+/** Full-screen exercise reference page: real media, steps, how to perform, muscle diagram, metadata, tags, demo links. */
 export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: string; muscle?: string; onClose: () => void }) {
   const state = useDaylight();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const ex = exerciseById(exerciseId);
   const g = formFor(exerciseId);
   const meta = metaFor(exerciseId);
@@ -69,13 +70,24 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   const tags = tagsFor(exerciseId);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const controls = [...dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), iframe, [tabindex="0"]')].filter((element) => element.getClientRects().length > 0);
+      const first = controls[0]; const last = controls[controls.length - 1];
+      if (!first || !last) { e.preventDefault(); dialogRef.current.focus(); return; }
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || document.activeElement === dialogRef.current)) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    dialogRef.current?.focus();
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      previousFocus?.focus();
     };
   }, [onClose]);
 
@@ -101,9 +113,9 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   crumbs.push({ label: name });
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-canvas" role="dialog" aria-modal="true" aria-label={`${name}: exercise guide`} data-testid="form-guide">
+    <div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-50 flex flex-col bg-canvas outline-none" role="dialog" aria-modal="true" aria-label={`${name}: exercise guide`} data-testid="form-guide">
       <div className="mx-auto flex w-full max-w-5xl shrink-0 items-center gap-2 px-4 py-3" style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}>
-        <button type="button" onClick={onClose} aria-label="Back" data-testid="exercise-close" className="tap flex min-h-11 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-sm font-bold">
+        <button type="button" onClick={onClose} aria-label="Back" data-testid="exercise-close" className="tap flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-2 px-3 text-sm font-bold">
           <ArrowLeft className="size-5" /> Back
         </button>
         <nav aria-label="Breadcrumb" className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap text-sm text-ink-soft">
@@ -122,7 +134,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-1">
-          <header className="flex flex-wrap items-center gap-3 rounded-3xl bg-surface-2 px-5 py-4">
+          <header className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-2 px-5 py-4">
             <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
             <h1 className="t-display min-w-0 flex-1" data-testid="exercise-title">{name}</h1>
             {ex?.equipment ? <span className="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink-soft">{ex.equipment}</span> : null}
@@ -133,7 +145,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
               <MoveMedia key={exerciseId} exerciseId={exerciseId} />
 
               {uses.length ? (
-                <div className="space-y-2 rounded-2xl border border-accent/40 bg-accent/10 p-4" data-testid="plan-context">
+                <div className="space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-4" data-testid="plan-context">
                   <Eyebrow className="text-warn">In your plan</Eyebrow>
                   {mainUse?.psa ? (
                     <p className="text-sm" data-testid="exercise-psa">
@@ -163,11 +175,11 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   ) : null}
                 </div>
               ) : ex?.pdfNote || ex?.page2Dose ? (
-                <p className="rounded-2xl bg-accent/10 p-4 text-sm">
+                <p className="rounded-lg bg-accent/10 p-4 text-sm">
                   <b className="text-warn">Your page 2 board:</b> {ex?.page2Dose ?? ""} {ex?.pdfNote ? `“${ex.pdfNote}”` : ""}
                 </p>
               ) : (
-                <p className="rounded-2xl bg-surface-2 p-3 text-sm text-ink-soft">This move is not in your PDF plan. It comes from the library.</p>
+                <p className="rounded-lg bg-surface-2 p-3 text-sm text-ink-soft">This move is not in your PDF plan. It comes from the library.</p>
               )}
 
               {g ? (
@@ -194,7 +206,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </Section>
 
                   <Section title={`How to perform: ${name}`}>
-                    <div className="space-y-4 rounded-2xl border border-line bg-surface p-4" data-testid="how-to">
+                    <div className="space-y-4 rounded-lg border border-line bg-surface p-4" data-testid="how-to">
                       <div>
                         <h3 className="text-sm font-extrabold uppercase tracking-wider text-ink-soft">Setup</h3>
                         <div className="mt-1.5 space-y-2">
@@ -255,7 +267,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                 <p className="mt-1 text-center text-xs opacity-70">Each area keeps its own colour; stronger colour means harder work.</p>
               </div>
 
-              <div className="rounded-2xl border border-line bg-surface p-4">
+              <div className="rounded-lg border border-line bg-surface p-4">
                 <ul className="space-y-2">
                   {(["primary", "secondary", "tertiary"] as const).map((r) => {
                     const list = weights.filter(([s]) => roleOf(s) === r);
@@ -279,7 +291,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                 </ul>
               </div>
 
-              <dl className="divide-y divide-line rounded-2xl border border-line bg-surface px-4 text-sm" data-testid="exercise-meta">
+              <dl className="divide-y divide-line rounded-lg border border-line bg-surface px-4 text-sm" data-testid="exercise-meta">
                 {[
                   ["Difficulty", meta.difficulty],
                   ["Force", meta.force],
@@ -305,16 +317,16 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
           </div>
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
-            <a href={clip ? vimeoPageUrl(clip.id) : demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-4 font-bold text-on-accent" data-testid="demo-link">
+            <a href={clip ? vimeoPageUrl(clip.id) : demoUrl(exerciseId)} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-lg bg-accent px-4 font-bold text-on-accent" data-testid="demo-link">
               <PlayCircle className="size-5" /> {clip ? "Open this clip on Vimeo" : "Search Vimeo for a demo"} <ExternalLink className="size-4" />
             </a>
             {mw ? (
-              <a href={mw} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface px-4 font-bold" data-testid="mw-link">
+              <a href={mw} target="_blank" rel="noreferrer noopener" className="tap flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 font-bold" data-testid="mw-link">
                 See this move on MuscleWiki <ExternalLink className="size-4" />
               </a>
             ) : null}
           </div>
-          <p className="mt-2 text-xs text-ink-faint">Links open in a new tab. {mw ? "The MuscleWiki page was checked to exist. " : "No MuscleWiki page is linked for this move because none was verified. "}Nothing is saved or sent from here.</p>
+          <p className="mt-2 text-xs text-ink-faint">Links open in a new tab. {mw ? "The MuscleWiki page was checked to exist. " : "No MuscleWiki page is linked for this move because none was verified. "}</p>
 
           <div className="mt-4">
             <Button tone="soft" className="w-full sm:w-auto" data-testid="exercise-note" onClick={() => state.setOverlay({ type: "note", exerciseId, kind: "gym", weekday: mainUse?.weekday })}>

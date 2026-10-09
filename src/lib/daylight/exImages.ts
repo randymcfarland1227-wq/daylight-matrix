@@ -1,9 +1,9 @@
 /* Real exercise photos, keyed by exercise id.
    Source: Free Exercise DB (https://github.com/yuhonas/free-exercise-db), released under The Unlicense (public domain).
-   Photos are hotlinked from the repo's raw.githubusercontent.com URLs (CORS open, lazy-loaded) and cached by the service worker once seen.
+   Photos are bundled locally with the app. Original source URLs remain in this registry for provenance.
    Every mapped image URL was fetched on VERIFIED_AT: HTTP 200, content-type image/jpeg. The dataset entry was matched to the move by name
    and equipment ("exact" = same movement; "close" = the nearest variant, labelled as such in the UI).
-   Moves with no matching photo are in NO_PHOTO and keep the written steps (and the old diagram, only for those). */
+   Moves with no matching photo are in NO_PHOTO and keep the written steps. */
 
 export type ExImage = {
   dbId: string;
@@ -17,14 +17,14 @@ export type ExImage = {
   verifiedAt: string;
 };
 
-export const VERIFIED_AT = "2026-10-03";
+export const VERIFIED_AT = "2026-10-08";
 
 export const PHOTO_SOURCE = {
   id: "free-exercise-db",
   name: "Free Exercise DB",
   url: "https://github.com/yuhonas/free-exercise-db",
   license: "The Unlicense (public domain)",
-  licenseUrl: "https://github.com/yuhonas/free-exercise-db/blob/main/UNLICENSE",
+  licenseUrl: "https://github.com/yuhonas/free-exercise-db/blob/main/LICENSE.md",
   attribution: "Photos: Free Exercise DB (yuhonas/free-exercise-db), public domain under The Unlicense.",
 } as const;
 
@@ -133,5 +133,6 @@ export const NO_PHOTO: Record<string, string> = {
 };
 
 export function photosFor(exerciseId: string): ExImage | undefined {
-  return EX_IMAGES[exerciseId];
+  const entry = EX_IMAGES[exerciseId];
+  return entry ? { ...entry, images: entry.images.map((_, index) => `/media/exercises/${exerciseId}-${index}.jpg`) } : undefined;
 }

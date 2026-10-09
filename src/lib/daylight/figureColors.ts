@@ -7,20 +7,20 @@ import type { GroupId } from "./muscles";
  * - The heat map is a separate ramp, cold blue -> hot red.
  */
 export const GROUP_HUE: Record<GroupId, string> = {
-  chest: "#e5566a",
-  shoulders: "#f2a03a",
-  back: "#4b8fe2",
-  arms: "#a96be0",
-  core: "#2db3b0",
-  glutes: "#ec6aae",
-  quads: "#e8c23a",
-  adductors: "#d9845a",
-  hamstrings: "#7d86e8",
-  calves: "#55b9ea",
+  chest: "#b46354",
+  shoulders: "#c1904d",
+  back: "#527d92",
+  arms: "#907491",
+  core: "#63948e",
+  glutes: "#b17890",
+  quads: "#c0a15b",
+  adductors: "#ad7857",
+  hamstrings: "#7d83a2",
+  calves: "#669baa",
 };
 
-export const FIG_SKIN = "#dfe3ea";
-export const FIG_LINE = "#3a4660";
+export const FIG_SKIN = "#e2ded3";
+export const FIG_LINE = "#5c6254";
 
 type RGB = [number, number, number];
 const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -45,11 +45,11 @@ export function roleOfWeight(w: number): Role {
 
 /** Heat ramp, cold blue -> teal -> yellow -> orange -> hot red. level is 0..1; 0 = not trained (the plain figure). */
 const RAMP: [number, string][] = [
-  [0, "#4f6fc9"],
-  [0.25, "#4bb3d8"],
-  [0.5, "#efd24c"],
-  [0.75, "#f08a3a"],
-  [1, "#d9363b"],
+  [0, "#7c9da5"],
+  [0.25, "#b5c5be"],
+  [0.5, "#d9c994"],
+  [0.75, "#c98d5e"],
+  [1, "#9c4028"],
 ];
 export function rampColor(level: number): string {
   if (level <= 0.001) return FIG_SKIN;
@@ -62,5 +62,5 @@ export function rampColor(level: number): string {
   return RAMP[RAMP.length - 1]![1];
 }
 /** "Indirect only": a washed, grey-blue so it reads between untouched and trained. */
-export const INDIRECT_COLOR = "#9fb0cf";
+export const INDIRECT_COLOR = "#b0b9ac";
 export const RAMP_CSS = `linear-gradient(90deg, ${RAMP.map(([t, c]) => `${c} ${t * 100}%`).join(", ")})`;

@@ -371,7 +371,7 @@ const seed = (): Data => ({
   bodyDetail: "standard",
   bodyStyle: "map",
   schemaVersion: SCHEMA_VERSION,
-  theme: "dark",
+  theme: "light",
   waterGoal: 96,
   proteinGoalRest: null,
   weeklyTarget: 10,

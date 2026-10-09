@@ -25,10 +25,10 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "tap inline-flex select-none items-center justify-center gap-2 rounded-2xl font-bold disabled:opacity-45",
+        "tap inline-flex select-none items-center justify-center gap-2 rounded-lg font-semibold disabled:opacity-45",
         size === "sm" && "min-h-10 px-3 text-sm",
-        size === "md" && "min-h-12 px-4 text-base",
-        size === "lg" && "min-h-14 px-6 text-lg",
+        size === "md" && "min-h-12 px-4 text-sm",
+        size === "lg" && "min-h-14 px-6 text-base",
         tone === "primary" && "bg-accent text-on-accent hover:bg-accent-deep",
         tone === "sun" && "bg-accent text-on-accent hover:bg-accent-deep", /* sun = primary; one accent only */
         tone === "soft" && "bg-surface-2 text-ink hover:bg-surface-2/80",
@@ -69,7 +69,7 @@ export function Chip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "tap inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold",
+        "tap inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-sm font-semibold",
         active ? on : "border-line bg-surface text-ink hover:bg-surface-2",
         className,
       )}
@@ -83,7 +83,7 @@ export function Badge({ children, tone = "plain", className }: { children: React
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold",
+        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold",
         tone === "plain" && "bg-surface-2 text-ink-soft",
         tone === "sun" && "bg-accent/15 text-accent",
         tone === "teal" && "bg-info/15 text-info",
@@ -112,7 +112,7 @@ export function Segmented<T extends string | number>({
   className?: string;
 }) {
   return (
-    <div role="tablist" aria-label={label} className={cn("no-scrollbar flex gap-1 overflow-x-auto rounded-2xl bg-surface-2 p-1", className)}>
+    <div role="tablist" aria-label={label} className={cn("no-scrollbar flex gap-1 overflow-x-auto rounded-lg border border-line bg-surface-2 p-1", className)}>
       {options.map((o) => (
         <button
           key={String(o.id)}
@@ -131,7 +131,7 @@ export function Segmented<T extends string | number>({
           }}
           onClick={() => onChange(o.id)}
           className={cn(
-            "tap min-h-10 flex-1 shrink-0 whitespace-nowrap rounded-xl px-3 text-sm font-bold",
+            "tap min-h-10 flex-1 shrink-0 whitespace-nowrap rounded-md px-3 text-sm font-bold",
             value === o.id ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink",
           )}
         >
@@ -176,7 +176,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
         aria-modal="true"
         aria-label={title}
         className={cn(
-          "sheet-in safe-bottom relative z-10 flex w-full max-w-xl flex-col rounded-t-[1.75rem] border border-line bg-canvas outline-none md:rounded-[1.75rem]",
+          "sheet-in safe-bottom relative z-10 flex w-full max-w-xl flex-col rounded-t-xl border border-line bg-canvas outline-none md:rounded-xl",
           tall ? "h-[92dvh] md:h-[85dvh]" : "max-h-[90dvh]",
         )}
       >
@@ -309,7 +309,7 @@ export function Stepper({
         {label}
         {unit ? <span className="ml-1 normal-case tracking-normal text-ink-faint">{unit}</span> : null}
       </span>
-      <div className="flex items-stretch overflow-hidden rounded-2xl border border-line bg-canvas">
+      <div className="flex items-stretch overflow-hidden rounded-lg border border-line bg-canvas">
         <button type="button" aria-label={`${label} down`} onClick={() => bump(-step)} className="tap w-11 shrink-0 text-xl font-bold text-ink-soft hover:bg-surface-2">
           −
         </button>
