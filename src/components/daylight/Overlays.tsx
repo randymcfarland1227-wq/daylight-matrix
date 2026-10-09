@@ -64,6 +64,8 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
   const [text, setText] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [flag, setFlag] = useState(Boolean(init.forNextPlan));
+  const kind = init.kind ?? (init.exerciseId || init.weekday != null ? "gym" : "general");
+  const quickTags = kind === "gym" ? GYM_TAGS : kind === "food" ? ["Easy to make", "Too much prep", "Enjoyed this", "Remember next time"] : ["Felt good", "Felt difficult", "Remember next time"];
   const [exerciseId, setExerciseId] = useState<string | undefined>(init.exerciseId);
   const [muscleId, setMuscleId] = useState<string | undefined>(init.muscleId);
   const [showLink, setShowLink] = useState(Boolean(init.exerciseId || init.muscleId));
@@ -87,7 +89,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
       text,
       tags,
       forNextPlan: flag || tags.includes("Swap this") || tags.includes("Add volume") || tags.includes("Go up next time"),
-      kind: init.kind ?? "gym",
+      kind,
       context: { exerciseId, muscleId, weekday, mealId: init.mealId },
     });
     if (id) {
@@ -107,7 +109,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
   };
 
   return (
-    <Sheet title="Quick note" onClose={onClose}>
+    <Sheet title="Add observation" onClose={onClose}>
       <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
         <span>
           {WEEKDAY_NAMES[weekday]} · {clock(localTime())}
@@ -116,7 +118,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
         {muscleId ? <Chip active tone="teal" onClick={() => setMuscleId(undefined)}>{muscleName(muscleId)} ✕</Chip> : null}
       </div>
       <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" aria-label="Quick tags">
-        {GYM_TAGS.map((t) => (
+        {quickTags.map((t) => (
           <Chip key={t} active={tags.includes(t)} onClick={() => toggle(t)} tone="sun">
             {t}
           </Chip>
@@ -128,7 +130,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           aria-label="What did you notice?"
-          placeholder="What did you notice? e.g. cable was too high, left shoulder pinched at the bottom…"
+          placeholder={kind === "gym" ? "What felt different? Any setup or form detail to remember?" : "What happened? What made today easier or harder?"}
           className="field min-h-28 py-3 pr-12"
         />
         {speech ? (

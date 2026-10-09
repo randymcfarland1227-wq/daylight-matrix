@@ -33,10 +33,10 @@ export function Notes() {
       <PageHead
         eyebrow="Capture"
         title="Notes"
-        helper="Gym, food, and plan-builder notes stay on this device."
+        helper="Capture what happened. Try one change. Review whether it helped."
         right={
           <Button tone="primary" onClick={() => state.setOverlay({ type: "note" })}>
-            <Pencil className="size-4" /> New
+            <Pencil className="size-4" /> Add observation
           </Button>
         }
       />
@@ -47,7 +47,7 @@ export function Notes() {
         options={[
           { id: "all", label: `All · ${state.observations.length}` },
           { id: "next", label: `★ Next plan · ${flagged.length}` },
-          { id: "digest", label: "Plan-builder digest" },
+          { id: "digest", label: "Plan summary" },
         ]}
       />
 
@@ -70,7 +70,7 @@ export function Notes() {
 
           {activeTrials.length && tab === "all" ? (
             <Card className="mt-4 border-info/40">
-              <h2 className="t-title">Active {activeTrials.length === 1 ? "trial" : "trials"}</h2>
+              <h2 className="t-title">Changes you’re trying</h2>
               {activeTrials.map((trial) => {
                 const origin = state.observations.find((o) => o.id === trial.observationId);
                 return (
@@ -81,10 +81,12 @@ export function Notes() {
                     <p className="text-ink-soft">
                       <b>Because:</b> {origin?.text}
                     </p>
+                    <p className="mt-2"><b>What would help:</b> {trial.helpful}</p>
+                    <p className="mt-1 text-ink-soft"><b>Review:</b> {trial.reviewDate ? prettyDate(trial.reviewDate) : "When you’re ready"}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => state.resolveTrial(trial.id, "keep", "")}>Keep</Button>
-                      <Button size="sm" tone="outline" onClick={() => state.resolveTrial(trial.id, "revise", "")}>Revise</Button>
-                      <Button size="sm" tone="ghost" onClick={() => state.resolveTrial(trial.id, "end", "")}>End</Button>
+                      <Button size="sm" onClick={() => state.resolveTrial(trial.id, "keep", "")}>Keep this change</Button>
+                      <Button size="sm" tone="outline" onClick={() => state.resolveTrial(trial.id, "revise", "")}>Needs adjusting</Button>
+                      <Button size="sm" tone="ghost" onClick={() => state.resolveTrial(trial.id, "end", "")}>Stop this trial</Button>
                     </div>
                   </article>
                 );
@@ -100,7 +102,7 @@ export function Notes() {
           {list.length === 0 ? (
             <div className="mt-6">
               <Empty title={tab === "next" ? "Nothing flagged for the next plan yet" : "No notes yet"}>
-                Tap the yellow pencil anywhere in the app — mid-set works — to capture a thought in two taps. Flag a note “for the next plan” and it lands in the digest.
+                Choose Add observation to save a thought. Flag it “for the next plan” to include it in your plan summary. You can also add notes during a session.
               </Empty>
             </div>
           ) : null}

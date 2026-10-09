@@ -119,6 +119,16 @@ export function Segmented<T extends string | number>({
           type="button"
           role="tab"
           aria-selected={value === o.id}
+          tabIndex={value === o.id ? 0 : -1}
+          onKeyDown={(event) => {
+            const index = options.findIndex((option) => option.id === o.id);
+            const next = event.key === "ArrowRight" ? (index + 1) % options.length : event.key === "ArrowLeft" ? (index - 1 + options.length) % options.length : event.key === "Home" ? 0 : event.key === "End" ? options.length - 1 : -1;
+            if (next < 0) return;
+            event.preventDefault();
+            onChange(options[next]!.id);
+            const buttons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+            buttons?.[next]?.focus();
+          }}
           onClick={() => onChange(o.id)}
           className={cn(
             "tap min-h-10 flex-1 shrink-0 whitespace-nowrap rounded-xl px-3 text-sm font-bold",
@@ -135,7 +145,17 @@ export function Segmented<T extends string | number>({
 export function Sheet({ title, onClose, children, tall }: { title: string; onClose: () => void; children: ReactNode; tall?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); onClose(); }
+      if (e.key !== "Tab" || !ref.current) return;
+      const elements = [...ref.current.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter((el) => el.getClientRects().length > 0);
+      const first = elements[0];
+      const last = elements.at(-1);
+      if (!first || !last) { e.preventDefault(); ref.current.focus(); return; }
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === ref.current)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || document.activeElement === ref.current)) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -143,6 +163,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      previousFocus?.focus();
     };
   }, [onClose]);
   return (

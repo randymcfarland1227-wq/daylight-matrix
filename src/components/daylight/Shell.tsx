@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Dumbbell, PenLine, PersonStanding, Settings as Gear, SunMedium, Utensils, StickyNote } from "lucide-react";
+import { Dumbbell, PenLine, PersonStanding, Settings as Gear, SunMedium, Utensils, StickyNote, BookOpen } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { AppView } from "@/lib/daylight/types";
 import { useDaylight } from "@/lib/daylight/store";
@@ -37,8 +37,8 @@ export function Shell({ children }: { children: ReactNode }) {
   };
   const current = view === "history" || view === "goals" || view === "review" ? "settings" : view;
   return (
-    <div className="min-h-dvh bg-canvas text-ink md:grid md:grid-cols-[15rem_minmax(0,1fr)]">
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line px-4 py-6 md:flex">
+    <div className="min-h-dvh bg-canvas text-ink md:grid app-shell md:grid-cols-[13rem_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line app-sidebar px-4 py-8 md:flex">
         <div className="flex items-center gap-2.5 px-2">
           <Logo size={34} />
           <div>
@@ -55,7 +55,7 @@ export function Shell({ children }: { children: ReactNode }) {
               aria-current={current === item.id ? "page" : undefined}
               className={cn(
                 "tap flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left text-base font-bold",
-                current === item.id ? "bg-accent text-on-accent" : "text-ink hover:bg-surface-2",
+                current === item.id ? "bg-accent/10 text-accent" : "text-ink-soft hover:bg-surface-2",
               )}
             >
               <item.icon aria-hidden="true" className="size-5" strokeWidth={2} />
@@ -66,6 +66,8 @@ export function Shell({ children }: { children: ReactNode }) {
         <button type="button" onClick={quickNote} className="tap mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 px-3 font-bold text-ink">
           <PenLine className="size-5" /> Quick note
         </button>
+        <button type="button" onClick={() => setView("learn")} aria-current={current === "learn" ? "page" : undefined} className="tap mt-4 flex min-h-12 items-center gap-3 rounded-2xl px-3 text-left font-semibold text-ink-soft"><BookOpen className="size-5" /> Learn</button>
+        <p className="mt-8 px-3 text-xs leading-relaxed text-ink-faint">Move with purpose.<br />Make eating easier.<br />Learn what works for you.</p>
         <button
           type="button"
           onClick={() => setView("settings")}
@@ -86,18 +88,10 @@ export function Shell({ children }: { children: ReactNode }) {
             <Gear className="size-5" />
           </button>
         </div>
-        <main className="mx-auto w-full max-w-xl px-4 pb-44 pt-3 md:max-w-5xl md:px-8 md:pb-16 md:pt-8">{children}</main>
+        <main className="mx-auto w-full max-w-2xl px-4 pb-28 pt-5 md:max-w-[82rem] md:px-8 md:pb-16 md:pt-10 xl:px-12">{children}</main>
       </div>
 
       <RestBar />
-      <button
-        type="button"
-        onClick={quickNote}
-        aria-label="Quick note"
-        className="tap fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-30 flex size-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_10px_30px_-8px_rgba(0,0,0,.5)] md:hidden"
-      >
-        <PenLine className="size-6" strokeWidth={2.2} />
-      </button>
       <Toast />
       <nav aria-label="Primary" className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-canvas/95 backdrop-blur md:hidden">
         {ITEMS.map((item) => {

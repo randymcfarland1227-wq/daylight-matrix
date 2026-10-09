@@ -59,7 +59,7 @@ export function figureFill(mode: BodyMode, id: AnyMuscleId, planned: VolumeMap, 
 
 export function isUnder(mode: BodyMode, id: AnyMuscleId, planned: VolumeMap, heat: Src, target: number): boolean {
   const t = targetFor(id, target);
-  if (mode === "heat") return ["none", "indirect", "low"].includes(statusFor(heat.map[id], heat.weeklyFactor, t));
+  if (mode === "heat") return false;
   const st = statusFor(planned[id], 1, t);
   return mode === "grow" ? ["none", "indirect", "low"].includes(st) : st === "none" || st === "indirect";
 }
@@ -104,11 +104,11 @@ export function Body() {
           label="Body map mode"
           value={mode}
           onChange={(v) => state.setBody({ bodyMode: v })}
-          className="min-w-0 flex-1"
+          className="w-full basis-full"
           options={[
-            { id: "plan", label: "Explore" },
-            { id: "heat", label: "Heat map" },
-            { id: "grow", label: "Grow an area" },
+            { id: "plan", label: "Planned work" },
+            { id: "heat", label: "Recorded work" },
+            { id: "grow", label: "Compare areas" },
           ]}
         />
         <Segmented<"map" | "turn">
@@ -138,7 +138,7 @@ export function Body() {
       <p className="mt-2 text-sm text-ink-soft">
         {mode === "plan" ? "Tap any muscle to see the moves that work it: yours first, then others from the library." : null}
         {mode === "heat" ? (heat.source === "logged" ? `Built from sets you logged in the last ${state.heatWindow} days, including swaps and off-plan work.` : "Nothing logged in this window yet, so this shows your plan as written (per week).") : null}
-        {mode === "grow" ? "Coloured areas are the ones your plan under-serves. Tap one for ideas. Suggestions are not in your PDF." : null}
+        {mode === "grow" ? "Highlighted areas fall below your chosen comparison range. Tap for related moves. These are library ideas, not additions to your plan." : null}
         {detail === "advanced" ? " Advanced shows every sub-muscle." : null}
       </p>
 
@@ -150,7 +150,7 @@ export function Body() {
             </Chip>
           ))}
           <Badge tone={heat.source === "logged" ? "forest" : "sun"} className="ml-auto">
-            {heat.source === "logged" ? `${fmt(heat.totalSets)} sets logged` : "planned volume"}
+            {heat.source === "logged" ? `${fmt(heat.totalSets)} recorded sets` : "planned volume"}
           </Badge>
         </div>
       ) : null}
@@ -230,11 +230,10 @@ export function Legend({ mode }: { mode: BodyMode }) {
       {mode === "heat" ? (
         <div>
           <div className="h-3 w-full rounded-full" style={{ background: RAMP_CSS }} />
-          <div className="mt-1 flex justify-between"><span>cold: a little</span><span>hot: at or over your weekly target</span></div>
+          <div className="mt-1 flex justify-between"><span>Lower recorded coverage</span><span>At or above comparison range</span></div>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="flex items-center gap-1.5"><i className="size-3 rounded-sm border border-line" style={{ background: FIG_SKIN }} /> not trained</span>
+            <span className="flex items-center gap-1.5"><i className="size-3 rounded-sm border border-line" style={{ background: FIG_SKIN }} /> no recorded work</span>
             <span className="flex items-center gap-1.5"><i className="size-3 rounded-sm" style={{ background: INDIRECT_COLOR }} /> indirect only</span>
-            <span className="flex items-center gap-1.5"><i className="size-3 rounded-sm border-2 border-dashed border-ink-soft" /> underserved</span>
           </div>
         </div>
       ) : (
@@ -247,7 +246,7 @@ export function Legend({ mode }: { mode: BodyMode }) {
             ))}
           </ul>
           <p className="mt-2">
-            {mode === "plan" ? "Strong colour = well covered by your plan, faded = indirect only, pale = not trained. Dashed outline = underserved." : "Colour = an area your plan under-serves. Faded = covered."}
+            {mode === "plan" ? "Stronger colour = more planned work. Faded = indirect work only. Pale = no mapped work. Dashed outline = below your comparison range." : "Colour = an area your plan under-serves. Faded = covered."}
           </p>
         </div>
       )}
@@ -266,9 +265,9 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
       <Card className="animate-rise">
         <div className="flex items-center gap-2">
           <Target className="size-5 text-info" />
-          <h2 className="t-title">{mode === "heat" ? (heat.source === "logged" ? "Where you actually are" : "Where the plan puts you") : "Underserved by your plan"}</h2>
+          <h2 className="t-title">{mode === "heat" ? (heat.source === "logged" ? "Recorded muscle coverage" : "Where the plan puts you") : "Areas below your comparison range"}</h2>
         </div>
-        {under.length ? (
+        {mode === "heat" && heat.totalSets === 0 ? <p className="mt-3 text-sm text-ink-soft">No sets recorded in this window. The map stays uncoloured until you log work. Use Planned work to explore your program.</p> : under.length ? (
           <ul className="mt-3 space-y-1.5">
             {under.map(({ g, cell, st }) => (
               <li key={g.id}>
@@ -284,7 +283,7 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
         ) : (
           <p className="mt-2 text-sm text-ink-soft">Every group reaches your target of {target} weighted sets/week.</p>
         )}
-        {underSubs.length ? (
+        {mode !== "heat" && underSubs.length ? (
           <div className="mt-3">
             <Eyebrow>Parts with little or no direct work</Eyebrow>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -297,7 +296,7 @@ export function Overview({ planned, heat, mode, underSubs }: { planned: VolumeMa
           </div>
         ) : null}
         <label className="mt-4 flex items-center gap-3 text-sm">
-          <span className="flex-1 text-ink-soft">Your weekly target per group (weighted sets). Parts use about 60% of it. Not a rule: set what feels right.</span>
+          <span className="flex-1 text-ink-soft">Comparison range in weighted sets per week. This estimate describes coverage; it does not measure strength, recovery, or readiness.</span>
           <input aria-label="Weekly target" inputMode="numeric" className="field w-20 text-center tabular-nums" value={target} onChange={(e) => state.setWeeklyTarget(Math.max(1, Number(e.target.value) || 1))} />
         </label>
       </Card>

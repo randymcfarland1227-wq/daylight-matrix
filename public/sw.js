@@ -7,7 +7,7 @@
    The app loads nothing from YouTube. Any YouTube / ytimg / googlevideo request is also left alone: never intercepted or cached.
    The only cross-origin thing cached is the exercise photo set (Free Exercise DB, public domain): cache-first, so photos you have seen work offline. */
 const THIRD_PARTY_MEDIA = /(^|\.)(vimeo\.com|vimeocdn\.com|youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com|ggpht\.com)$/;
-const VERSION = "dm-v7-ux";
+const VERSION = "dm-v8-daily-flow";
 const PHOTOS = "dm-photos-v1"; // real exercise photos: kept across app versions, capped below
 const PHOTO_HOST = "raw.githubusercontent.com";
 const PHOTO_PATH = "/yuhonas/free-exercise-db/";
@@ -20,7 +20,7 @@ self.addEventListener("install", (e) => {
 });
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== PHOTOS).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => /^dm-v\d/.test(k) && k !== VERSION && k !== PHOTOS).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
   );
 });
 self.addEventListener("fetch", (e) => {

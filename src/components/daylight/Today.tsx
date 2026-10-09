@@ -1,253 +1,86 @@
-import { useMemo } from "react";
-import { ArrowRight, Droplets, Flag, Footprints, MapPin, PenLine, Play, Utensils } from "lucide-react";
-import { WEEKDAY_NAMES, localDate, prettyDate, shiftDate } from "@/lib/daylight/dates";
-import { DAY_STYLE } from "@/lib/daylight/theme";
-import { bodyNotes } from "@/lib/daylight/bodyNotes";
-import { GROUPS, muscleName, regionInfo, targetFor, type AnyMuscleId, type MuscleId } from "@/lib/daylight/muscles";
+import { ArrowRight, BookOpen, Check, Dumbbell, Footprints, PenLine, Play, Utensils } from "lucide-react";
+import { localDate, prettyDate } from "@/lib/daylight/dates";
+import { mealReady, progressLabel, sessionProgress } from "@/lib/daylight/logic";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
-import { dayMuscles, dayTotalSets, fmt, heatLevel, heatSnapshot, plannedSets, statusFor } from "@/lib/daylight/volume";
-import { doneSetCount, slotLogs } from "@/lib/daylight/logic";
-import { DAY_KIND_LABEL, fuelingNote, isUseSoon } from "@/lib/daylight/foodplan";
-import { MapFigure } from "./MapFigure";
-import { figureFill, isUnder } from "./Body";
 import { plannedVolume } from "@/lib/daylight/volume";
-import { ProteinWaterRings, useFoodNumbers } from "./Food";
-import { Badge, Button, Card, Eyebrow, Ring, cn } from "./ui";
-
-function greeting(h: number) {
-  return h < 5 ? "Late night" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-}
+import { figureFill } from "./Body";
+import { MapFigure } from "./MapFigure";
+import { useFoodNumbers } from "./Food";
+import { Badge, Button, Card, Eyebrow } from "./ui";
 
 export function Today() {
   const s = useDaylight();
   const today = localDate();
-  const wd = new Date().getDay();
+  const weekday = new Date().getDay();
   const plan = activePlan(s.planVersions, today);
-  const day = dayTemplate(plan, wd);
-  const st = DAY_STYLE[wd]!;
-  const session = s.sessions.find((x) => x.localDate === today && x.weekday === wd) ?? null;
-  const slots = session ? session.snapshot : day.slots;
+  const day = dayTemplate(plan, weekday);
+  const session = s.sessions.find((x) => x.localDate === today && x.weekday === weekday) ?? null;
+  const slots = session?.snapshot ?? day.slots;
+  const progress = sessionProgress(slots, session);
+  const planned = plannedVolume(plan, { weekday });
   const food = useFoodNumbers();
-  const note = fuelingNote(food.kind, Boolean(s.proteinGoalRest));
-
-  const totals = useMemo(() => {
-    let target = 0;
-    let done = 0;
-    for (const slot of slots) {
-      if (slot.optional) continue;
-      const t = slot.sets ? plannedSets(slot) : 1;
-      target += t;
-      if (session) done += slot.sets ? Math.min(doneSetCount(session, slot), t) : slotLogs(session, slot.id).some((l) => l.status === "done") ? 1 : 0;
-    }
-    return { target, done };
-  }, [slots, session]);
-  const pct = totals.target ? totals.done / totals.target : 0;
-  const muscles = dayMuscles({ ...day, slots }).filter((m) => m.weight >= 0.5).slice(0, 6);
-
-  const heat = useMemo(() => heatSnapshot(s.sessions, plan, 7, today), [s.sessions, plan, today]);
-  const bodyNoteList = useMemo(() => bodyNotes(s.observations).list, [s.observations]);
-  const target = s.weeklyTarget;
-  const under = GROUPS.filter((m) => {
-    const x = statusFor(heat.map[m.id], heat.weeklyFactor, targetFor(m.id, target));
-    return x === "none" || x === "indirect" || x === "low";
-  });
-  const planned = useMemo(() => plannedVolume(plan), [plan]);
-  const fill = (id: AnyMuscleId) => figureFill("heat", id, planned, heat, target);
-
-  const weekSessions = s.sessions.filter((x) => x.localDate >= shiftDate(today, -6));
-  const doneToday = session?.status === "finished";
-  const flagged = s.observations.filter((n) => n.forNextPlan).length;
-  const soon = s.inventory.filter((i) => isUseSoon(i, today));
-  const lastFood = s.foodLogs.filter((l) => l.localDate === today).slice(-1)[0];
-  const weekDone = new Set(weekSessions.filter((x) => x.logs.some((l) => l.status === "done")).map((x) => x.localDate));
-  const streakDays = Array.from({ length: 7 }, (_, i) => shiftDate(today, -6 + i));
-
-  const go = (view: "training" | "body" | "food" | "notes", extra?: () => void) => () => (extra?.(), s.setView(view));
-  const open = () => {
-    s.setTrainDay(wd);
-    s.setTrainingTab("session");
-    s.setView("training");
-  };
-
+  const lastLog = [...s.foodLogs].reverse().find((x) => x.mealId);
+  const lastMeal = s.savedMeals.find((m) => m.id === lastLog?.mealId);
+  const ready = s.savedMeals.find((m) => mealReady(m, s.inventory));
+  const repeat = lastMeal ?? ready ?? s.savedMeals.find((m) => m.pinned);
+  const latest = s.observations[0];
+  const flagged = s.observations.filter((x) => x.forNextPlan).length;
+  const hasWork = Boolean(session?.logs.length);
+  const finished = session?.status === "finished";
+  const overview = () => { s.setTrainDay(weekday); s.setTrainingTab("session"); };
   return (
-    <div className="space-y-4">
-      <header className="animate-rise pt-1">
+    <div className="daily-page">
+      <header className="page-intro">
         <Eyebrow>{prettyDate(today)}</Eyebrow>
-        <h1 className="t-display mt-0.5">{greeting(new Date().getHours())}, Randy.</h1>
-        <button type="button" className="t-caption mt-1 text-left text-ink-soft" onClick={() => s.setOverlay({ type: "purpose" })}>
-          {s.purposeIsProposal ? "Tap to set what this is for." : s.purpose}
-        </button>
+        <h1 className="daily-title">Your day.<br /><span className="text-ink-soft">One step at a time.</span></h1>
+        <p className="mt-3 max-w-lg text-ink-soft">Eat with less effort. Move with purpose. Notice what works.</p>
       </header>
-
-      {/* Today's session — calm card, accent CTA (no full-bleed weekday gradient) */}
-      <Card className="animate-rise border-accent/25" aria-label="Today's session" as="section">
-        <div className="flex items-center gap-2">
-          <span className="inline-block size-2.5 rounded-full" style={{ background: st.color }} aria-hidden="true" />
-          <Eyebrow>{WEEKDAY_NAMES[wd]} · today’s session</Eyebrow>
-        </div>
-        {day.scheduled ? (
-          <>
-            <div className="mt-2 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="t-display text-[1.5rem]! md:text-[1.75rem]!">{day.name}</h2>
-                <p className="t-caption mt-1 text-ink-soft">
-                  {slots.filter((x) => !x.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} sets
-                </p>
-              </div>
-              <Ring value={pct} size={64} stroke={7} label={`${totals.done} of ${totals.target} sets done`}>
-                <span className="t-caption font-bold tabular-nums">{fmt(totals.done)}/{Math.ceil(totals.target)}</span>
-              </Ring>
+      <button type="button" className="purpose-strip" onClick={() => s.setOverlay({ type: "purpose" })}>
+        <span className="purpose-mark"><Footprints className="size-5" /></span>
+        <span className="min-w-0 flex-1"><span className="eyebrow block">What I’m working toward</span><span className="mt-1 block text-sm">{s.purposeIsProposal ? "Set a reason that matters to you." : s.purpose}</span></span>
+        <PenLine className="size-4 shrink-0 text-ink-faint" aria-hidden="true" />
+      </button>
+      <div className="daily-grid">
+        <Card className="training-feature" aria-label="Today's session">
+          <div className="flex items-center gap-2"><Dumbbell className="size-4 text-accent" /><Eyebrow>01 / Your movement</Eyebrow><Badge className="ml-auto">{finished ? "Saved" : hasWork ? "In progress" : "Today’s plan"}</Badge></div>
+          <div className="training-feature-inner">
+            <div className="training-feature-copy">
+              <h2 className="session-title">{day.scheduled ? day.name : "No session scheduled"}</h2>
+              <p className="mt-2 text-sm text-ink-soft">{day.scheduled ? `${slots.filter((x) => !x.optional).length} exercises · activation first` : "Choose a session, log another activity, or leave today open."}</p>
+              <div className="reason-block"><p className="eyebrow">Why this session is here</p><p className="mt-2 text-sm leading-relaxed">{day.psa || day.why || "Your plan leaves this day open."}</p></div>
+              {day.scheduled ? <>
+                {hasWork ? <p className="mt-4 text-sm text-ink-soft">{progress.completed} of {progress.total} exercises completed{progress.skipped ? ` · ${progress.skipped} skipped` : ""}{progress.changed ? ` · ${progress.changed} replaced` : ""}</p> : null}
+                {session && !finished && hasWork ? <p className="mt-1 text-sm font-medium">Continue: {progressLabel(session)}</p> : null}
+                <Button size="lg" className="mt-5 w-full sm:w-auto" data-testid="start-gym" onClick={finished ? overview : () => s.setGymMode(weekday)}>{finished ? <Check className="size-4" /> : <Play className="size-4" fill="currentColor" />}{finished ? "Review session" : hasWork ? "Resume session" : "Start session"}<ArrowRight className="size-4" /></Button>
+                <button type="button" className="tap mt-2 block min-h-11 text-sm text-ink-soft underline-offset-4 hover:underline" onClick={overview}>View exercises and form cues</button>
+              </> : <Button tone="outline" className="mt-5" onClick={() => s.setTrainingTab("week")}>Choose a session<ArrowRight className="size-4" /></Button>}
             </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {muscles.map((m) => (
-                <span key={m.id} className={cn("rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-accent/15 text-accent" : "border border-line text-ink-soft")}>
-                  {muscleName(m.id)}
-                </span>
-              ))}
-            </div>
-            {day.psa ? <p className="t-caption mt-3 line-clamp-2 rounded-xl bg-surface-2 px-3 py-2 text-ink-soft">PSA: {day.psa}</p> : null}
-            {doneToday ? (
-              <Button size="lg" tone="primary" className="mt-4 w-full" onClick={open}>
-                <Play className="size-5" fill="currentColor" /> Review session <ArrowRight className="size-5" />
-              </Button>
-            ) : (
-              <div className="mt-4 grid gap-2">
-                <Button size="lg" tone="primary" className="w-full" data-testid="start-gym" onClick={() => s.setGymMode(wd)}>
-                  <Play className="size-5" fill="currentColor" />
-                  {session && totals.done > 0 ? "Resume in gym mode" : "Start gym mode"}
-                  <ArrowRight className="size-5" />
-                </Button>
-                <button type="button" className="tap t-caption rounded-xl py-2 font-bold text-ink-soft underline-offset-2 hover:underline" onClick={open}>
-                  Open the full session overview
-                </button>
+            <button type="button" className="training-anatomy" aria-label="Explore today's muscles" onClick={() => { s.setBody({ bodyMode: "plan", selectedMuscleId: null }); s.setView("body"); }}>
+              <div className="flex items-center justify-center gap-2">
+                {(["front", "back"] as const).map((view) => <MapFigure key={view} view={view} level="region" className="w-1/2" fill={(id) => figureFill("plan", id, planned, { map: planned, weeklyFactor: 1 }, s.weeklyTarget)} interactive={false} />)}
               </div>
-            )}
-          </>
-        ) : (
-          <>
-            <h2 className="t-display mt-2 text-[1.5rem]!">Open day</h2>
-            <p className="t-caption mt-1 text-ink-soft">No lift scheduled. Walk, stretch, prep food, restock. Or peek at tomorrow.</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button tone="primary" onClick={() => (s.setTrainDay(1), s.setView("training"))}>Preview Monday</Button>
-              <Button tone="outline" onClick={() => s.setOverlay({ type: "activity" })}>Log activity</Button>
-            </div>
-          </>
-        )}
-      </Card>
-
-      {/* Quick log */}
-      <section aria-label="Quick log" className="grid grid-cols-4 gap-2">
-        {[
-          { label: "Note", icon: PenLine, run: () => s.setOverlay({ type: "note" }) },
-          { label: "Food", icon: Utensils, run: () => s.setOverlay({ type: "log-food" }) },
-          { label: "+12 oz", icon: Droplets, run: () => (s.addWater(12), s.showToast("12 oz water")) },
-          { label: "Activity", icon: Footprints, run: () => s.setOverlay({ type: "activity" }) },
-        ].map((b) => (
-          <button key={b.label} type="button" onClick={b.run} className="card tap flex flex-col items-center gap-1.5 py-3 text-xs font-bold transition active:scale-95">
-            <b.icon className="size-5 text-accent" />
-            {b.label}
-          </button>
-        ))}
-      </section>
-
-      {/* Week strip */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <h3 className="t-title">Last 7 days</h3>
-          <span className="text-sm font-bold text-ink-soft">{weekDone.size} / 6 days trained</span>
-        </div>
-        <div className="mt-2 grid grid-cols-7 gap-1.5">
-          {streakDays.map((d) => {
-            const w = new Date(`${d}T12:00:00`).getDay();
-            const did = weekDone.has(d);
-            return (
-              <div key={d} className="text-center">
-                <div className={cn("mx-auto grid size-9 place-items-center rounded-full text-xs font-extrabold", did ? "text-white" : "bg-surface-2 text-ink-faint", d === today && !did && "ring-2 ring-accent")} style={did ? { background: DAY_STYLE[w]!.color } : undefined}>
-                  {did ? "✓" : DAY_STYLE[w]!.short[0]}
-                </div>
-                <p className="t-meta mt-0.5 normal-case tracking-normal text-ink-faint">{DAY_STYLE[w]!.short}</p>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-
-      {/* Heat snapshot + food side by side on desktop */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <div className="flex items-baseline justify-between">
-            <h3 className="t-title">Where you are</h3>
-            <Badge tone={heat.source === "logged" ? "forest" : "sun"}>{heat.source === "logged" ? "last 7 days" : "plan, no logs yet"}</Badge>
-          </div>
-          <div className="mt-1 grid grid-cols-[auto_1fr] items-center gap-3">
-            <button type="button" className="figure-panel flex w-[168px] gap-0.5 rounded-2xl p-1.5" onClick={go("body", () => s.setBody({ bodyMode: "heat" }))} aria-label="Open the heat map">
-              {(["front", "back"] as const).map((v) => (
-                <MapFigure key={v} view={v} level="region" className="h-auto w-1/2" fill={fill} interactive={false} />
-              ))}
+              <span className="mt-2 flex items-center justify-center gap-2 text-xs text-ink-soft">Muscles in your plan<ArrowRight className="size-3" /></span>
             </button>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">Needs attention</p>
-              <ul className="mt-1 flex flex-wrap gap-1">
-                {under.slice(0, 6).map((m) => (
-                  <li key={m.id}>
-                    <button type="button" className="tap rounded-full border border-dashed border-info px-2 py-0.5 text-xs font-bold text-info" onClick={() => (s.setBody({ bodyMode: "grow", selectedMuscleId: m.id }), s.setView("body"))}>
-                      {m.name}
-                    </button>
-                  </li>
-                ))}
-                {under.length === 0 ? <li className="text-sm text-ink-soft">Every area is at or above your weekly number.</li> : null}
-              </ul>
-              {under.length > 6 ? <p className="mt-1 text-xs text-ink-faint">+{under.length - 6} more</p> : null}
-              <Button size="sm" tone="ghost" className="-ml-2 mt-1" onClick={go("body", () => s.setBody({ bodyMode: "heat" }))}>
-                Open body map <ArrowRight className="size-4" />
-              </Button>
-            </div>
           </div>
-          {bodyNoteList.length ? (
-            <button type="button" data-testid="today-body-notes" className="tap mt-3 flex w-full items-start gap-2 rounded-xl bg-surface-2 px-3 py-2 text-left" onClick={go("body")}>
-              <MapPin className="mt-0.5 size-4 shrink-0 text-info" />
-              <span className="min-w-0 text-sm">
-                <b>{bodyNoteList.length} note{bodyNoteList.length === 1 ? "" : "s"} on the body</b>
-                <span className="block truncate text-ink-soft">{regionInfo(bodyNoteList[0]!.region)?.name}: {bodyNoteList[0]!.text}</span>
-              </span>
-            </button>
-          ) : null}
+          <div className="feature-footer">
+            <button type="button" onClick={() => { s.setTrainDay(weekday); s.setTrainingTab("pt"); }}><span className="link-icon"><Footprints className="size-4" /></span><span><b>Physical therapy</b><small>Your reference board and cues</small></span><ArrowRight className="ml-auto size-4" /></button>
+          </div>
         </Card>
-
-        <Card>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <Badge tone={food.kind === "heavy" ? "copper" : food.kind === "recovery" ? "teal" : "forest"}>{DAY_KIND_LABEL[food.kind]}</Badge>
-              <h3 className="t-title mt-1">{note.title}</h3>
-              <p className="mt-1 text-sm text-ink-soft">{lastFood ? `Last: ${lastFood.food}` : "Nothing eaten logged yet."}</p>
-            </div>
-            <ProteinWaterRings size={70} />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[8, 16, 24].map((oz) => (
-              <Button key={oz} size="sm" tone="outline" onClick={() => (s.addWater(oz), s.showToast(`${oz} oz water`))}>+{oz} oz</Button>
-            ))}
-            <Button size="sm" tone="soft" onClick={() => s.setView("food")}>Open food <ArrowRight className="size-4" /></Button>
-          </div>
-          {soon.length ? (
-            <p className="t-caption mt-2 text-warn">
-              Use soon: <b>{soon.slice(0, 3).map((i) => i.name).join(", ")}</b>
-            </p>
-          ) : null}
+        <Card className="food-feature" aria-label="Food today">
+          <div className="flex items-center gap-2"><Utensils className="size-4 text-accent" /><Eyebrow>02 / Make eating easier</Eyebrow></div>
+          <h2 className="section-display mt-4">Familiar food.<br />Fewer decisions.</h2>
+          <p className="mt-2 text-sm text-ink-soft">Start with something you know. Planning can come later.</p>
+          {repeat ? <div className="meal-shortcut"><p className="eyebrow">{lastMeal ? "A meal you’ve logged before" : ready ? "Ingredients marked available" : "A meal you pinned"}</p><p className="mt-2 text-lg font-medium">{repeat.name}</p><Button tone="outline" size="sm" className="mt-3" onClick={() => s.setOverlay({ type: "repeat-meal", mealId: repeat.id })}>Repeat this meal<ArrowRight className="size-4" /></Button></div> : <div className="meal-shortcut"><p className="text-sm text-ink-soft">Your meals and ingredients are together in Food.</p><Button tone="outline" className="mt-3" onClick={() => s.setView("food")}>Choose something to eat<ArrowRight className="size-4" /></Button></div>}
+          <div className="mt-4 flex flex-wrap gap-2"><Button tone="soft" size="sm" onClick={() => s.setOverlay({ type: "log-food" })}>Log food</Button><Button tone="soft" size="sm" onClick={() => s.setOverlay({ type: "log-drink" })}>Log a drink</Button><Button tone="ghost" size="sm" onClick={() => s.setView("food")}>Open Food<ArrowRight className="size-3" /></Button></div>
+          <div className="food-summary"><span><b>{food.protein.total} g</b> protein logged{food.protein.unknown ? " · some unknown" : ""}</span><span><b>{Math.round(food.water)} oz</b> fluid logged</span></div>
+        </Card>
+        <Card className="notes-feature" aria-label="Your observations">
+          <div className="notes-feature-copy"><div className="flex items-center gap-2"><PenLine className="size-4 text-accent" /><Eyebrow>03 / Learn from your day</Eyebrow></div><h2 className="section-display mt-3">What did you notice?</h2><p className="mt-2 max-w-lg text-sm text-ink-soft">A movement felt different. Lunch took too much effort. Save it now; decide what to change when you’re ready.</p><div className="mt-4 flex flex-wrap gap-2"><Button tone="outline" onClick={() => s.setOverlay({ type: "note", kind: "general" })}>Add an observation</Button><Button tone="ghost" onClick={() => s.setView("notes")}>{flagged ? `Review ${flagged} flagged observation${flagged === 1 ? "" : "s"}` : "Review observations"}<ArrowRight className="size-4" /></Button></div></div>
+          <div className="observation-preview"><p className="eyebrow">{latest ? "Your latest observation" : "A small note can guide the next plan"}</p><p className="mt-3 text-sm leading-relaxed text-ink-soft">{latest ? latest.text : "You don’t need to measure everything. Start with what stood out."}</p><p className="mt-4 text-xs text-ink-faint">Notice → try a change → review what helped</p></div>
         </Card>
       </div>
-
-      {flagged ? (
-        <button type="button" onClick={() => s.setView("notes")} className="card tap flex w-full items-center gap-3 p-4 text-left">
-          <Flag className="size-5 text-warn" />
-          <span className="flex-1 text-sm">
-            <b>{flagged}</b> note{flagged > 1 ? "s" : ""} flagged for your next plan.
-          </span>
-          <ArrowRight className="size-4" />
-        </button>
-      ) : null}
-      <p className="t-caption pb-2 text-center text-ink-faint">{fmt(heat.totalSets)} sets logged in 7 days · everything stays on this device</p>
+      <div className="daily-utilities"><button type="button" onClick={() => s.setOverlay({ type: "activity" })}><Footprints className="size-4" />Log another activity</button><button type="button" onClick={() => s.setView("learn")}><BookOpen className="size-4" />Learn about movement</button><span>Saved on this device</span></div>
     </div>
   );
 }

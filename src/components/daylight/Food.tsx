@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarPlus, Check, Droplets, Flame, Leaf, Plus, ShoppingBasket, Sparkles, Trash2, Utensils, Wand2 } from "lucide-react";
+import { AlertTriangle, Check, Droplets, Flame, Leaf, Plus, ShoppingBasket, Sparkles, Trash2, Utensils, Wand2 } from "lucide-react";
 import { GROCERY_SHEET } from "@/lib/daylight/food-seed";
 import { WEEKDAY_NAMES, clock, localDate, shiftDate } from "@/lib/daylight/dates";
-import { DAY_KIND_LABEL, dayKind, fuelingNote, isUseSoon, mealsUsing, plannedProtein, prepNeeds, sumProtein, suggestWeek, waterToday } from "@/lib/daylight/foodplan";
+import { DAY_KIND_LABEL, dayKind, isUseSoon, mealsUsing, plannedProtein, prepNeeds, sumProtein, suggestWeek, waterToday } from "@/lib/daylight/foodplan";
 import { mealReady, stockFor } from "@/lib/daylight/logic";
 import { statusLabel, useDaylight } from "@/lib/daylight/store";
 import type { InventoryStatus } from "@/lib/daylight/types";
@@ -17,16 +17,16 @@ export function Food() {
   const needShop = state.shopping.filter((s) => !s.checked).length;
   return (
     <div>
-      <PageHead eyebrow="Fuel for the plan" title="Food" helper="Protein, water, and what’s on hand today." />
+      <PageHead eyebrow="Fuel for the plan" title="Food" helper="Choose a meal, record what you ate, or get ingredients ready—all in one place." />
       <Segmented<Tab>
         label="Food sections"
         value={tab}
         onChange={setTab}
         options={[
           { id: "today", label: "Today" },
-          { id: "week", label: "Plan & prep" },
-          { id: "pantry", label: "Pantry" },
-          { id: "shop", label: `Shop${needShop ? ` · ${needShop}` : ""}` },
+          { id: "week", label: "Meal prep" },
+          { id: "pantry", label: "Inventory" },
+          { id: "shop", label: `Shopping${needShop ? ` · ${needShop}` : ""}` },
           { id: "recipes", label: "Recipes" },
         ]}
       />
@@ -73,7 +73,6 @@ export function ProteinWaterRings({ size = 84 }: { size?: number }) {
 function TodayFood({ go }: { go: (t: Tab) => void }) {
   const s = useDaylight();
   const n = useFoodNumbers();
-  const note = fuelingNote(n.kind, Boolean(s.proteinGoalRest));
   const todayFood = s.foodLogs.filter((l) => l.localDate === n.today);
   const todayWater = s.fluidLogs.filter((l) => l.localDate === n.today);
   const planned = (s.mealPlan[String(n.wd)] ?? []).map((id) => s.savedMeals.find((m) => m.id === id)).filter(Boolean);
@@ -82,23 +81,15 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
   const ready = s.savedMeals.filter((m) => mealReady(m, s.inventory)).slice(0, 3);
   return (
     <div className="space-y-4">
-      <Card className="animate-rise">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <Badge tone={n.kind === "heavy" ? "copper" : n.kind === "recovery" ? "teal" : "forest"}>{DAY_KIND_LABEL[n.kind]}</Badge>
-            <h2 className="mt-1 t-title">{note.title}</h2>
-          </div>
-          <ProteinWaterRings size={78} />
+      <Card className="food-choice-panel">
+        <Eyebrow>One less decision</Eyebrow>
+        <h2 className="section-display mt-3">What’s easy to eat?</h2>
+        <p className="mt-2 text-sm text-ink-soft">These meals use ingredients you’ve marked available. Check portions before you start.</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {ready.length ? ready.map((m) => <button key={m.id} type="button" className="meal-choice text-left" onClick={() => s.setOverlay({ type: "repeat-meal", mealId: m.id })}><Utensils className="size-5 text-accent" /><b className="mt-4 block">{m.name}</b><span className="mt-2 block text-xs text-ink-soft">{m.minutes != null ? `${m.minutes} min · ` : ""}Review and log →</span></button>) : <p className="text-sm text-ink-soft sm:col-span-3">Mark ingredients in Inventory to see matching meals here. You can still log any food below.</p>}
         </div>
-        <ul className="mt-2 space-y-1 text-sm text-ink-soft">
-          {note.lines.map((l) => (
-            <li key={l}>• {l}</li>
-          ))}
-        </ul>
-        <p className="mt-2 text-xs text-ink-faint">General prompts, not nutrition advice. Targets are the numbers you set in Settings.</p>
-        {n.protein.unknown > 0 ? <p className="mt-1 text-xs text-ink-soft">{n.protein.unknown} meal{n.protein.unknown > 1 ? "s" : ""} today without a protein number aren’t counted.</p> : null}
+        <div className="mt-4 flex flex-wrap gap-2"><Button tone="outline" size="sm" onClick={() => go("recipes")}>Browse recipes</Button><Button tone="ghost" size="sm" onClick={() => go("pantry")}>Update ingredients</Button></div>
       </Card>
-
       <div className="grid grid-cols-2 gap-2">
         <Button size="lg" onClick={() => s.setOverlay({ type: "log-food" })}>
           <Utensils className="size-5" /> Log food
@@ -137,20 +128,27 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
             )}
           </ul>
         </Card>
-      ) : (
-        <Card className="text-center">
-          <p className="t-title">Nothing planned for today</p>
-          <Button tone="outline" className="mt-2" onClick={() => go("week")}>
-            <CalendarPlus className="size-4" /> Plan the week
-          </Button>
-        </Card>
-      )}
+      ) : null}
+      <details className="intake-details"><summary>Recorded intake and your targets</summary><div className="mt-3">      <Card>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <Badge tone={n.kind === "heavy" ? "copper" : n.kind === "recovery" ? "teal" : "forest"}>{DAY_KIND_LABEL[n.kind]}</Badge>
+            <h2 className="mt-1 t-title">Your recorded intake</h2>
+          </div>
+
+        </div>
+        <div className="mt-4"><ProteinWaterRings size={84} /></div>
+        <p className="mt-2 text-xs text-ink-faint">General prompts, not nutrition advice. Targets are the numbers you set in Settings.</p>
+        {n.protein.unknown > 0 ? <p className="mt-1 text-xs text-ink-soft">{n.protein.unknown} meal{n.protein.unknown > 1 ? "s" : ""} today without a protein number aren’t counted.</p> : null}
+      </Card>
+
+</div></details>
 
       {soon.length ? (
         <Card className="border-warn/40">
           <div className="flex items-center gap-2">
             <Leaf className="size-5 text-warn" />
-            <h3 className="t-title">Use soon — don’t waste it</h3>
+            <h3 className="t-title">Ingredients to use soon</h3>
           </div>
           <ul className="mt-2 space-y-1.5">
             {soon.slice(0, 4).map((i) => {
@@ -164,7 +162,7 @@ function TodayFood({ go }: { go: (t: Tab) => void }) {
             })}
           </ul>
           <Button tone="ghost" size="sm" className="mt-1" onClick={() => go("pantry")}>
-            Open pantry
+            Open inventory
           </Button>
         </Card>
       ) : null}

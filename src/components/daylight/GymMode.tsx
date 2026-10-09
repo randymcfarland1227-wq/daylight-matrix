@@ -4,11 +4,10 @@ import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
-import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine } from "@/lib/daylight/logic";
+import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine, sessionProgress } from "@/lib/daylight/logic";
 import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import type { Prescription, WorkoutSession } from "@/lib/daylight/types";
-import { plannedSets } from "@/lib/daylight/volume";
 import { MoveThumb } from "./MoveArt";
 import { MoveMedia, prefetchPhotos } from "./MoveMedia";
 import { Overlays } from "./Overlays";
@@ -38,7 +37,7 @@ export function GymMode({ weekday }: { weekday: number }) {
   const slots = session ? session.snapshot : day.slots;
   const st = DAY_STYLE[weekday]!;
   const act = slots.filter((s) => s.section === "activation" || s.section === "pt");
-  const [ptMode, setPtMode] = useState<"block" | "each">(act.length >= 2 ? "block" : "each");
+  const [ptMode, setPtMode] = useState<"block" | "each">("each");
   const [cur, setCur] = useState(0);
   const [flow, setFlow] = useState<Prescription[] | null>(null);
   const [showList, setShowList] = useState(false);
@@ -66,18 +65,8 @@ export function GymMode({ weekday }: { weekday: number }) {
   const step = steps[idx]!;
   const finishedOf = (s: Prescription) => (session ? slotFinished(session, s) : false);
   const real = slots.filter((s) => !s.optional);
-  const movesDone = real.filter(finishedOf).length;
-  const totals = useMemo(() => {
-    let target = 0;
-    let done = 0;
-    for (const slot of slots) {
-      if (slot.optional) continue;
-      const t = slot.sets ? plannedSets(slot) : 1;
-      target += t;
-      if (session) done += slot.sets ? Math.min(doneSetCount(session, slot), t) : slotLogs(session, slot.id).some((l) => l.status === "done") || (session.extras ?? []).some((e) => e.slotId === slot.id) ? 1 : 0;
-    }
-    return { target, done };
-  }, [slots, session]);
+  const movesDone = sessionProgress(slots, session).completed;
+  const totals = sessionProgress(slots, session);
   const pct = totals.target ? Math.min(1, totals.done / totals.target) : 0;
 
   const goNext = (from = idx) => {
@@ -124,8 +113,8 @@ export function GymMode({ weekday }: { weekday: number }) {
             <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: "var(--accent)" }} />
           </div>
           <p className="mt-1 flex justify-between text-xs font-semibold text-ink-soft tabular-nums">
-            <span>{movesDone} of {real.length} moves</span>
-            <span>{Math.round(totals.done)}/{Math.ceil(totals.target)} sets · {Math.round(pct * 100)}%</span>
+            <span>{totals.completed} of {real.length} exercises completed</span>
+            <span>{totals.skipped ? `${totals.skipped} skipped · ` : ""}{Math.round(pct * 100)}% of prescribed work</span>
           </p>
         </div>
       </header>
@@ -139,6 +128,7 @@ export function GymMode({ weekday }: { weekday: number }) {
             </button>
           ) : null}
           <RestStrip />
+          {showList && act.length >= 2 ? <Button tone="outline" size="sm" className="mb-3" onClick={() => { setPtMode(ptMode === "each" ? "block" : "each"); setCur(0); }}>{ptMode === "each" ? "Group activation into a block" : "Show activation one exercise at a time"}</Button> : null}
           {showList ? (
             <ol className="mb-3 space-y-1 rounded-2xl border border-line bg-surface p-2" aria-label="Jump to a move">
               {steps.map((s, i) => {

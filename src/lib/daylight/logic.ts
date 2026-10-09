@@ -174,7 +174,11 @@ export function slotLogs(session: WorkoutSession, prescriptionId: string): SetLo
 export function doneSetCount(session: WorkoutSession, slot: Prescription): number {
   const logs = slotLogs(session, slot.id).filter((log) => log.status === "done");
   const indexes = new Set(logs.map((log) => log.setIndex));
-  return indexes.size;
+  if (!slot.perSide) return indexes.size;
+  return [...indexes].filter((index) => {
+    const sides = logs.filter((log) => log.setIndex === index).map((log) => log.side);
+    return sides.includes("both") || sides.includes("na") || (sides.includes("left") && sides.includes("right"));
+  }).length;
 }
 
 export function slotFinished(session: WorkoutSession, slot: Prescription): boolean {
@@ -185,6 +189,28 @@ export function slotFinished(session: WorkoutSession, slot: Prescription): boole
   return doneSetCount(session, slot) >= planned;
 }
 
+/** Session progress is based on real prescriptions, never midpoint or weighted muscle volume. */
+export function sessionProgress(slots: Prescription[], session: WorkoutSession | null) {
+  const required = slots.filter((slot) => !slot.optional);
+  let completed = 0;
+  let skipped = 0;
+  let changed = 0;
+  let done = 0;
+  let target = 0;
+  for (const slot of required) {
+    const minimum = slot.sets ?? 1;
+    target += minimum;
+    if (!session) continue;
+    const logs = slotLogs(session, slot.id);
+    const count = Math.min(minimum, doneSetCount(session, slot));
+    done += count;
+    if (count >= minimum) completed += 1;
+    else if (logs.some((log) => log.status === "skipped" && log.setIndex === -1)) skipped += 1;
+    else if ((session.extras ?? []).some((extra) => extra.slotId === slot.id)) changed += 1;
+  }
+  return { completed, skipped, changed, total: required.length, done, target, percent: target ? done / target : 0 };
+}
+
 export function currentSetNumber(session: WorkoutSession, slot: Prescription): number {
   const planned = slot.sets ?? 1;
   const done = doneSetCount(session, slot);
@@ -192,8 +218,8 @@ export function currentSetNumber(session: WorkoutSession, slot: Prescription): n
 }
 
 export function progressLabel(session: WorkoutSession): string {
-  const slot = session.snapshot[session.focusSlot];
-  if (!slot) return "No exercises in this session";
+  const slot = session.snapshot.find((item) => !item.optional && !slotFinished(session, item));
+  if (!slot) return "No remaining prescribed exercises";
   const exercise = exerciseById(chosenExerciseId(slot, session.chosenExercise));
   const name = exercise?.name ?? "Exercise";
   if (!slot.sets) return name;
