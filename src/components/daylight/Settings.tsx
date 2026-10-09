@@ -1,3 +1,4 @@
+import { noteImageIds, restoreImages, withImages } from "@/lib/daylight/noteImages";
 import { useEffect, useRef, useState } from "react";
 import { Download, Upload, Plus, Smartphone } from "lucide-react";
 import { clock, localDate, prettyDate } from "@/lib/daylight/dates";
@@ -74,9 +75,9 @@ export function Settings() {
 
       <Card>
         <h2 className="t-title">Back up everything</h2>
-        <p className="text-sm text-ink-soft">Plan versions, session logs, notes, food, pantry and settings. {s.saveStatus}.</p>
+        <p className="text-sm text-ink-soft">Plan versions, session logs, notes and their photos, joint checks, food, pantry and settings. {s.saveStatus}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button tone="sun" onClick={() => downloadText(`daylight-matrix-backup-${localDate()}.json`, s.exportJson())}>
+          <Button tone="sun" onClick={async () => downloadText(`daylight-matrix-backup-${localDate()}.json`, await withImages(s.exportJson(), noteImageIds(s.observations)))}>
             <Download className="size-4" /> Download backup
           </Button>
           <Button tone="outline" onClick={() => file.current?.click()}>
@@ -91,7 +92,12 @@ export function Settings() {
             onChange={async (e) => {
               const f = e.target.files?.[0];
               if (!f) return;
-              if (window.confirm("Restore this backup? It replaces what’s on this device now (a download first is smart).")) setMsg(s.importJson(await f.text()));
+              if (window.confirm("Restore this backup? It replaces what’s on this device now (a download first is smart).")) {
+                const raw = await f.text();
+                const m = s.importJson(raw);
+                const n = await restoreImages(raw).catch(() => 0);
+                setMsg(n ? `${m} ${n} photo${n === 1 ? "" : "s"} restored.` : m);
+              }
               e.target.value = "";
             }}
           />

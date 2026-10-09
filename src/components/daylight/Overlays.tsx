@@ -1,3 +1,5 @@
+import { PhotoPicker } from "./NoteImages";
+import { jointName } from "@/lib/daylight/joints";
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Flag, Mic } from "lucide-react";
 import { WEEKDAY_NAMES, clock, localDate, localTime } from "@/lib/daylight/dates";
@@ -69,6 +71,8 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
   const [exerciseId, setExerciseId] = useState<string | undefined>(init.exerciseId);
   const [muscleId, setMuscleId] = useState<string | undefined>(init.muscleId);
   const [showLink, setShowLink] = useState(Boolean(init.exerciseId));
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [jointId, setJointId] = useState<string | undefined>(init.jointId);
   const ref = useRef<HTMLTextAreaElement>(null);
   const weekday = init.weekday ?? new Date().getDay();
   const plan = activePlan(state.planVersions, localDate());
@@ -83,14 +87,15 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
   }, []);
 
   const toggle = (t: string) => setTags((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
-  const canSave = text.trim().length > 0 || tags.length > 0;
+  const canSave = text.trim().length > 0 || tags.length > 0 || photos.length > 0;
   const save = () => {
     const id = state.addNote({
       text,
       tags,
       forNextPlan: flag || tags.includes("Swap this") || tags.includes("Add volume") || tags.includes("Go up next time"),
       kind,
-      context: { exerciseId, muscleId, weekday, mealId: init.mealId },
+      context: { exerciseId, muscleId, jointId, weekday, mealId: init.mealId },
+      imageIds: photos,
     });
     if (id) {
       haptic(16);
@@ -116,6 +121,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
         </span>
         {exerciseId ? <Chip active onClick={() => setExerciseId(undefined)}>{exerciseLabel(exerciseId)} ✕</Chip> : null}
         {muscleId ? <Chip active tone="teal" onClick={() => setMuscleId(undefined)}>{muscleName(muscleId)} ✕</Chip> : null}
+        {jointId ? <Chip active tone="teal" onClick={() => setJointId(undefined)}>{jointName(jointId)} ✕</Chip> : null}
       </div>
       <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" aria-label="Quick tags">
         {quickTags.map((t) => (
@@ -139,6 +145,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
           </button>
         ) : null}
       </div>
+      <PhotoPicker ids={photos} onChange={setPhotos} />
 
       <button
         type="button"

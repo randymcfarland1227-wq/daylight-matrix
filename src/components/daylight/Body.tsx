@@ -40,6 +40,7 @@ import {
 
 import { MapFigure, type MapLevel } from "./MapFigure";
 import { BodyJournal } from "./BodyJournal";
+import { JointsView } from "./Joints";
 import { MusclePage } from "./MusclePage";
 import { Badge, Button, Card, Chip, Eyebrow, PageHead, Segmented } from "./ui";
 
@@ -126,6 +127,7 @@ export function Body() {
   const raw = state.selectedMuscleId;
   const canon = raw ? resolveMuscle(raw) : null;
   const journal = state.bodyWorkspace !== "training";
+  const joints = state.bodyWorkspace === "joints";
   if (!journal && canon) {
     // a stored id can be new (group / region / sub) or old (flat v2 ids): old ones open at their sub-part or group
     const id: AnyMuscleId = (
@@ -161,15 +163,18 @@ export function Body() {
       />
       <Segmented
         label="Body workspace"
-        value={journal ? "journal" : "training"}
+        value={joints ? "joints" : journal ? "journal" : "training"}
         onChange={(v) => state.setBody({ bodyWorkspace: v, selectedMuscleId: null })}
         options={[
           { id: "journal", label: "Area journal" },
+          { id: "joints", label: "Joints" },
           { id: "training", label: "Training guide" },
         ]}
         className="mb-5"
       />
-      {journal ? (
+      {joints ? (
+        <JointsView />
+      ) : journal ? (
         <BodyJournal />
       ) : (
         <>

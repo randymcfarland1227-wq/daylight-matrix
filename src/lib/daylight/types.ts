@@ -175,6 +175,8 @@ export type ObservationContext = {
   exerciseId?: string;
   mealId?: string;
   sessionId?: string;
+  /** Joint this note is about (see joints.ts). */
+  jointId?: string;
   /** 0-6, Sunday = 0. */
   weekday?: number;
 };
@@ -190,6 +192,19 @@ export type Observation = {
   /** Flagged to be handed to whoever builds the next plan. */
   forNextPlan?: boolean;
   kind?: "gym" | "food" | "general";
+  /** Photos attached to this note; the bytes live in IndexedDB (noteImages.ts). */
+  imageIds?: string[];
+};
+
+/** A quick joint check: 0 = fine, 10 = worst. Feeds the joint heat display. */
+export type JointLog = {
+  id: string;
+  jointId: string;
+  date: string;
+  time: string;
+  level: number;
+  side?: "left" | "right" | "both";
+  note?: string;
 };
 
 export type TrialStatus = "active" | "ready" | "kept" | "revised" | "ended";
@@ -362,7 +377,7 @@ export type BodyMode = "plan" | "heat" | "grow";
 export type BodyLayer = "planned" | "completed" | "felt";
 
 export type Overlay =
-  | { type: "note"; exerciseId?: string; muscleId?: string; weekday?: number; forNextPlan?: boolean; kind?: "gym" | "food" | "general"; mealId?: string }
+  | { type: "note"; exerciseId?: string; muscleId?: string; jointId?: string; weekday?: number; forNextPlan?: boolean; kind?: "gym" | "food" | "general"; mealId?: string }
   | { type: "log-food"; slot?: "breakfast" | "lunch" | "dinner" | "snack" }
   | { type: "log-drink" }
   | { type: "repeat-meal"; mealId: string }

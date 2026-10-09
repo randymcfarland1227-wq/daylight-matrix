@@ -1,3 +1,6 @@
+import { NoteThumbs, PhotoPicker } from "./NoteImages";
+import { jointName } from "@/lib/daylight/joints";
+import { noteImageIds, restoreImages, withImages } from "@/lib/daylight/noteImages";
 import { useMemo, useRef, useState } from "react";
 import { Copy, Download, Flag, Pencil, Trash2, Upload, Check, FileText } from "lucide-react";
 import { WEEKDAY_NAMES, localDate, prettyDate, shortDate } from "@/lib/daylight/dates";
@@ -112,9 +115,9 @@ export function Notes() {
 
       <Card className="mt-8">
         <h2 className="t-title">Back up your notes</h2>
-        <p className="mt-1 text-sm text-ink-soft">Notes live only on this device. Export them as JSON; import merges by note id, so nothing is duplicated.</p>
+        <p className="mt-1 text-sm text-ink-soft">Notes live only on this device. Export them as JSON (photos included); import merges by note id, so nothing is duplicated.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button tone="outline" onClick={() => downloadText(`daylight-notes-${localDate()}.json`, state.exportNotesJson())}>
+          <Button tone="outline" onClick={async () => downloadText(`daylight-notes-${localDate()}.json`, await withImages(state.exportNotesJson(), noteImageIds(state.observations)))}>
             <Download className="size-4" /> Export notes
           </Button>
           <Button tone="outline" onClick={() => file.current?.click()}>
@@ -129,7 +132,10 @@ export function Notes() {
             onChange={async (e) => {
               const f = e.target.files?.[0];
               if (!f) return;
-              setMsg(state.importNotesJson(await f.text()));
+              const raw = await f.text();
+              const m = state.importNotesJson(raw);
+              const n = await restoreImages(raw).catch(() => 0);
+              setMsg(n ? `${m} ${n} photo${n === 1 ? "" : "s"} restored.` : m);
               e.target.value = "";
             }}
           />
@@ -144,7 +150,7 @@ function NoteCard({ note: n }: { note: Observation }) {
   const state = useDaylight();
   const [edit, setEdit] = useState(false);
   const [text, setText] = useState(n.text);
-  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, noteArea(n) ? muscleName(noteArea(n)!) : null, n.context.bodySide ? (n.context.bodySide === "both" ? "Both sides" : n.context.bodySide === "left" ? "Left" : "Right") : null].filter(Boolean);
+  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, noteArea(n) ? muscleName(noteArea(n)!) : null, n.context.jointId ? jointName(n.context.jointId) : null, n.context.bodySide ? (n.context.bodySide === "both" ? "Both sides" : n.context.bodySide === "left" ? "Left" : "Right") : null].filter(Boolean);
   return (
     <li>
       <article className={cn("card p-3.5", n.forNextPlan && "border-warn/50")}>
@@ -160,6 +166,7 @@ function NoteCard({ note: n }: { note: Observation }) {
             ) : (
               <p className="mt-0.5 text-base leading-snug">{n.text}</p>
             )}
+            {!edit ? <NoteThumbs ids={n.imageIds} className="mt-2" onChange={(ids) => state.updateNote(n.id, { imageIds: ids })} /> : null}
           </div>
           <button
             type="button"
@@ -183,6 +190,7 @@ function NoteCard({ note: n }: { note: Observation }) {
         ) : null}
         {edit ? (
           <div className="mt-2 space-y-2">
+            <PhotoPicker compact ids={n.imageIds ?? []} onChange={(ids) => state.updateNote(n.id, { imageIds: ids })} />
             <div className="flex flex-wrap gap-1.5">
               {GYM_TAGS.map((t) => (
                 <Chip key={t} tone="sun" active={n.tags.includes(t)} onClick={() => state.updateNote(n.id, { tags: n.tags.includes(t) ? n.tags.filter((x) => x !== t) : [...n.tags, t] })}>

@@ -6,6 +6,7 @@ import { noteArea, observationsForArea } from "@/lib/daylight/bodyNotes";
 import { useDaylight } from "@/lib/daylight/store";
 import type { Observation } from "@/lib/daylight/types";
 import { MapFigure, type MapLevel } from "./MapFigure";
+import { NoteThumbs, PhotoPicker } from "./NoteImages";
 import { Button, Eyebrow, Segmented } from "./ui";
 
 type Side = NonNullable<Observation["context"]["bodySide"]> | "";
@@ -17,6 +18,7 @@ export function BodyJournal() {
   const [side, setSide] = useState<Side>("");
   const [text, setText] = useState("");
   const [flag, setFlag] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [editing, setEditing] = useState<string | null>(null);
   const [filterDate, setFilterDate] = useState("");
   const [saved, setSaved] = useState("");
@@ -44,6 +46,7 @@ export function BodyJournal() {
   const reset = () => {
     setText("");
     setFlag(false);
+    setPhotos([]);
     setEditing(null);
     setDate(localDate());
     setSide("");
@@ -56,8 +59,8 @@ export function BodyJournal() {
       bodySide: side || undefined,
       weekday: new Date(`${date}T12:00:00`).getDay(),
     };
-    if (editing) s.updateNote(editing, { text: text.trim(), forNextPlan: flag, context });
-    else s.addNote({ text, kind: "general", forNextPlan: flag, context });
+    if (editing) s.updateNote(editing, { text: text.trim(), forNextPlan: flag, context, imageIds: photos });
+    else s.addNote({ text, kind: "general", forNextPlan: flag, context, imageIds: photos });
     setSaved(`Saved to ${muscleName(area)} · ${recordDate(date)}`);
     setFilterDate("");
     reset();
@@ -68,6 +71,7 @@ export function BodyJournal() {
     setSide(n.context.bodySide ?? "");
     setText(n.text);
     setFlag(Boolean(n.forNextPlan));
+    setPhotos(n.imageIds ?? []);
     setEditing(n.id);
     setSaved("");
     panel.current?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -241,6 +245,7 @@ export function BodyJournal() {
               onChange={(e) => setText(e.target.value)}
               placeholder="A sensation, a change in movement, or something to remember…"
             />
+            <PhotoPicker ids={photos} onChange={setPhotos} />
             <div className="flex flex-wrap justify-between items-center gap-3 mt-3">
               <label className="flex items-center gap-2 min-h-11 text-sm">
                 <input
@@ -330,6 +335,7 @@ export function BodyJournal() {
                 <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {n.text}
                 </p>
+                <NoteThumbs ids={n.imageIds} className="mt-2" onChange={(ids) => s.updateNote(n.id, { imageIds: ids })} />
                 <button
                   type="button"
                   className="tap note-flag"

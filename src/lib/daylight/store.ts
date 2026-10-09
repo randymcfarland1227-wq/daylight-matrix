@@ -8,6 +8,7 @@ import { exerciseById } from "./exercises";
 import { lastSet, newId, prescribedDefaults } from "./logic";
 import { activePlan, dayTemplate, seedPlan } from "./plan";
 import type {
+  JointLog,
   ExtraLog,
   ActivityLog,
   AdjustmentTrial,
@@ -38,6 +39,7 @@ import type {
   WorkoutSession,
 } from "./types";
 import { STARTER_PURPOSE } from "./types";
+import { deleteImage } from "./noteImages";
 
 type Drafts = {
   food: string;
@@ -147,7 +149,8 @@ type Data = {
   bodyDetail: "standard" | "advanced";
   /** Body map surface: the flat front + back chart, or the turnable 6'4" figure. */
   bodyStyle: "map" | "turn";
-  bodyWorkspace: "journal" | "training";
+  bodyWorkspace: "journal" | "training" | "joints";
+  jointLogs: JointLog[];
   schemaVersion: number;
   theme: ThemeChoice;
   /** Fluid ounces per day. Yours to set. */
@@ -195,6 +198,7 @@ type NoteInput = {
   forNextPlan?: boolean;
   kind?: Observation["kind"];
   context?: Partial<ObservationContext>;
+  imageIds?: string[];
 };
 
 type LogSetInput = {
@@ -249,8 +253,10 @@ type Actions = {
   // notes
   addObservation: (text: string, context: ObservationContext, tags?: ObservationTag[]) => string | null;
   addNote: (input: NoteInput) => string | null;
-  updateNote: (id: string, patch: Partial<Pick<Observation, "text" | "tags" | "forNextPlan" | "kind">> & { context?: Partial<ObservationContext> }) => void;
+  updateNote: (id: string, patch: Partial<Pick<Observation, "text" | "tags" | "forNextPlan" | "kind" | "imageIds">> & { context?: Partial<ObservationContext> }) => void;
   deleteNote: (id: string) => void;
+  addJointLog: (input: Omit<JointLog, "id" | "time"> & { time?: string }) => void;
+  deleteJointLog: (id: string) => void;
   importNotesJson: (raw: string) => string;
   exportNotesJson: () => string;
   updateObservation: (id: string, text: string, tags?: ObservationTag[]) => void;
@@ -382,6 +388,7 @@ const seed = (): Data => ({
   bodyDetail: "standard",
   bodyStyle: "map",
   bodyWorkspace: "journal",
+  jointLogs: [],
   schemaVersion: SCHEMA_VERSION,
   theme: "light",
   waterGoal: 96,
@@ -723,12 +730,14 @@ export const useDaylight = create<Data & Actions>()(
       addNote: (input) => {
         const text = input.text.trim();
         const tags = input.tags ?? [];
-        if (!text && tags.length === 0) return null;
+        const imageIds = input.imageIds ?? [];
+        if (!text && tags.length === 0 && imageIds.length === 0) return null;
         const now = new Date();
         const ctx = input.context ?? {};
         const observation: Observation = {
           id: newId(),
-          text: text || tags.join(", "),
+          text: text || tags.join(", ") || "Photo",
+          ...(imageIds.length ? { imageIds } : {}),
           createdAt: now.toISOString(),
           updatedAt: now.toISOString(),
           context: { ...ctx, date: ctx.date ?? localDate(now), time: ctx.time ?? localTime(now), weekday: ctx.weekday ?? now.getDay() },
@@ -751,6 +760,7 @@ export const useDaylight = create<Data & Actions>()(
                     ...("tags" in patch && patch.tags !== undefined ? { tags: patch.tags } : {}),
                     ...("forNextPlan" in patch ? { forNextPlan: patch.forNextPlan } : {}),
                     ...("kind" in patch && patch.kind ? { kind: patch.kind } : {}),
+                    ...("imageIds" in patch ? { imageIds: patch.imageIds } : {}),
                     context: { ...o.context, ...(patch.context ?? {}) },
                     updatedAt: new Date().toISOString(),
                   }
@@ -759,7 +769,17 @@ export const useDaylight = create<Data & Actions>()(
           }),
         );
       },
-      deleteNote: (id) => set(saved({ observations: get().observations.filter((o) => o.id !== id) })),
+      deleteNote: (id) => {
+        const gone = get().observations.find((o) => o.id === id);
+        set(saved({ observations: get().observations.filter((o) => o.id !== id) }));
+        for (const img of gone?.imageIds ?? []) void deleteImage(img).catch(() => undefined);
+      },
+      addJointLog: (input) => {
+        const now = new Date();
+        const log: JointLog = { id: newId(), time: input.time ?? localTime(now), ...input, level: Math.max(0, Math.min(10, Math.round(input.level))) };
+        set(saved({ jointLogs: [log, ...(get().jointLogs ?? [])] }));
+      },
+      deleteJointLog: (id) => set(saved({ jointLogs: (get().jointLogs ?? []).filter((l) => l.id !== id) })),
       exportNotesJson: () => JSON.stringify({ daylightNotes: 1, exportedAt: new Date().toISOString(), observations: get().observations }, null, 2),
       importNotesJson: (raw) => {
         try {
