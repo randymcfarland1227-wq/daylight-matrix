@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -27,6 +27,7 @@ export type TurnFigureProps = {
 
 export function TurnFigure({ fill, under, selected, pins, view, onSelect, className }: TurnFigureProps) {
   const host = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const api = useRef<{ recolor: () => void; pins: () => void; look: (v: TurnView) => void } | null>(null);
   const latest = useRef({ fill, under, selected, pins, view, onSelect });
   latest.current = { fill, under, selected, pins, view, onSelect };
@@ -36,7 +37,9 @@ export function TurnFigure({ fill, under, selected, pins, view, onSelect, classN
     if (!root) return;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 20);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    let renderer: THREE.WebGLRenderer;
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); }
+    catch { setStatus("error"); return; }
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -63,18 +66,18 @@ export function TurnFigure({ fill, under, selected, pins, view, onSelect, classN
     };
     look(latest.current.view);
 
-    scene.add(new THREE.HemisphereLight("#f2f7fb", "#8d98a6", 1.1));
+    scene.add(new THREE.HemisphereLight("#fffaf1", "#a29a87", 1.1));
     const key = new THREE.DirectionalLight("#ffffff", 1.9);
     key.position.set(1.6, 3, 2.6);
     scene.add(key);
-    const back = new THREE.DirectionalLight("#dfe9f5", 1.2);
+    const back = new THREE.DirectionalLight("#e9e2d3", 1.2);
     back.position.set(-1.6, 2.4, -2.8);
     scene.add(back);
-    const fillLight = new THREE.DirectionalLight("#cfe0f0", 0.6);
+    const fillLight = new THREE.DirectionalLight("#e5ddcb", 0.6);
     fillLight.position.set(-2.4, 1.2, 1.4);
     scene.add(fillLight);
 
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(0.62, 48), new THREE.MeshBasicMaterial({ color: "#8190a3", transparent: true, opacity: 0.22 }));
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(0.62, 48), new THREE.MeshBasicMaterial({ color: "#938a77", transparent: true, opacity: 0.22 }));
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = 0.002;
     scene.add(floor);
@@ -138,7 +141,7 @@ export function TurnFigure({ fill, under, selected, pins, view, onSelect, classN
 
     const loader = new OBJLoader();
     let alive = true;
-    loader.load(`${import.meta.env.BASE_URL}human-man.obj?v=2`, (obj) => {
+    loader.load(`${import.meta.env.BASE_URL}human-man.obj`, (obj) => {
       if (!alive) return;
       obj.traverse((child) => {
         if (!(child instanceof THREE.Mesh)) return;
@@ -172,7 +175,8 @@ export function TurnFigure({ fill, under, selected, pins, view, onSelect, classN
       scene.add(obj);
       recolor();
       drawPins();
-    });
+      setStatus("ready");
+    }, undefined, () => { if (alive) setStatus("error"); });
 
     const pointer = new THREE.Vector2();
     const ray = new THREE.Raycaster();
@@ -243,5 +247,8 @@ export function TurnFigure({ fill, under, selected, pins, view, onSelect, classN
     api.current?.look(view);
   }, [view]);
 
-  return <div ref={host} className={className} data-testid="turn-figure" />;
+  return <div className={`relative ${className ?? ""}`} data-testid="turn-figure" data-model-status={status}>
+    <div ref={host} className="size-full" />
+    {status !== "ready" ? <div role="status" className="pointer-events-none absolute inset-0 grid place-items-center p-8 text-center text-sm text-ink-soft">{status === "loading" ? "Loading body model…" : "The turning view could not load. Choose Front + back above to explore the muscle map."}</div> : null}
+  </div>;
 }

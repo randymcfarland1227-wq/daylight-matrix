@@ -260,3 +260,14 @@ export const SEED_PREP: PrepTask[] = [
   detail: detail!,
   status: "planned" as const,
 }));
+
+
+/** Ingredient batches are optional templates, never an automatically scheduled meal plan. */
+export const INGREDIENT_PREP_IDEAS: PrepTask[] = [
+  { id: "prep-rice", title: "Cook rice", detail: "A separate base for different combinations.", ingredientNames: ["Rice"], quantity: "", status: "planned" },
+  { id: "prep-potatoes", title: "Prepare potatoes", detail: "Keep a base ready to pair with different proteins.", ingredientNames: ["Baby potatoes"], quantity: "", status: "planned" },
+  { id: "prep-cucumbers", title: "Prepare cucumbers", detail: "For snacks, wraps or a side.", ingredientNames: ["Cucumbers"], quantity: "", status: "planned" },
+  { id: "prep-strawberries", title: "Prepare strawberries", detail: "For bowls, pancakes or a snack.", ingredientNames: ["Strawberries"], quantity: "", status: "planned" },
+];
+const PREP_LINKS = [["Chicken breast"], ["Chicken nuggets"], ["Yogurt"], ["Green beans"], ["Panera potato soup"], [], ["Sugar-free pudding mix", "Protein powder", "Milk"]];
+SEED_PREP.forEach((task, index) => { task.ingredientNames = PREP_LINKS[index] ?? []; task.selected = false; });

@@ -22,7 +22,7 @@ export function RestBar() {
   const done = left <= 0;
   const pct = Math.max(0, Math.min(1, 1 - left / rest.total));
   return (
-    <div className="animate-pop fixed inset-x-3 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-sm overflow-hidden rounded-2xl bg-ink text-canvas shadow-xl md:inset-x-auto md:bottom-6 md:right-6 md:mx-0 md:w-80" role="timer" aria-label="Rest timer">
+    <div className="animate-pop fixed inset-x-3 bottom-[calc(5.4rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-sm overflow-hidden rounded-lg bg-ink text-canvas shadow-xl md:inset-x-auto md:bottom-6 md:right-6 md:mx-0 md:w-80" role="timer" aria-label="Rest timer">
       <div className="h-1 bg-canvas/20">
         <div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct * 100}%` }} />
       </div>

@@ -1,0 +1,1543 @@
+{
+  "checkedAt": "2026-10-08",
+  "videos": {
+    "dead-bug": {
+      "ok": true,
+      "id": "472985316",
+      "title": "Dead bugs",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 15,
+      "thumbnail": "https://i.vimeocdn.com/video/983719814-5621e6a342517d335247c6e9e9f2c728d048e6017df2b1c5ad870c34e43fd06c-d_295x166?region=us",
+      "expectedTitle": "Dead bugs"
+    },
+    "clamshell": {
+      "ok": true,
+      "id": "382073937",
+      "title": "Side lying clam",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 12,
+      "thumbnail": "https://i.vimeocdn.com/video/843065296-01b3d80a23345b8f018d9f8264576d61c8081eed3a9c8bd33a479e7d7f0a45dc-d_295x166?region=us",
+      "expectedTitle": "Side lying clam"
+    },
+    "band-walks": {
+      "ok": true,
+      "id": "382082557",
+      "title": "Banded side steps",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 15,
+      "thumbnail": "https://i.vimeocdn.com/video/843077066-ee9d89103c8137f90e01bad8609bedba5796598d35d208e0049852f7f905275c-d_295x166?region=us",
+      "expectedTitle": "Banded side steps"
+    },
+    "plank": {
+      "ok": true,
+      "id": "1042343867",
+      "title": "Plank",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 36,
+      "thumbnail": "https://i.vimeocdn.com/video/1965298274-26b55d44e3d072ca7d3c9ef8de1d8e8b3ee134dcd56018e405a4e27547a815f4-d_200x150?region=us",
+      "expectedTitle": "Plank"
+    },
+    "pallof": {
+      "ok": true,
+      "id": "382892058",
+      "title": "Palloff press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 22,
+      "thumbnail": "https://i.vimeocdn.com/video/844159770-fe2979261c06ea7a4580168a918a8ef8bbdfd039af50a4006e030b2cfe06849d-d_200x150?region=us",
+      "expectedTitle": "Palloff press"
+    },
+    "neutral-pullup": {
+      "ok": true,
+      "id": "344219307",
+      "title": "Pull Ups - Neutral Grip",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 27,
+      "thumbnail": "https://i.vimeocdn.com/video/793638060-21ff3aab75fb02538ef4f27a00e342a097dc0611aa6e3a021d5c7f0a1bc4ae89-d_295x166?region=us",
+      "expectedTitle": "Pull Ups - Neutral Grip"
+    },
+    "chest-supported-row": {
+      "ok": true,
+      "id": "363548502",
+      "title": "Supine Rows - Dumbbell",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 29,
+      "thumbnail": "https://i.vimeocdn.com/video/818731895-b906c36565cb52662e14be126953bb828e68845add0fb82369af660cac930fe5-d_295x166?region=us",
+      "expectedTitle": "Supine Rows - Dumbbell"
+    },
+    "half-kneeling-pulldown": {
+      "ok": true,
+      "id": "397466103",
+      "title": "Single-Arm Pulldown",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 14,
+      "thumbnail": "https://i.vimeocdn.com/video/864679756-fbccc946659d00e9b34e42bf7edd9d85147c2d34ee132655a038facd4051ea9b-d_295x166?region=us",
+      "expectedTitle": "Single-Arm Pulldown"
+    },
+    "face-pull": {
+      "ok": true,
+      "id": "388229309",
+      "title": "Face Pulls",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 22,
+      "thumbnail": "https://i.vimeocdn.com/video/851418867-3c25535342074e00cce31b46bea98d1b89aafcdadce54e9e8b9769264b45edd8-d_295x166?region=us",
+      "expectedTitle": "Face Pulls"
+    },
+    "straight-arm-pulldown": {
+      "ok": true,
+      "id": "1042343360",
+      "title": "Rope straight arm pushdowns",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 37,
+      "thumbnail": "https://i.vimeocdn.com/video/1965297681-29a5909c146491fe3fd7af2a73eab51044cc4295b0a57f2fb5307eddce29c739-d_200x150?region=us",
+      "expectedTitle": "Rope straight arm pushdowns"
+    },
+    "reverse-crunch": {
+      "ok": true,
+      "id": "388228068",
+      "title": "Reverse Crunches",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 6,
+      "thumbnail": "https://i.vimeocdn.com/video/851417320-e1d1f6337641db0319a65249e7fd0b398555aa013809b3e1c63280967cb7f159-d_295x166?region=us",
+      "expectedTitle": "Reverse Crunches"
+    },
+    "cable-crunch": {
+      "ok": true,
+      "id": "393285873",
+      "title": "Cable crunches",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 12,
+      "thumbnail": "https://i.vimeocdn.com/video/858724420-75d6cd906366b10b5c93982bdf40794d7b43c34e5ecd78b266fad62d6ab283c7-d_295x166?region=us",
+      "expectedTitle": "Cable crunches"
+    },
+    "hack-squat": {
+      "ok": true,
+      "id": "982699537",
+      "title": "Hack squat machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 65,
+      "thumbnail": "https://i.vimeocdn.com/video/1898068767-aa68890323ddf2d49725e3b8fbb2bf23493a506422ecb14e70ab7a65a5e3ac7d-d_200x150?region=us",
+      "expectedTitle": "Hack squat machine"
+    },
+    "heel-elevated-goblet": {
+      "ok": true,
+      "id": "683470013",
+      "title": "Heel-elevated goblet squat",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 320,
+      "duration": 12,
+      "thumbnail": "https://i.vimeocdn.com/video/1385580596-fcbf76482c89582a9045a74ef2e32658d6765fb1eda74120dab37b0a6087f538-d_200x150?region=us",
+      "expectedTitle": "Heel-elevated goblet squat"
+    },
+    "bulgarian-split-squat": {
+      "ok": true,
+      "id": "341669853",
+      "title": "Bulgarian Split Squats",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 40,
+      "thumbnail": "https://i.vimeocdn.com/video/790348646-0f71a126adb9413659edf029638d25862bc16effdd0455fb55401cd7df9bb6ca-d_295x166?region=us",
+      "expectedTitle": "Bulgarian Split Squats"
+    },
+    "leg-press": {
+      "ok": true,
+      "id": "393286049",
+      "title": "Machine leg press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 11,
+      "thumbnail": "https://i.vimeocdn.com/video/858724727-44e8acd5cc72a46d3d7451de377b239da56a062732ddc5995597b6f8045a8fc1-d_295x166?region=us",
+      "expectedTitle": "Machine leg press"
+    },
+    "leg-extension": {
+      "ok": true,
+      "id": "941687235",
+      "title": "Leg extensions",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 52,
+      "thumbnail": "https://i.vimeocdn.com/video/1844839939-8b7ac2944b32ebe0a1f15fa9fc3db0dbe47defcb38a6fe2d80ff658738225f53-d_200x150?region=us",
+      "expectedTitle": "Leg extensions"
+    },
+    "standing-calf-raise": {
+      "ok": true,
+      "id": "683469263",
+      "title": "Standing dumbbell calf raise",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 320,
+      "duration": 12,
+      "thumbnail": "https://i.vimeocdn.com/video/1385578256-d6d6a20b01ab7bf0905d6aeb15ac928271630eb81a7ac9784af918789a13cd36-d_200x150?region=us",
+      "expectedTitle": "Standing dumbbell calf raise"
+    },
+    "incline-db-press": {
+      "ok": true,
+      "id": "347319864",
+      "title": "Dumbbell incline bench press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 30,
+      "thumbnail": "https://i.vimeocdn.com/video/797614881-6c7c388829d4297794b546ff27cd429476c7a3a0a90c46e4e252289d470483c7-d_295x166?region=us",
+      "expectedTitle": "Dumbbell incline bench press"
+    },
+    "landmine-press": {
+      "ok": true,
+      "id": "1142414776",
+      "title": "Kneeling landmine shoulder press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 21,
+      "thumbnail": "https://i.vimeocdn.com/video/2090165262-95edc87cf0f02cacfc446a97efd399610f84616ea745f59c38709d2debc44ec8-d_200x150?region=us",
+      "expectedTitle": "Kneeling landmine shoulder press"
+    },
+    "weighted-pushup": {
+      "ok": true,
+      "id": "382073397",
+      "title": "Push ups",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 15,
+      "thumbnail": "https://i.vimeocdn.com/video/843064591-1fa162d822ffccefbb9010b564e55687f0012704a038d757bd4d816454f68ff7-d_295x166?region=us",
+      "expectedTitle": "Push ups"
+    },
+    "low-high-fly": {
+      "ok": true,
+      "id": "381715532",
+      "title": "Cable incline flyes",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 40,
+      "thumbnail": "https://i.vimeocdn.com/video/842560385-df208adbd4bfc956f9511fdfce8e2e6e819215a4d66404c30c3783540d34d1b3-d_200x150?region=us",
+      "expectedTitle": "Cable incline flyes"
+    },
+    "cable-lateral-raise": {
+      "ok": true,
+      "id": "381693241",
+      "title": "Lateral raise - cable",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 45,
+      "thumbnail": "https://i.vimeocdn.com/video/842531023-e289e6beec9db6b47be14219f5ee36b92abc8412bf0835ca35d28a71a682c084-d_295x166?region=us",
+      "expectedTitle": "Lateral raise - cable"
+    },
+    "overhead-rope-triceps": {
+      "ok": true,
+      "id": "537000406",
+      "title": "Cable overhead triceps extension",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 13,
+      "thumbnail": "https://i.vimeocdn.com/video/1111631377-4e315fd8724652aa8c32138f10818b08d444b094f339ae620989984342fb0b3e-d_295x166?region=us",
+      "expectedTitle": "Cable overhead triceps extension"
+    },
+    "hip-thrust": {
+      "ok": true,
+      "id": "937917670",
+      "title": "Barbell hip thrust",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 54,
+      "thumbnail": "https://i.vimeocdn.com/video/1838664906-711b1c92f05037e9a2e1d0ecab69a320e188281ae687520927758312bdbb6b7c-d_200x150?region=us",
+      "expectedTitle": "Barbell hip thrust"
+    },
+    "machine-hip-thrust": {
+      "ok": true,
+      "id": "1164665323",
+      "title": "Hip thrust machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 29,
+      "thumbnail": "https://i.vimeocdn.com/video/2121399369-10c3e66bd557e975c3e7b2f84b0195668b4faa3144b6631d80af99ac0b8ae772-d_200x150?region=us",
+      "expectedTitle": "Hip thrust machine"
+    },
+    "bstance-rdl": {
+      "ok": true,
+      "id": "341669771",
+      "title": "B-Stance RDLs",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 51,
+      "thumbnail": "https://i.vimeocdn.com/video/790348583-e0d505760fa88ed3d3157405448b575f2ea5d6d755595e920db62e98d1536b9c-d_295x166?region=us",
+      "expectedTitle": "B-Stance RDLs"
+    },
+    "leg-curl": {
+      "ok": true,
+      "id": "1042344101",
+      "title": "Seated leg curl",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 42,
+      "thumbnail": "https://i.vimeocdn.com/video/1965298548-88e20a2596d925cb9311f4625a19cec81562f45d07a243dd241d94532765efa0-d_200x150?region=us",
+      "expectedTitle": "Seated leg curl"
+    },
+    "lying-leg-curl": {
+      "ok": true,
+      "id": "342013944",
+      "title": "Lying leg curl",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 31,
+      "thumbnail": "https://i.vimeocdn.com/video/790782150-e36dd3c532376ad770149364b753de2d1a2c95976a2b751d1e0920701fe35042-d_200x150?region=us",
+      "expectedTitle": "Lying leg curl"
+    },
+    "reverse-lunge": {
+      "ok": true,
+      "id": "382075041",
+      "title": "Reverse lunges",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 12,
+      "thumbnail": "https://i.vimeocdn.com/video/843066655-fabc72c756a1d6b7a4a9f12ecb196c669bb2bec15ee149c1bcddc7a05d9aea19-d_295x166?region=us",
+      "expectedTitle": "Reverse lunges"
+    },
+    "box-step-up": {
+      "ok": true,
+      "id": "400928242",
+      "title": "Weighted Step Ups",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 11,
+      "thumbnail": "https://i.vimeocdn.com/video/869489582-9a6abef7a37b0966a55a9b075b9c029b71c3c5f34b853b4c8febd495574fdd5e-d_295x166?region=us",
+      "expectedTitle": "Weighted Step Ups"
+    },
+    "back-extension-45": {
+      "ok": true,
+      "id": "522365419",
+      "title": "45 degree back hyper (toes out)",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 11,
+      "thumbnail": "https://i.vimeocdn.com/video/1081801812-36cc8f58477f09651d5ad3c1724423e367b237a71c0c2853c8e4608f503a6a9e-d_295x166?region=us",
+      "expectedTitle": "45 degree back hyper (toes out)"
+    },
+    "cable-hip-abduction": {
+      "ok": true,
+      "id": "939620596",
+      "title": "Glute medius leg lifts - cable",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 61,
+      "thumbnail": "https://i.vimeocdn.com/video/1841550352-7effc5666b25bb00249a01d44f6092550478c5812c5621206523fcf6af5f966d-d_200x150?region=us",
+      "expectedTitle": "Glute medius leg lifts - cable"
+    },
+    "seated-calf-raise": {
+      "ok": true,
+      "id": "394065041",
+      "title": "Seated calf raise machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 15,
+      "thumbnail": "https://i.vimeocdn.com/video/859796254-5c8a5488bd5ff6b9e3f6416edec17341d539946d80cfec05b58f32a07cc03f06-d_295x166?region=us",
+      "expectedTitle": "Seated calf raise machine"
+    },
+    "shoulder-press": {
+      "ok": true,
+      "id": "342271556",
+      "title": "Seated dumbbell shoulder press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 27,
+      "thumbnail": "https://i.vimeocdn.com/video/791109145-7b8e9d5e39b4e38340d588a59f52955f4c0f882ac0972bd9e7b011299715d8ce-d_200x150?region=us",
+      "expectedTitle": "Seated dumbbell shoulder press"
+    },
+    "reverse-pec-deck": {
+      "ok": true,
+      "id": "374270600",
+      "title": "Reverse flyes on pec deck",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 25,
+      "thumbnail": "https://i.vimeocdn.com/video/832663048-0fb1fa045b81170df96d9007386f58e7b297ed8cd77d192cdd7eba0fa8ed989e-d_295x166?region=us",
+      "expectedTitle": "Reverse flyes on pec deck"
+    },
+    "y-raise": {
+      "ok": true,
+      "id": "342015132",
+      "title": "Y-Raise",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 21,
+      "thumbnail": "https://i.vimeocdn.com/video/790784222-ae01c60e8dad7c4dc44e9d1028645386a2a5380f861237390d7ee8e6b7845bb4-d_295x166?region=us",
+      "expectedTitle": "Y-Raise"
+    },
+    "incline-db-curl": {
+      "ok": true,
+      "id": "943676055",
+      "title": "Incline curls",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 29,
+      "thumbnail": "https://i.vimeocdn.com/video/1847962314-5cec29f982b3724729aec499a5ecfc8e1bcc91ecb188398fe53ed79b099885cd-d_200x150?region=us",
+      "expectedTitle": "Incline curls"
+    },
+    "rope-pressdown": {
+      "ok": true,
+      "id": "943677306",
+      "title": "Triceps push downs",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 30,
+      "thumbnail": "https://i.vimeocdn.com/video/1847964003-fa02368c63723736547bbc37f79b4bf32c73bf14c6fe1ae5aefb90a82b432cce-d_200x150?region=us",
+      "expectedTitle": "Triceps push downs"
+    },
+    "farmer-carry": {
+      "ok": true,
+      "id": "441077323",
+      "title": "Farmer\u2019s carries",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 5,
+      "thumbnail": "https://i.vimeocdn.com/video/928961733-b16b6fd6507ff8846e9ad2df71d25f55fb8b7f44a6d201db32572f5a645fd207-d_295x166?region=us",
+      "expectedTitle": "Farmer\u2019s carries"
+    },
+    "adductor-machine": {
+      "ok": true,
+      "id": "394065217",
+      "title": "Adductor Machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 14,
+      "thumbnail": "https://i.vimeocdn.com/video/859796265-bd05b39f5090a89952b14344940c27baebd268447b8f73326efe651b274be4c0-d_295x166?region=us",
+      "expectedTitle": "Adductor Machine"
+    },
+    "sumo-goblet": {
+      "ok": true,
+      "id": "666343493",
+      "title": "Dumbbell sumo squat",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 320,
+      "height": 240,
+      "duration": 13,
+      "thumbnail": "https://i.vimeocdn.com/video/1348968725-405aa8f04b1a9dea6f30f9a2d03f57287c6241948bff7c4205b2afd5f6f80e40-d_295x166?region=us",
+      "expectedTitle": "Dumbbell sumo squat"
+    },
+    "high-low-fly": {
+      "ok": true,
+      "id": "342626247",
+      "title": "Decline Flyes - Cable",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 28,
+      "thumbnail": "https://i.vimeocdn.com/video/791551782-bcd9811a3ec709e090fa449543d3a2362e6f951db40fea48713191d6c6dab99c-d_200x150?region=us",
+      "expectedTitle": "Decline Flyes - Cable"
+    },
+    "hammer-curl": {
+      "ok": true,
+      "id": "388229474",
+      "title": "Hammer Curls",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 16,
+      "thumbnail": "https://i.vimeocdn.com/video/851418957-e1e3297bb68b461c45962f592cb4aa0a1c50ed4030538f42833d40c1ea3e4657-d_295x166?region=us",
+      "expectedTitle": "Hammer Curls"
+    },
+    "band-pull-apart": {
+      "ok": true,
+      "id": "386067508",
+      "title": "Band pull aparts",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 10,
+      "thumbnail": "https://i.vimeocdn.com/video/848453240-25aba22b7e6d595b5268ed507194022e6114674f3967bd776865fa1cfc484dd8-d_295x166?region=us",
+      "expectedTitle": "Band pull aparts"
+    },
+    "lat-pulldown": {
+      "ok": true,
+      "id": "949268043",
+      "title": "Wide grip lat pulldown",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 33,
+      "thumbnail": "https://i.vimeocdn.com/video/1857003587-c4781d1fe32b29bd19e32f9eba8f8cd1378c4f15d1da6bfe3b3c978f68bde8d0-d_200x150?region=us",
+      "expectedTitle": "Wide grip lat pulldown"
+    },
+    "seated-cable-row": {
+      "ok": true,
+      "id": "472608975",
+      "title": "Cable low row",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 9,
+      "thumbnail": "https://i.vimeocdn.com/video/983071375-fb26c15fd1df7b2bc03446651c4c161664793cd2f1379a0e5a10e4cc8371bd3e-d_295x166?region=us",
+      "expectedTitle": "Cable low row"
+    },
+    "side-plank": {
+      "ok": true,
+      "id": "497051978",
+      "title": "Side plank",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 5,
+      "thumbnail": "https://i.vimeocdn.com/video/1028636590-68befcc042ff09897f8abfc1c76784f6e34fbbdf320afe87443b56ea64619626-d_295x166?region=us",
+      "expectedTitle": "Side plank"
+    },
+    "hanging-knee-raise": {
+      "ok": true,
+      "id": "391501964",
+      "title": "Hanging Knee Raises",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 23,
+      "thumbnail": "https://i.vimeocdn.com/video/856161279-b57a1eb6b7970e7fa6a653f93b7b634b1c01f686e181986ad2f2d8dedd26dea9-d_295x166?region=us",
+      "expectedTitle": "Hanging Knee Raises"
+    },
+    "cable-woodchop": {
+      "ok": true,
+      "id": "513051858",
+      "title": "Wood chopper low to high",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 8,
+      "thumbnail": "https://i.vimeocdn.com/video/1062282825-e6c21bc0fb7b2d8c251c453bc0d324c6787c1b3c576bace6735b5f6283b0ad89-d_295x166?region=us",
+      "expectedTitle": "Wood chopper low to high"
+    },
+    "glute-bridge": {
+      "ok": true,
+      "id": "513047635",
+      "title": "Body weight glute bridge",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 7,
+      "thumbnail": "https://i.vimeocdn.com/video/1062275221-ffc55236398817a96a14192d20d4c41977313ac3470dc5612516c1c66e5b27f4-d_295x166?region=us",
+      "expectedTitle": "Body weight glute bridge"
+    },
+    "cable-pull-through": {
+      "ok": true,
+      "id": "344218224",
+      "title": "Pull Throughs",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 34,
+      "thumbnail": "https://i.vimeocdn.com/video/793636680-a5794475ffa82cc9bae146fac916d4d85a7cf65c344e44713d888a6d4a5d89a0-d_295x166?region=us",
+      "expectedTitle": "Pull Throughs"
+    },
+    "sl-glute-bridge": {
+      "ok": true,
+      "id": "388227392",
+      "title": "Glute Bridge - Single-leg",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 14,
+      "thumbnail": "https://i.vimeocdn.com/video/851416581-39469dd96cfa559ece9c5173c602c07070cc22070a0652eb6577fbf41a1b6664-d_295x166?region=us",
+      "expectedTitle": "Glute Bridge - Single-leg"
+    },
+    "ball-leg-curl": {
+      "ok": true,
+      "id": "441078130",
+      "title": "Swiss ball leg curls",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 10,
+      "thumbnail": "https://i.vimeocdn.com/video/928963241-e725c4794446d94a8e5452382cb4166c88453f6de185f34fb95d797f67e789c0-d_295x166?region=us",
+      "expectedTitle": "Swiss ball leg curls"
+    },
+    "nordic-curl": {
+      "ok": true,
+      "id": "512608356",
+      "title": "Nordic curl - toes under machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 21,
+      "thumbnail": "https://i.vimeocdn.com/video/1061374673-b4e854eb5e30e761b11751b17f5d0b52d2946cbafd4ab517c4228f9864e46b77-d_295x166?region=us",
+      "expectedTitle": "Nordic curl - toes under machine"
+    },
+    "leg-press-narrow": {
+      "ok": true,
+      "id": "683465388",
+      "title": "Narrow stance leg press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 320,
+      "duration": 8,
+      "thumbnail": "https://i.vimeocdn.com/video/1385568668-5e2af471c88ca63b792de5001f79b09da94f84928e5391bf1fd091572b877fc9-d_200x150?region=us",
+      "expectedTitle": "Narrow stance leg press"
+    },
+    "assisted-dip": {
+      "ok": true,
+      "id": "1141626909",
+      "title": "Dips",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 300,
+      "duration": 19,
+      "thumbnail": "https://i.vimeocdn.com/video/2089085812-3893f256f11ada2965f1c7190647a4fbdcfed2d9f459a9e57c03b93206498f83-d_200x150?region=us",
+      "expectedTitle": "Dips"
+    },
+    "wall-sit": {
+      "ok": true,
+      "id": "497052707",
+      "title": "Wall sit",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 5,
+      "thumbnail": "https://i.vimeocdn.com/video/1028638558-15c79ed435c21ba9600eede9ecaac402544fe6c1d534009c737ea6ac3aa9bfc3-d_295x166?region=us",
+      "expectedTitle": "Wall sit"
+    },
+    "sl-calf-raise-press": {
+      "ok": true,
+      "id": "393286127",
+      "title": "Calf raise on leg press",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 8,
+      "thumbnail": "https://i.vimeocdn.com/video/870913018-186f649d3b4c514ab234331c78cbdf8bc36f74609a925b59f08c67b82e76a39f-d_295x166?region=us",
+      "expectedTitle": "Calf raise on leg press"
+    },
+    "skull-crusher": {
+      "ok": true,
+      "id": "397863107",
+      "title": "Skullcrushers - EZ Bar",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 426,
+      "duration": 9,
+      "thumbnail": "https://i.vimeocdn.com/video/865260475-408677a3cdd6ad6687ba618264c8608d71d3fff65382a9e096a19720c1c0e390-d_200x150?region=us",
+      "expectedTitle": "Skullcrushers - EZ Bar"
+    },
+    "close-grip-pushup": {
+      "ok": true,
+      "id": "493483617",
+      "title": "Kettlebell close grip push-ups",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 9,
+      "thumbnail": "https://i.vimeocdn.com/video/1020473106-f6860ec6a25efdff0ed04e56afe00fbe1808258582ff738dc3cae8c13ff5b568-d_295x166?region=us",
+      "expectedTitle": "Kettlebell close grip push-ups"
+    },
+    "preacher-curl": {
+      "ok": true,
+      "id": "683467884",
+      "title": "Preacher curls on cable row machine",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 320,
+      "duration": 11,
+      "thumbnail": "https://i.vimeocdn.com/video/1385575159-9514b5aa4349e81978976980c928efbce7ab977efdcf0a880f73f0bb4446c3f4-d_200x150?region=us",
+      "expectedTitle": "Preacher curls on cable row machine"
+    },
+    "cable-front-raise": {
+      "ok": true,
+      "id": "382086323",
+      "title": "Front raise - cable",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 240,
+      "height": 240,
+      "duration": 21,
+      "thumbnail": "https://i.vimeocdn.com/video/843081867-ccc66eef879c16e4ebf94337d96f060d2da6e38cdd10e418872c78579fadec2c-d_200x150?region=us",
+      "expectedTitle": "Front raise - cable"
+    },
+    "chest-supported-rear-fly": {
+      "ok": true,
+      "id": "499280692",
+      "title": "Incline rear delt raise",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 18,
+      "thumbnail": "https://i.vimeocdn.com/video/1033234103-009ffa3cdaa649d7c839feb5361f427c6a465ab73e4bfee182ded3353a965944-d_295x166?region=us",
+      "expectedTitle": "Incline rear delt raise"
+    },
+    "side-lying-abduction": {
+      "ok": true,
+      "id": "393284377",
+      "title": "Lying abductor leg lift",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 8,
+      "thumbnail": "https://i.vimeocdn.com/video/858722314-c1f38828aeccdc84358b5341b4c2e327ec6b03c1a25e8e006d0f479db0ce4e3a-d_295x166?region=us",
+      "expectedTitle": "Lying abductor leg lift"
+    },
+    "pushup": {
+      "ok": true,
+      "id": "382073397",
+      "title": "Push ups",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 15,
+      "thumbnail": "https://i.vimeocdn.com/video/843064591-1fa162d822ffccefbb9010b564e55687f0012704a038d757bd4d816454f68ff7-d_295x166?region=us",
+      "expectedTitle": "Push ups"
+    },
+    "reverse-hyper-light": {
+      "ok": true,
+      "id": "453350047",
+      "title": "Reverse hypers",
+      "author": "Erin Stern",
+      "authorUrl": "https://vimeo.com/erinstern",
+      "width": 426,
+      "height": 240,
+      "duration": 23,
+      "thumbnail": "https://i.vimeocdn.com/video/949595104-6c459bcb90d9bef739fa6cec3ad34f3d371af7b2625517789b044b202dba4fde-d_295x166?region=us",
+      "expectedTitle": "Reverse hypers"
+    }
+  },
+  "photos": {
+    "dead-bug": {
+      "ok": true,
+      "local": [
+        "/media/exercises/dead-bug-0.jpg",
+        "/media/exercises/dead-bug-1.jpg"
+      ]
+    },
+    "band-walks": {
+      "ok": true,
+      "local": [
+        "/media/exercises/band-walks-0.jpg",
+        "/media/exercises/band-walks-1.jpg"
+      ]
+    },
+    "plank": {
+      "ok": true,
+      "local": [
+        "/media/exercises/plank-0.jpg",
+        "/media/exercises/plank-1.jpg"
+      ]
+    },
+    "pallof": {
+      "ok": true,
+      "local": [
+        "/media/exercises/pallof-0.jpg",
+        "/media/exercises/pallof-1.jpg"
+      ]
+    },
+    "assisted-pullup": {
+      "ok": true,
+      "local": [
+        "/media/exercises/assisted-pullup-0.jpg",
+        "/media/exercises/assisted-pullup-1.jpg"
+      ]
+    },
+    "neutral-pullup": {
+      "ok": true,
+      "local": [
+        "/media/exercises/neutral-pullup-0.jpg",
+        "/media/exercises/neutral-pullup-1.jpg"
+      ]
+    },
+    "chest-supported-row": {
+      "ok": true,
+      "local": [
+        "/media/exercises/chest-supported-row-0.jpg",
+        "/media/exercises/chest-supported-row-1.jpg"
+      ]
+    },
+    "half-kneeling-pulldown": {
+      "ok": true,
+      "local": [
+        "/media/exercises/half-kneeling-pulldown-0.jpg",
+        "/media/exercises/half-kneeling-pulldown-1.jpg"
+      ]
+    },
+    "face-pull": {
+      "ok": true,
+      "local": [
+        "/media/exercises/face-pull-0.jpg",
+        "/media/exercises/face-pull-1.jpg"
+      ]
+    },
+    "straight-arm-pulldown": {
+      "ok": true,
+      "local": [
+        "/media/exercises/straight-arm-pulldown-0.jpg",
+        "/media/exercises/straight-arm-pulldown-1.jpg"
+      ]
+    },
+    "reverse-crunch": {
+      "ok": true,
+      "local": [
+        "/media/exercises/reverse-crunch-0.jpg",
+        "/media/exercises/reverse-crunch-1.jpg"
+      ]
+    },
+    "cable-crunch": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-crunch-0.jpg",
+        "/media/exercises/cable-crunch-1.jpg"
+      ]
+    },
+    "hack-squat": {
+      "ok": true,
+      "local": [
+        "/media/exercises/hack-squat-0.jpg",
+        "/media/exercises/hack-squat-1.jpg"
+      ]
+    },
+    "heel-elevated-goblet": {
+      "ok": true,
+      "local": [
+        "/media/exercises/heel-elevated-goblet-0.jpg",
+        "/media/exercises/heel-elevated-goblet-1.jpg"
+      ]
+    },
+    "bulgarian-split-squat": {
+      "ok": true,
+      "local": [
+        "/media/exercises/bulgarian-split-squat-0.jpg",
+        "/media/exercises/bulgarian-split-squat-1.jpg"
+      ]
+    },
+    "leg-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/leg-press-0.jpg",
+        "/media/exercises/leg-press-1.jpg"
+      ]
+    },
+    "leg-extension": {
+      "ok": true,
+      "local": [
+        "/media/exercises/leg-extension-0.jpg",
+        "/media/exercises/leg-extension-1.jpg"
+      ]
+    },
+    "standing-calf-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/standing-calf-raise-0.jpg",
+        "/media/exercises/standing-calf-raise-1.jpg"
+      ]
+    },
+    "incline-db-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/incline-db-press-0.jpg",
+        "/media/exercises/incline-db-press-1.jpg"
+      ]
+    },
+    "machine-chest-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/machine-chest-press-0.jpg",
+        "/media/exercises/machine-chest-press-1.jpg"
+      ]
+    },
+    "weighted-pushup": {
+      "ok": true,
+      "local": [
+        "/media/exercises/weighted-pushup-0.jpg",
+        "/media/exercises/weighted-pushup-1.jpg"
+      ]
+    },
+    "low-high-fly": {
+      "ok": true,
+      "local": [
+        "/media/exercises/low-high-fly-0.jpg",
+        "/media/exercises/low-high-fly-1.jpg"
+      ]
+    },
+    "cable-lateral-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-lateral-raise-0.jpg",
+        "/media/exercises/cable-lateral-raise-1.jpg"
+      ]
+    },
+    "overhead-rope-triceps": {
+      "ok": true,
+      "local": [
+        "/media/exercises/overhead-rope-triceps-0.jpg",
+        "/media/exercises/overhead-rope-triceps-1.jpg"
+      ]
+    },
+    "hip-thrust": {
+      "ok": true,
+      "local": [
+        "/media/exercises/hip-thrust-0.jpg",
+        "/media/exercises/hip-thrust-1.jpg"
+      ]
+    },
+    "leg-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/leg-curl-0.jpg",
+        "/media/exercises/leg-curl-1.jpg"
+      ]
+    },
+    "lying-leg-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/lying-leg-curl-0.jpg",
+        "/media/exercises/lying-leg-curl-1.jpg"
+      ]
+    },
+    "reverse-lunge": {
+      "ok": true,
+      "local": [
+        "/media/exercises/reverse-lunge-0.jpg",
+        "/media/exercises/reverse-lunge-1.jpg"
+      ]
+    },
+    "box-step-up": {
+      "ok": true,
+      "local": [
+        "/media/exercises/box-step-up-0.jpg",
+        "/media/exercises/box-step-up-1.jpg"
+      ]
+    },
+    "back-extension-45": {
+      "ok": true,
+      "local": [
+        "/media/exercises/back-extension-45-0.jpg",
+        "/media/exercises/back-extension-45-1.jpg"
+      ]
+    },
+    "seated-calf-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/seated-calf-raise-0.jpg",
+        "/media/exercises/seated-calf-raise-1.jpg"
+      ]
+    },
+    "shoulder-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/shoulder-press-0.jpg",
+        "/media/exercises/shoulder-press-1.jpg"
+      ]
+    },
+    "machine-shoulder-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/machine-shoulder-press-0.jpg",
+        "/media/exercises/machine-shoulder-press-1.jpg"
+      ]
+    },
+    "reverse-pec-deck": {
+      "ok": true,
+      "local": [
+        "/media/exercises/reverse-pec-deck-0.jpg",
+        "/media/exercises/reverse-pec-deck-1.jpg"
+      ]
+    },
+    "y-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/y-raise-0.jpg",
+        "/media/exercises/y-raise-1.jpg"
+      ]
+    },
+    "ez-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/ez-curl-0.jpg",
+        "/media/exercises/ez-curl-1.jpg"
+      ]
+    },
+    "incline-db-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/incline-db-curl-0.jpg",
+        "/media/exercises/incline-db-curl-1.jpg"
+      ]
+    },
+    "rope-pressdown": {
+      "ok": true,
+      "local": [
+        "/media/exercises/rope-pressdown-0.jpg",
+        "/media/exercises/rope-pressdown-1.jpg"
+      ]
+    },
+    "farmer-carry": {
+      "ok": true,
+      "local": [
+        "/media/exercises/farmer-carry-0.jpg",
+        "/media/exercises/farmer-carry-1.jpg"
+      ]
+    },
+    "adductor-machine": {
+      "ok": true,
+      "local": [
+        "/media/exercises/adductor-machine-0.jpg",
+        "/media/exercises/adductor-machine-1.jpg"
+      ]
+    },
+    "sumo-goblet": {
+      "ok": true,
+      "local": [
+        "/media/exercises/sumo-goblet-0.jpg",
+        "/media/exercises/sumo-goblet-1.jpg"
+      ]
+    },
+    "pec-deck": {
+      "ok": true,
+      "local": [
+        "/media/exercises/pec-deck-0.jpg",
+        "/media/exercises/pec-deck-1.jpg"
+      ]
+    },
+    "incline-machine-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/incline-machine-press-0.jpg",
+        "/media/exercises/incline-machine-press-1.jpg"
+      ]
+    },
+    "high-low-fly": {
+      "ok": true,
+      "local": [
+        "/media/exercises/high-low-fly-0.jpg",
+        "/media/exercises/high-low-fly-1.jpg"
+      ]
+    },
+    "wrist-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/wrist-curl-0.jpg",
+        "/media/exercises/wrist-curl-1.jpg"
+      ]
+    },
+    "hammer-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/hammer-curl-0.jpg",
+        "/media/exercises/hammer-curl-1.jpg"
+      ]
+    },
+    "band-pull-apart": {
+      "ok": true,
+      "local": [
+        "/media/exercises/band-pull-apart-0.jpg",
+        "/media/exercises/band-pull-apart-1.jpg"
+      ]
+    },
+    "cable-external-rotation": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-external-rotation-0.jpg",
+        "/media/exercises/cable-external-rotation-1.jpg"
+      ]
+    },
+    "lat-pulldown": {
+      "ok": true,
+      "local": [
+        "/media/exercises/lat-pulldown-0.jpg",
+        "/media/exercises/lat-pulldown-1.jpg"
+      ]
+    },
+    "seated-cable-row": {
+      "ok": true,
+      "local": [
+        "/media/exercises/seated-cable-row-0.jpg",
+        "/media/exercises/seated-cable-row-1.jpg"
+      ]
+    },
+    "tbar-chest-supported": {
+      "ok": true,
+      "local": [
+        "/media/exercises/tbar-chest-supported-0.jpg",
+        "/media/exercises/tbar-chest-supported-1.jpg"
+      ]
+    },
+    "side-plank": {
+      "ok": true,
+      "local": [
+        "/media/exercises/side-plank-0.jpg",
+        "/media/exercises/side-plank-1.jpg"
+      ]
+    },
+    "hanging-knee-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/hanging-knee-raise-0.jpg",
+        "/media/exercises/hanging-knee-raise-1.jpg"
+      ]
+    },
+    "cable-woodchop": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-woodchop-0.jpg",
+        "/media/exercises/cable-woodchop-1.jpg"
+      ]
+    },
+    "glute-bridge": {
+      "ok": true,
+      "local": [
+        "/media/exercises/glute-bridge-0.jpg",
+        "/media/exercises/glute-bridge-1.jpg"
+      ]
+    },
+    "cable-pull-through": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-pull-through-0.jpg",
+        "/media/exercises/cable-pull-through-1.jpg"
+      ]
+    },
+    "sl-glute-bridge": {
+      "ok": true,
+      "local": [
+        "/media/exercises/sl-glute-bridge-0.jpg",
+        "/media/exercises/sl-glute-bridge-1.jpg"
+      ]
+    },
+    "ball-leg-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/ball-leg-curl-0.jpg",
+        "/media/exercises/ball-leg-curl-1.jpg"
+      ]
+    },
+    "nordic-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/nordic-curl-0.jpg",
+        "/media/exercises/nordic-curl-1.jpg"
+      ]
+    },
+    "leg-press-narrow": {
+      "ok": true,
+      "local": [
+        "/media/exercises/leg-press-narrow-0.jpg",
+        "/media/exercises/leg-press-narrow-1.jpg"
+      ]
+    },
+    "sl-calf-raise-press": {
+      "ok": true,
+      "local": [
+        "/media/exercises/sl-calf-raise-press-0.jpg",
+        "/media/exercises/sl-calf-raise-press-1.jpg"
+      ]
+    },
+    "skull-crusher": {
+      "ok": true,
+      "local": [
+        "/media/exercises/skull-crusher-0.jpg",
+        "/media/exercises/skull-crusher-1.jpg"
+      ]
+    },
+    "close-grip-pushup": {
+      "ok": true,
+      "local": [
+        "/media/exercises/close-grip-pushup-0.jpg",
+        "/media/exercises/close-grip-pushup-1.jpg"
+      ]
+    },
+    "preacher-curl": {
+      "ok": true,
+      "local": [
+        "/media/exercises/preacher-curl-0.jpg",
+        "/media/exercises/preacher-curl-1.jpg"
+      ]
+    },
+    "cable-shrug": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-shrug-0.jpg",
+        "/media/exercises/cable-shrug-1.jpg"
+      ]
+    },
+    "cable-front-raise": {
+      "ok": true,
+      "local": [
+        "/media/exercises/cable-front-raise-0.jpg",
+        "/media/exercises/cable-front-raise-1.jpg"
+      ]
+    },
+    "chest-supported-rear-fly": {
+      "ok": true,
+      "local": [
+        "/media/exercises/chest-supported-rear-fly-0.jpg",
+        "/media/exercises/chest-supported-rear-fly-1.jpg"
+      ]
+    },
+    "pushup": {
+      "ok": true,
+      "local": [
+        "/media/exercises/pushup-0.jpg",
+        "/media/exercises/pushup-1.jpg"
+      ]
+    },
+    "reverse-hyper-light": {
+      "ok": true,
+      "local": [
+        "/media/exercises/reverse-hyper-light-0.jpg",
+        "/media/exercises/reverse-hyper-light-1.jpg"
+      ]
+    }
+  },
+  "additionalVideos": {
+    "ppt": {
+      "host": "vimeo",
+      "id": "397719849",
+      "title": "Posterior Pelvic Tilt Video",
+      "author": "Hip Pain Help",
+      "authorUrl": "https://vimeo.com/hippainhelp",
+      "duration": 14,
+      "width": 240,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/865048469-b3ccbcf12c4059efbea20ae7328aee4d39eedfd2b5d43363c3aa9eef2ccdcfb4-d_200x150?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "pt-shoulder-flexion": {
+      "host": "vimeo",
+      "id": "397719849",
+      "title": "Posterior Pelvic Tilt Video",
+      "author": "Hip Pain Help",
+      "authorUrl": "https://vimeo.com/hippainhelp",
+      "duration": 14,
+      "width": 240,
+      "height": 240,
+      "match": "close",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/865048469-b3ccbcf12c4059efbea20ae7328aee4d39eedfd2b5d43363c3aa9eef2ccdcfb4-d_200x150?region=us",
+      "matchNote": "Shows the pelvic tilt only. Your PDF adds a shoulder-flexion hold; that combined movement is not demonstrated here.",
+      "verifiedAt": "__DATE__"
+    },
+    "bird-dog": {
+      "host": "vimeo",
+      "id": "1113711375",
+      "title": "Bird Dog",
+      "author": "Justin Brink",
+      "authorUrl": "https://vimeo.com/user230832661",
+      "duration": 48,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2177804734-639aa0073b85f079eb166b95c21d4258da44dcb05bedaca1da5dd6804fde085d-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "bird-dog-hold": {
+      "host": "vimeo",
+      "id": "1077244849",
+      "title": "Bird-Dog with Isometric Hold",
+      "author": "T C",
+      "authorUrl": "https://vimeo.com/user228346924",
+      "duration": 16,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2007230845-27775436c8dd615835700e12481b5f05843260d99ec09b5a009fb55044e7da25-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "bracing-marches": {
+      "host": "vimeo",
+      "id": "766545518",
+      "title": "Supine March for Lumbar Rebuild- Full Tutorial",
+      "author": "Jeffrey Powell",
+      "authorUrl": "https://vimeo.com/user131092555",
+      "duration": 559,
+      "width": 426,
+      "height": 210,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/1539167287-ca7c026b1a7f8c66f9d5f02ebf29cc15971b0d3a27b1f1eab642e8b262794285-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "single-leg-stand": {
+      "host": "vimeo",
+      "id": "1121632621",
+      "title": "Single Leg Balance Drill",
+      "author": "Spacer Mobility",
+      "authorUrl": "https://vimeo.com/user246491072",
+      "duration": 33,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2062739043-bbd51ecb043919df8b006b0e09fdb140f9af43d9def94ae4a009547db9447341-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "seated-pigeon": {
+      "host": "vimeo",
+      "id": "212698317",
+      "title": "Seated Figure 4 Piriformis Stretch",
+      "author": "Keet Health",
+      "authorUrl": "https://vimeo.com/user25127782",
+      "duration": 18,
+      "width": 640,
+      "height": 360,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/629138424-6363a879c10dbc2c0dd65112bfc8b7422d574833227ac51fdc9b12d56b705ffa-d_640?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "suitcase-carry": {
+      "host": "vimeo",
+      "id": "106488639",
+      "title": "HPI Strength and Conditioning- Suitcase Carry Exercise Description",
+      "author": "Human Performance Initiative",
+      "authorUrl": "https://vimeo.com/user24707770",
+      "duration": 19,
+      "width": 640,
+      "height": 360,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/489622082-ea33f02090a58ed361012f8670cb33e52c2a63dedee9c1608c1ea1081347f39f-d_640?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "tibialis-raise": {
+      "host": "vimeo",
+      "id": "1143165855",
+      "title": "Wall-Assisted Tibialis Anterior Raise | Shin Strength, Ankle Control & Foot Mechanics",
+      "author": "Justin Brink",
+      "authorUrl": "https://vimeo.com/user230832661",
+      "duration": 12,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2097845837-0db9408709777653807ccd4e89af5d9d0fd8e80c668dd9dd872678a07bfb69d8-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "incline-shrug": {
+      "host": "vimeo",
+      "id": "1143449724",
+      "title": "Dumbbell Incline Shrug",
+      "author": "Art Rothafel",
+      "authorUrl": "https://vimeo.com/user1039930",
+      "duration": 3,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2091644572-1b636f19b8fb0ab00d06da8039e53653345bf989fab837c819aecbbd5a71ec9d-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "btb-lateral-raise": {
+      "host": "vimeo",
+      "id": "1138241062",
+      "title": "Cable Lateral Raise (Behind The Back)",
+      "author": "Adam Griffith",
+      "authorUrl": "https://vimeo.com/user250013380",
+      "duration": 20,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2084512990-eb8bb6100425f57330b45a5017e3bd6933dac867936a3c224d1ad776b7540962-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "wall-sit": {
+      "host": "vimeo",
+      "id": "430606448",
+      "title": "Body Weight Exercises - Wall Sit",
+      "author": "Wright Physical Therapy",
+      "authorUrl": "https://vimeo.com/wrightphysicaltherapy",
+      "duration": 71,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/911298867-9c4f29dee22fe5b12f83f6d9e6892f9d277da19be4fd9d119e49c24ad62c8fdc-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "dead-hang": {
+      "host": "vimeo",
+      "id": "661412612",
+      "title": "Dead Hang",
+      "author": "Ryan Callicott",
+      "authorUrl": "https://vimeo.com/user162111961",
+      "duration": 30,
+      "width": 240,
+      "height": 426,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/1337387653-c43251161b0ae8ff58e0cbdcae459e13c2f815e1ad3bef9cd0cd33960594d1ed-d_200x150?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "machine-lateral-raise": {
+      "host": "vimeo",
+      "id": "447422969",
+      "title": "Machine Lateral Raise",
+      "author": "David Kingsbury",
+      "authorUrl": "https://vimeo.com/davidkingsbury",
+      "duration": 8,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/939634954-a7764a5ba8560bbddc3160659680e8a18d1e4bd19602495d3d1b55d330d0911a-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    },
+    "battle-rope-squat": {
+      "host": "vimeo",
+      "id": "706946382",
+      "title": "EID1407 - Battle Ropes Squat Waves",
+      "author": "L33",
+      "authorUrl": "https://vimeo.com/user73835710",
+      "duration": 11,
+      "width": 426,
+      "height": 240,
+      "match": "exact",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/1426863796-67db533b3502c86d5b75ca23420712b65ac8d8e29bcc913848e5aac4930ce912-d_295x166?region=us",
+      "verifiedAt": "__DATE__"
+    }
+  },
+  "acceptedAdditionalVideos": {
+    "cross-body-cable-ext": {
+      "host": "vimeo",
+      "id": "604696583",
+      "title": "Cross-body Tricep Extension",
+      "author": "George Rudd",
+      "authorUrl": "https://vimeo.com/georgeruddfitness",
+      "duration": 31,
+      "width": 426,
+      "height": 240,
+      "match": "close",
+      "playerChecked": true,
+      "thumbnail": "https://i.vimeocdn.com/video/1241078670-1ab55f616dd238aa725d8d7bff1c2d8ca0adab6b2664b3bea0a7ee282f61f794-d_295x166?region=us",
+      "matchNote": "Shows a single-cable, one-arm version. Check the handle height and stance against your plan."
+    },
+    "bracing-marches": {
+      "host": "vimeo",
+      "id": "1078481512",
+      "title": "Supine March with pelvic tilt",
+      "author": "Amanda",
+      "authorUrl": "https://vimeo.com/user213497696",
+      "duration": 15,
+      "width": 240,
+      "height": 426,
+      "match": "close",
+      "playerChecked": false,
+      "thumbnail": "https://i.vimeocdn.com/video/2008719796-3fcf858efa7ec798227676a5d21d6783e204bab1dfbf4dcc666ac73f24ab24be-d_200x150?region=us",
+      "matchNote": "Demonstrates supine marching with a pelvic tilt. Your plan specifies abdominal bracing; follow your plan\u2019s cues."
+    }
+  },
+  "playbackChecks": {
+    "pallof": "Official player played inline in local app; Pause control and ready signal observed.",
+    "suitcase-carry": "Official player played inline in local app; Pause control and ready signal observed.",
+    "cross-body-cable-ext": "Official player played; cable extension visually inspected. Related single-cable version labelled.",
+    "bird-dog": "Official player played inline in local app; Pause control, progress and ready signal observed."
+  }
+}

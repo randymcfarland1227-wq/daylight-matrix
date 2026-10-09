@@ -1,631 +1,472 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarPlus, Check, Droplets, Flame, Leaf, Plus, ShoppingBasket, Sparkles, Trash2, Utensils, Wand2 } from "lucide-react";
-import { GROCERY_SHEET } from "@/lib/daylight/food-seed";
-import { WEEKDAY_NAMES, clock, localDate, shiftDate } from "@/lib/daylight/dates";
-import { DAY_KIND_LABEL, dayKind, fuelingNote, isUseSoon, mealsUsing, plannedProtein, prepNeeds, sumProtein, suggestWeek, waterToday } from "@/lib/daylight/foodplan";
-import { mealReady, stockFor } from "@/lib/daylight/logic";
-import { statusLabel, useDaylight } from "@/lib/daylight/store";
-import type { InventoryStatus } from "@/lib/daylight/types";
-import { Badge, Button, Card, Chip, Empty, Eyebrow, PageHead, Ring, Segmented, cn } from "./ui";
-import { mealSlotNow } from "./Overlays";
+import { ArrowRight, Check, Droplets, Leaf, Plus, Search, Utensils } from "lucide-react";
+import { clock, localDate } from "@/lib/daylight/dates";
+import { dayKind, isUseSoon, sumProtein, waterToday } from "@/lib/daylight/foodplan";
+import { ingredientKey, kitchenStock, readyIngredients } from "@/lib/daylight/kitchen";
+import { useDaylight } from "@/lib/daylight/store";
+import { IngredientPrep } from "./IngredientPrep";
+import { KitchenInventory } from "./KitchenInventory";
+import { KitchenShopping } from "./KitchenShopping";
+import { Badge, Button, Eyebrow, PageHead, Ring, Segmented } from "./ui";
 
-type Tab = "today" | "week" | "pantry" | "shop" | "recipes";
-
+type Tab = "options" | "prep" | "inventory" | "shopping";
 export function Food() {
-  const [tab, setTab] = useState<Tab>("today");
-  const state = useDaylight();
-  const needShop = state.shopping.filter((s) => !s.checked).length;
+  const s = useDaylight();
+  const [tab, setTab] = useState<Tab>("options");
+  const [review, setReview] = useState(false);
+  const need = s.shopping.filter((i) => !i.checked).length;
   return (
-    <div>
-      <PageHead eyebrow="Fuel for the plan" title="Food" helper="Protein, water, and what’s on hand today." />
+    <div className="food-workspace">
+      <PageHead title="Food" helper="Prep ingredients. Keep variety. Buy only what you need." />
       <Segmented<Tab>
+        className="food-tabs"
         label="Food sections"
         value={tab}
         onChange={setTab}
         options={[
-          { id: "today", label: "Today" },
-          { id: "week", label: "Plan & prep" },
-          { id: "pantry", label: "Pantry" },
-          { id: "shop", label: `Shop${needShop ? ` · ${needShop}` : ""}` },
-          { id: "recipes", label: "Recipes" },
+          { id: "options", label: "Food options" },
+          { id: "prep", label: "Ingredient prep" },
+          { id: "inventory", label: "Inventory" },
+          { id: "shopping", label: `Shopping${need ? ` · ${need}` : ""}` },
         ]}
       />
-      <div className="mt-4">
-        {tab === "today" ? <TodayFood go={setTab} /> : null}
-        {tab === "week" ? <WeekPlan go={setTab} /> : null}
-        {tab === "pantry" ? <Pantry /> : null}
-        {tab === "shop" ? <Shop /> : null}
-        {tab === "recipes" ? <Recipes /> : null}
+      <div className="mt-6">
+        {tab === "options" ? (
+          <FoodOptions prep={() => setTab("prep")} />
+        ) : tab === "prep" ? (
+          <IngredientPrep
+            shop={() => {
+              setReview(true);
+              setTab("shopping");
+            }}
+          />
+        ) : tab === "inventory" ? (
+          <KitchenInventory />
+        ) : (
+          <KitchenShopping review={review} setReview={setReview} prep={() => setTab("prep")} />
+        )}
       </div>
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ Today */
-
 export function useFoodNumbers() {
   const s = useDaylight();
   const today = localDate();
   const wd = new Date().getDay();
   const kind = dayKind(wd);
   const goal = kind === "recovery" && s.proteinGoalRest ? s.proteinGoalRest : s.proteinGoal;
-  const protein = sumProtein(s.foodLogs, today);
-  const water = waterToday(s.fluidLogs, today);
-  return { today, wd, kind, goal, protein, water, waterGoal: s.waterGoal };
+  return {
+    today,
+    wd,
+    kind,
+    goal,
+    protein: sumProtein(s.foodLogs, today),
+    water: waterToday(s.fluidLogs, today),
+    waterGoal: s.waterGoal,
+  };
 }
-
 export function ProteinWaterRings({ size = 84 }: { size?: number }) {
   const n = useFoodNumbers();
   return (
     <div className="flex items-center gap-4">
-      <Ring value={n.goal ? n.protein.total / n.goal : 0} size={size} color="var(--accent)" label={`Protein ${n.protein.total} of ${n.goal} grams`}>
+      <Ring
+        value={n.goal ? n.protein.total / n.goal : 0}
+        size={size}
+        color="var(--accent)"
+        label={`Protein ${n.protein.total} of ${n.goal} grams`}
+      >
         <span className="t-title tabular-nums">{n.protein.total}</span>
         <span className="t-meta text-ink-soft">/{n.goal} g</span>
       </Ring>
-      <Ring value={n.waterGoal ? n.water / n.waterGoal : 0} size={size} color="var(--info)" label={`Water ${n.water} of ${n.waterGoal} ounces`}>
+      <Ring
+        value={n.waterGoal ? n.water / n.waterGoal : 0}
+        size={size}
+        color="var(--info)"
+        label={`Water ${n.water} of ${n.waterGoal} ounces`}
+      >
         <span className="t-title tabular-nums">{Math.round(n.water)}</span>
         <span className="t-meta text-ink-soft">/{n.waterGoal} oz</span>
       </Ring>
     </div>
   );
 }
-
-function TodayFood({ go }: { go: (t: Tab) => void }) {
+function FoodOptions({ prep }: { prep: () => void }) {
   const s = useDaylight();
   const n = useFoodNumbers();
-  const note = fuelingNote(n.kind, Boolean(s.proteinGoalRest));
-  const todayFood = s.foodLogs.filter((l) => l.localDate === n.today);
-  const todayWater = s.fluidLogs.filter((l) => l.localDate === n.today);
-  const planned = (s.mealPlan[String(n.wd)] ?? []).map((id) => s.savedMeals.find((m) => m.id === id)).filter(Boolean);
-  const eatenIds = new Set(todayFood.map((l) => l.mealId));
-  const soon = s.inventory.filter((i) => isUseSoon(i, n.today));
-  const ready = s.savedMeals.filter((m) => mealReady(m, s.inventory)).slice(0, 3);
-  return (
-    <div className="space-y-4">
-      <Card className="animate-rise">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <Badge tone={n.kind === "heavy" ? "copper" : n.kind === "recovery" ? "teal" : "forest"}>{DAY_KIND_LABEL[n.kind]}</Badge>
-            <h2 className="mt-1 t-title">{note.title}</h2>
-          </div>
-          <ProteinWaterRings size={78} />
-        </div>
-        <ul className="mt-2 space-y-1 text-sm text-ink-soft">
-          {note.lines.map((l) => (
-            <li key={l}>• {l}</li>
-          ))}
-        </ul>
-        <p className="mt-2 text-xs text-ink-faint">General prompts, not nutrition advice. Targets are the numbers you set in Settings.</p>
-        {n.protein.unknown > 0 ? <p className="mt-1 text-xs text-ink-soft">{n.protein.unknown} meal{n.protein.unknown > 1 ? "s" : ""} today without a protein number aren’t counted.</p> : null}
-      </Card>
-
-      <div className="grid grid-cols-2 gap-2">
-        <Button size="lg" onClick={() => s.setOverlay({ type: "log-food" })}>
-          <Utensils className="size-5" /> Log food
-        </Button>
-        <Button size="lg" tone="soft" onClick={() => s.setOverlay({ type: "log-drink" })}>
-          <Droplets className="size-5" /> Log drink
-        </Button>
-      </div>
-      <div className="grid grid-cols-4 gap-2" aria-label="Quick water">
-        {[8, 12, 16, 24].map((oz) => (
-          <Button key={oz} tone="outline" size="sm" onClick={() => (s.addWater(oz), s.showToast(`${oz} oz water`))}>
-            +{oz} oz
-          </Button>
-        ))}
-      </div>
-
-      {planned.length ? (
-        <Card>
-          <h3 className="t-title">Planned for today</h3>
-          <ul className="mt-2 space-y-1.5">
-            {planned.map((m) =>
-              m ? (
-                <li key={m.id} className="flex items-center gap-2 rounded-xl border border-line px-3 py-2">
-                  {eatenIds.has(m.id) ? <Check className="size-5 text-accent" strokeWidth={3} /> : <span className="size-5 rounded-full border border-line" />}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">{m.name}</p>
-                    <p className="text-xs text-ink-soft">{m.proteinGrams != null ? `${m.proteinGrams} g protein` : "no protein number"}{m.minutes != null ? ` · ${m.minutes} min` : ""}</p>
-                  </div>
-                  {!eatenIds.has(m.id) ? (
-                    <Button size="sm" tone="soft" onClick={() => s.logFood({ food: m.name, mealId: m.id, protein: m.proteinGrams ?? null, estimate: false, slot: mealSlotNow() })}>
-                      Ate it
-                    </Button>
-                  ) : null}
-                </li>
-              ) : null,
-            )}
-          </ul>
-        </Card>
-      ) : (
-        <Card className="text-center">
-          <p className="t-title">Nothing planned for today</p>
-          <Button tone="outline" className="mt-2" onClick={() => go("week")}>
-            <CalendarPlus className="size-4" /> Plan the week
-          </Button>
-        </Card>
-      )}
-
-      {soon.length ? (
-        <Card className="border-warn/40">
-          <div className="flex items-center gap-2">
-            <Leaf className="size-5 text-warn" />
-            <h3 className="t-title">Use soon — don’t waste it</h3>
-          </div>
-          <ul className="mt-2 space-y-1.5">
-            {soon.slice(0, 4).map((i) => {
-              const ms = mealsUsing(i, s.savedMeals).slice(0, 2);
-              return (
-                <li key={i.id} className="text-sm">
-                  <b>{i.name}</b>
-                  {ms.length ? <span className="text-ink-soft"> → {ms.map((m) => m.name).join(" · ")}</span> : null}
-                </li>
-              );
-            })}
-          </ul>
-          <Button tone="ghost" size="sm" className="mt-1" onClick={() => go("pantry")}>
-            Open pantry
-          </Button>
-        </Card>
-      ) : null}
-
-      {ready.length ? (
-        <Card>
-          <h3 className="t-title">Ready now (ingredients marked on hand)</h3>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {ready.map((m) => (
-              <Chip key={m.id} onClick={() => s.setOverlay({ type: "repeat-meal", mealId: m.id })}>
-                + {m.name}
-              </Chip>
-            ))}
-          </div>
-        </Card>
-      ) : null}
-
-      <Card>
-        <h3 className="t-title">Today’s log</h3>
-        {todayFood.length === 0 && todayWater.length === 0 ? <p className="mt-1 text-sm text-ink-soft">Nothing logged yet.</p> : null}
-        <ul className="mt-1 divide-y divide-line">
-          {todayFood.map((l) => (
-            <li key={l.id} className="flex items-baseline gap-2 py-1.5 text-sm">
-              <span className="w-16 shrink-0 tabular-nums text-ink-faint">{clock(l.time)}</span>
-              <span className="flex-1">
-                {l.food}
-                {l.slot ? <span className="ml-1 text-xs capitalize text-ink-faint">{l.slot}</span> : null}
-              </span>
-              <span className="tabular-nums text-ink-soft">{l.proteinGrams != null ? `${l.proteinGrams} g${l.proteinIsEstimate ? " ~" : ""}` : ""}</span>
-            </li>
-          ))}
-          {todayWater.map((l) => (
-            <li key={l.id} className="flex items-baseline gap-2 py-1.5 text-sm text-ink-soft">
-              <span className="w-16 shrink-0 tabular-nums text-ink-faint">{clock(l.time)}</span>
-              <span className="flex-1">{l.beverage}</span>
-              <span className="tabular-nums">{l.amountOz} oz</span>
-            </li>
-          ))}
-        </ul>
-        {s.undo?.kind === "food" || s.undo?.kind === "fluid" ? (
-          <Button tone="ghost" size="sm" onClick={() => s.undoLast()}>
-            Undo last
-          </Button>
-        ) : null}
-      </Card>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ Week plan & prep */
-
-function WeekPlan({ go }: { go: (t: Tab) => void }) {
-  const s = useDaylight();
-  const today = localDate();
-  const [pick, setPick] = useState<number | null>(null);
-  const needs = useMemo(() => prepNeeds(s.mealPlan, s.savedMeals, s.inventory, [...WEEKDAY_NAMES]), [s.mealPlan, s.savedMeals, s.inventory]);
-  const missing = needs.filter((x) => x.status !== "available");
-  const order = [1, 2, 3, 4, 5, 6, 0];
-  const todayIdx = new Date().getDay();
-  return (
-    <div className="space-y-4">
-      <Card>
-        <p className="text-sm text-ink-soft">Plan meals against your training days. Big lower-body days (Tue, Fri) and recovery (Thu) get their own prompts. Set protein numbers per meal to see each day’s total against your goal.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button tone="sun" onClick={() => (s.setMealPlanAll(suggestWeek(s.savedMeals, s.inventory, s.mealPlan, today)), s.showToast("Filled the empty days"))}>
-            <Wand2 className="size-4" /> Suggest my week
-          </Button>
-          <Button tone="ghost" onClick={() => s.setMealPlanAll({})}>
-            Clear
-          </Button>
-        </div>
-      </Card>
-
-      <ul className="stagger grid gap-3 md:grid-cols-2">
-        {order.map((d) => {
-          const kind = dayKind(d);
-          const ids = s.mealPlan[String(d)] ?? [];
-          const pp = plannedProtein(s.mealPlan, s.savedMeals, d);
-          const goal = kind === "recovery" && s.proteinGoalRest ? s.proteinGoalRest : s.proteinGoal;
-          return (
-            <li key={d}>
-              <Card className={cn("h-full", d === todayIdx && "border-accent/60")}>
-                <div className="flex items-center gap-2">
-                  <h3 className="t-title">{WEEKDAY_NAMES[d]}</h3>
-                  <Badge tone={kind === "heavy" ? "copper" : kind === "recovery" ? "teal" : "plain"}>{DAY_KIND_LABEL[kind]}</Badge>
-                  <span className="ml-auto text-xs tabular-nums text-ink-soft">
-                    {pp.grams}/{goal} g{pp.unknown ? ` +${pp.unknown}?` : ""}
-                  </span>
-                </div>
-                <ul className="mt-2 space-y-1">
-                  {ids.map((id) => {
-                    const m = s.savedMeals.find((x) => x.id === id);
-                    if (!m) return null;
-                    return (
-                      <li key={id} className="flex items-center gap-2 rounded-lg bg-surface-2 px-2.5 py-1.5 text-sm">
-                        <span className="flex-1 truncate">{m.name}</span>
-                        <span className="text-xs text-ink-soft">{m.proteinGrams != null ? `${m.proteinGrams} g` : ""}</span>
-                        <button type="button" aria-label={`Remove ${m.name}`} className="tap text-ink-faint" onClick={() => s.unplanMeal(d, id)}>
-                          <Trash2 className="size-4" />
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <Button tone="ghost" size="sm" className="mt-1 -ml-2" onClick={() => setPick(pick === d ? null : d)}>
-                  <Plus className="size-4" /> Add a meal
-                </Button>
-                {pick === d ? (
-                  <div className="animate-rise mt-1 flex flex-wrap gap-1.5">
-                    {s.savedMeals.map((m) => (
-                      <Chip key={m.id} onClick={() => (s.planMeal(d, m.id), setPick(null))}>
-                        {m.name}
-                      </Chip>
-                    ))}
-                  </div>
-                ) : null}
-              </Card>
-            </li>
-          );
-        })}
-      </ul>
-
-      <Card>
-        <div className="flex items-center gap-2">
-          <ShoppingBasket className="size-5 text-accent" />
-          <h3 className="t-title">Prep list for the week</h3>
-        </div>
-        {needs.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-soft">Plan some meals above and the ingredients you need show up here.</p>
-        ) : (
-          <>
-            <ul className="mt-2 space-y-1">
-              {needs.map((n) => (
-                <li key={n.name} className="flex items-start gap-2 text-sm">
-                  <Badge tone={n.status === "missing" ? "danger" : n.status === "uncertain" ? "sun" : "forest"}>{n.status === "available" ? "on hand" : n.status === "uncertain" ? "check" : "need"}</Badge>
-                  <span className="flex-1">
-                    <b>{n.name}</b> <span className="text-ink-faint">· {n.for.join(" · ")}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button
-                onClick={() => {
-                  const added = s.addMissingToShopping(missing.map((m) => m.name));
-                  s.showToast(added ? `${added} added to shopping` : "Already on the list");
-                  go("shop");
-                }}
-                disabled={!missing.length}
-              >
-                <ShoppingBasket className="size-4" /> Add {missing.length} to shopping list
-              </Button>
-            </div>
-          </>
-        )}
-      </Card>
-      <PrepTasks />
-    </div>
-  );
-}
-
-function PrepTasks() {
-  const prep = useDaylight((s) => s.prep);
-  const setStatus = useDaylight((s) => s.setPrepStatus);
-  const makePortion = useDaylight((s) => s.addPreparedFromPrep);
-  const add = useDaylight((s) => s.addPrepTask);
-  const [t, setT] = useState("");
-  return (
-    <Card>
-      <h3 className="t-title">Prep tasks</h3>
-      <p className="text-sm text-ink-soft">Tick them off on prep day (Thu or Sun works with the plan). Prepared portions show up as ready-to-eat on the Today tab.</p>
-      <ul className="mt-2 space-y-2">
-        {prep.map((task) => (
-          <li key={task.id} className={cn("rounded-xl border border-line p-3", task.status === "done" && "bg-accent/5")}>
-            <div className="flex items-start gap-2">
-              <button type="button" aria-pressed={task.status === "done"} aria-label={`Mark ${task.title} ${task.status === "done" ? "not done" : "done"}`} onClick={() => setStatus(task.id, task.status === "done" ? "planned" : "done")} className={cn("tap mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2", task.status === "done" ? "border-accent bg-accent text-on-accent" : "border-line")}>
-                {task.status === "done" ? <Check className="size-4" strokeWidth={3} /> : null}
-              </button>
-              <div className="min-w-0 flex-1">
-                <p className={cn("font-semibold", task.status === "done" && "line-through opacity-70")}>{task.title}</p>
-                <p className="text-xs text-ink-soft">{task.detail}</p>
-              </div>
-              <Button tone="ghost" size="sm" onClick={() => makePortion(task.id)}>
-                Portions ready
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <form
-        className="mt-3 flex gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          add(t, "Added by you");
-          setT("");
-        }}
-      >
-        <input className="field" placeholder="Add a prep task" value={t} onChange={(e) => setT(e.target.value)} aria-label="New prep task" />
-        <Button type="submit">Add</Button>
-      </form>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ Pantry */
-
-function Pantry() {
-  const s = useDaylight();
-  const today = localDate();
   const [q, setQ] = useState("");
-  const [name, setName] = useState("");
-  const soon = s.inventory.filter((i) => isUseSoon(i, today));
-  const rows = s.inventory.filter((i) => i.name.toLowerCase().includes(q.toLowerCase()));
-  const wasted = s.waste.filter((w) => w.date >= shiftDate(today, -29));
-  return (
-    <div className="space-y-4">
-      {soon.length ? (
-        <Card className="border-warn/40">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="size-5 text-warn" />
-            <h3 className="t-title">Use soon ({soon.length})</h3>
-          </div>
-          <ul className="mt-2 space-y-2">
-            {soon.map((i) => (
-              <li key={i.id} className="rounded-xl border border-line p-3">
-                <p className="font-semibold">
-                  {i.name} {i.useBy ? <span className="text-xs text-ink-faint">· by {i.useBy}</span> : null}
-                </p>
-                <p className="text-xs text-ink-soft">{mealsUsing(i, s.savedMeals).slice(0, 3).map((m) => m.name).join(" · ") || "No saved meal uses this yet"}</p>
-                <div className="mt-1.5 flex gap-2">
-                  <Button size="sm" tone="soft" onClick={() => s.resolveUseSoon(i.id, "used")}>Used it</Button>
-                  <Button size="sm" tone="ghost" onClick={() => s.resolveUseSoon(i.id, "tossed")}>Tossed</Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
-      <Card>
-        <p className="text-sm text-ink-soft">
-          Last 30 days: <b>{wasted.filter((w) => w.outcome === "used").length}</b> used in time · <b>{wasted.filter((w) => w.outcome === "tossed").length}</b> tossed.
-        </p>
-      </Card>
-      <input className="field" placeholder="Search pantry" aria-label="Search pantry" value={q} onChange={(e) => setQ(e.target.value)} />
-      <ul className="grid gap-2 md:grid-cols-2">
-        {rows.map((item) => (
-          <li key={item.id} className="card p-3">
-            <div className="flex items-center gap-2">
-              <p className="min-w-0 flex-1 truncate font-semibold">{item.name}</p>
-              <Badge tone={item.status === "out" ? "danger" : item.status === "low" ? "sun" : item.status === "fine" ? "forest" : "plain"}>{statusLabel(item.status)}</Badge>
-            </div>
-            <p className="text-xs text-ink-faint">
-              {item.storageLocation} · {item.category}
-            </p>
-            <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
-              <input className="field min-h-10 text-sm" aria-label={`${item.name} quantity`} placeholder="Quantity" value={item.quantity} onChange={(e) => s.updateInventory(item.id, { quantity: e.target.value, status: e.target.value.trim() ? (item.status === "check_amount" ? "fine" : item.status) : "check_amount" })} />
-              <select className="field min-h-10 w-auto text-sm" aria-label={`${item.name} status`} value={item.status} onChange={(e) => s.updateInventory(item.id, { status: e.target.value as InventoryStatus })}>
-                {(["fine", "use_soon", "use_first", "low", "out", "check_amount"] as InventoryStatus[]).map((st) => (
-                  <option key={st} value={st}>
-                    {statusLabel(st)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <label className="mt-2 flex items-center gap-2 text-xs text-ink-soft">
-              Use by
-              <input type="date" className="field min-h-9 w-auto text-sm" value={item.useBy ?? ""} onChange={(e) => s.updateInventory(item.id, { useBy: e.target.value || undefined })} />
-            </label>
-            {item.status === "low" || item.status === "out" ? (
-              <Button size="sm" tone="ghost" className="mt-1 -ml-2" onClick={() => (s.addShopping(item.name, "", `${item.name} is ${item.status}`), s.showToast("Added to shopping"))}>
-                <ShoppingBasket className="size-4" /> Add to shopping
-              </Button>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-      <form
-        className="flex gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          s.addInventory(name);
-          setName("");
-        }}
-      >
-        <input className="field" aria-label="New pantry item" placeholder="Add an item" value={name} onChange={(e) => setName(e.target.value)} />
-        <Button type="submit">Add</Button>
-      </form>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ Shopping */
-
-function Shop() {
-  const s = useDaylight();
-  const [name, setName] = useState("");
-  const [qty, setQty] = useState("");
-  const need = s.shopping.filter((i) => !i.checked);
-  const got = s.shopping.filter((i) => i.checked);
-  const lowItems = s.inventory.filter((i) => (i.status === "low" || i.status === "out") && !s.shopping.some((x) => !x.checked && x.name.toLowerCase() === i.name.toLowerCase()));
-  return (
-    <div className="space-y-4">
-      {lowItems.length ? (
-        <Card className="border-accent/60">
-          <p className="text-sm font-bold">{lowItems.length} pantry item{lowItems.length > 1 ? "s are" : " is"} low or out</p>
-          <Button className="mt-2" size="sm" tone="sun" onClick={() => lowItems.forEach((i) => s.addShopping(i.name, "", `${i.name} is ${i.status}`))}>
-            Add them to the list
-          </Button>
-        </Card>
-      ) : null}
-      <Card>
-        <h3 className="t-title">Need ({need.length})</h3>
-        {need.length === 0 ? <Empty title="Nothing to buy">Plan meals and tap “Add to shopping list”, or add an item below.</Empty> : null}
-        <ul className="mt-2 space-y-1.5">
-          {need.map((item) => (
-            <li key={item.id} className="flex items-center gap-2">
-              <button type="button" aria-label={`Mark ${item.name} bought`} className="tap grid size-8 shrink-0 place-items-center rounded-full border-2 border-line" onClick={() => s.toggleShopping(item.id)} />
-              <span className="flex-1 text-base">
-                {item.name}
-                {item.quantity ? <span className="text-ink-soft"> · {item.quantity}</span> : null}
-                <span className="block text-xs text-ink-faint">{item.source}</span>
-              </span>
-              <button type="button" aria-label={`Remove ${item.name}`} className="tap text-ink-faint" onClick={() => s.removeShopping(item.id)}>
-                <Trash2 className="size-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-        <form
-          className="mt-3 grid grid-cols-[1fr_6rem_auto] gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            s.addShopping(name, qty, "Added by you");
-            setName("");
-            setQty("");
-          }}
-        >
-          <input className="field" aria-label="Shopping item" placeholder="Item" value={name} onChange={(e) => setName(e.target.value)} />
-          <input className="field" aria-label="Quantity" placeholder="Qty" value={qty} onChange={(e) => setQty(e.target.value)} />
-          <Button type="submit">Add</Button>
-        </form>
-        <a className="mt-3 inline-block text-sm font-bold text-accent underline" href={GROCERY_SHEET} target="_blank" rel="noreferrer">
-          Open your grocery planning sheet
-        </a>
-      </Card>
-      {got.length ? (
-        <Card>
-          <h3 className="t-title">Bought ({got.length})</h3>
-          <ul className="mt-2 space-y-1">
-            {got.map((item) => (
-              <li key={item.id} className="flex items-center gap-2 text-sm">
-                <button type="button" aria-label={`Move ${item.name} back to need`} className="tap grid size-7 shrink-0 place-items-center rounded-full bg-accent text-on-accent" onClick={() => s.toggleShopping(item.id)}>
-                  <Check className="size-4" strokeWidth={3} />
-                </button>
-                <span className="flex-1 line-through opacity-70">{item.name}</span>
-                <Button size="sm" tone="ghost" onClick={() => (s.addShoppingToInventory(item.id), s.removeShopping(item.id))}>
-                  Put in pantry
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : null}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ Recipes */
-
-function Recipes() {
-  const s = useDaylight();
+  const [filter, setFilter] = useState("all");
+  const [picked, setPicked] = useState<string[]>([]);
   const [open, setOpen] = useState<string | null>(null);
-  const [nm, setNm] = useState("");
-  const [ing, setIng] = useState("");
-  const [pr, setPr] = useState("");
+  const [name, setName] = useState("");
+  const [names, setNames] = useState("");
+  const prepared = useMemo(() => readyIngredients(s.prepared, s.prep), [s.prepared, s.prep]);
+  const preparedKeys = useMemo(() => new Set(prepared.map(ingredientKey)), [prepared]);
+  const onHand = s.inventory
+    .filter((i) => kitchenStock(i.name, s.inventory) === "available")
+    .map((i) => i.name);
+  const ingredients = [
+    ...new Map([...prepared, ...onHand].map((x) => [ingredientKey(x), x])).values(),
+  ];
+  const soon = s.inventory.filter((i) => isUseSoon(i, n.today));
+  const options = useMemo(
+    () =>
+      s.savedMeals
+        .filter(
+          (m) =>
+            `${m.name} ${m.ingredientNames.join(" ")}`.toLowerCase().includes(q.toLowerCase()) &&
+            (filter !== "no-cook" || m.noCook) &&
+            (filter !== "on-hand" ||
+              (m.ingredientNames.length > 0 &&
+                m.ingredientNames.every(
+                  (name) =>
+                    kitchenStock(name, s.inventory) === "available" ||
+                    preparedKeys.has(ingredientKey(name)),
+                ))) &&
+            (!picked.length ||
+              picked.some((p) =>
+                m.ingredientNames.some((name) => ingredientKey(name) === ingredientKey(p)),
+              )),
+        )
+        .sort(
+          (a, b) =>
+            b.ingredientNames.filter((n) =>
+              picked.some((p) => ingredientKey(p) === ingredientKey(n)),
+            ).length -
+            a.ingredientNames.filter((n) =>
+              picked.some((p) => ingredientKey(p) === ingredientKey(n)),
+            ).length,
+        ),
+    [s.savedMeals, s.inventory, preparedKeys, q, filter, picked],
+  );
+  const logPicked = () => {
+    s.patchDraft({ food: picked.join(", "), foodProtein: "", foodEstimate: false });
+    s.setOverlay({ type: "log-food" });
+  };
   return (
-    <div className="space-y-4">
-      <Card>
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-5 text-accent" />
-          <h3 className="t-title">Your meals</h3>
-        </div>
-        <p className="text-sm text-ink-soft">Add your own protein number per meal — it’s used for the daily total. Pin up to 3 favourites.</p>
-        <ul className="mt-3 space-y-2">
-          {s.savedMeals.map((m) => {
-            const ready = mealReady(m, s.inventory);
-            const recipe = s.recipes.find((r) => r.id === m.recipeId);
-            const missing = m.ingredientNames.filter((n) => stockFor(n, s.inventory) === "missing");
-            return (
-              <li key={m.id} className="rounded-xl border border-line p-3">
-                <div className="flex items-start gap-2">
-                  <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setOpen(open === m.id ? null : m.id)} aria-expanded={open === m.id}>
-                    <p className="font-semibold">{m.name}</p>
-                    <p className="text-xs text-ink-soft">
-                      {m.minutes != null ? `${m.minutes} min` : "time not set"} · {ready ? "ingredients on hand" : missing.length ? `missing ${missing.length}` : "check amounts"}
-                      {m.noCook ? " · no cook" : ""}
-                    </p>
-                  </button>
-                  <label className="flex items-center gap-1 text-xs text-ink-soft">
-                    <input aria-label={`${m.name} protein grams`} inputMode="numeric" className="field min-h-9 w-16 px-2 text-center text-sm tabular-nums" placeholder="g" value={m.proteinGrams ?? ""} onChange={(e) => s.setMealProtein(m.id, e.target.value.trim() === "" ? null : Number(e.target.value) || 0)} />
-                    g
-                  </label>
-                </div>
-                <div className="mt-1.5 flex flex-wrap gap-2">
-                  <Button size="sm" tone="soft" onClick={() => s.setOverlay({ type: "repeat-meal", mealId: m.id })}>
-                    Log as eaten
-                  </Button>
-                  <Button size="sm" tone="ghost" onClick={() => s.togglePin(m.id)}>
-                    {m.pinned ? "Unpin" : "Pin"}
-                  </Button>
-                </div>
-                {open === m.id ? (
-                  <div className="animate-rise mt-2 text-sm">
-                    <p>
-                      <b>Uses:</b> {m.ingredientNames.join(", ")}
-                    </p>
-                    {recipe ? (
-                      <ol className="mt-1 list-decimal pl-5 text-ink-soft">
-                        {recipe.steps.map((st) => (
-                          <li key={st}>{st}</li>
-                        ))}
-                      </ol>
-                    ) : null}
-                    {missing.length ? (
-                      <Button size="sm" tone="outline" className="mt-2" onClick={() => (s.addMissingToShopping(missing), s.showToast("Added to shopping"))}>
-                        Add {missing.length} missing to shopping
-                      </Button>
-                    ) : null}
-                  </div>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      </Card>
-      <Card>
-        <h3 className="t-title">Add a meal</h3>
-        <form
-          className="mt-2 grid gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            s.addSavedMeal({ name: nm, ingredientNames: ing.split(",").map((x) => x.trim()).filter(Boolean), proteinGrams: pr.trim() ? Number(pr) || 0 : null, minutes: null, noCook: false });
-            setNm("");
-            setIng("");
-            setPr("");
-          }}
-        >
-          <input className="field" placeholder="Meal name" aria-label="Meal name" value={nm} onChange={(e) => setNm(e.target.value)} />
-          <input className="field" placeholder="Ingredients, comma separated" aria-label="Ingredients" value={ing} onChange={(e) => setIng(e.target.value)} />
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <input className="field" placeholder="Protein grams (optional)" aria-label="Protein grams" inputMode="numeric" value={pr} onChange={(e) => setPr(e.target.value)} />
-            <Button type="submit" disabled={!nm.trim()}>
-              Add
-            </Button>
+    <div className="food-options-layout">
+      <div className="space-y-5">
+        <section className="ingredient-counter">
+          <div className="kitchen-section-heading">
+            <div>
+              <Eyebrow>My ingredient counter</Eyebrow>
+              <h2>Choose from what’s ready.</h2>
+              <p>
+                Pick ingredients you feel like eating. See ways to use them, or put together your
+                own combination.
+              </p>
+            </div>
+            <Leaf className="size-6 text-accent shrink-0" />
           </div>
-        </form>
-      </Card>
-      <Eyebrow>
-        <Flame className="mr-1 inline size-3" />
-        Recipes from your original library are kept with their steps.
-      </Eyebrow>
+          <div className="ingredient-palette">
+            {ingredients.length ? (
+              ingredients.map((name) => (
+                <button
+                  key={ingredientKey(name)}
+                  type="button"
+                  aria-pressed={picked.includes(name)}
+                  className="ingredient-tile"
+                  data-prepared={preparedKeys.has(ingredientKey(name))}
+                  onClick={() =>
+                    setPicked(
+                      picked.includes(name) ? picked.filter((p) => p !== name) : [...picked, name],
+                    )
+                  }
+                >
+                  <span className="ingredient-dot">
+                    {picked.includes(name) ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <Plus className="size-4" />
+                    )}
+                  </span>
+                  <b>{name}</b>
+                  <small>{preparedKeys.has(ingredientKey(name)) ? "Prepared" : "On hand"}</small>
+                </button>
+              ))
+            ) : (
+              <div className="ingredient-counter-empty">
+                <p>No ingredients confirmed yet.</p>
+                <span>
+                  Mark amounts in Inventory or finish an ingredient batch. Nothing is assumed to be
+                  in your kitchen.
+                </span>
+                <Button tone="outline" onClick={prep}>
+                  Choose ingredient prep
+                  <ArrowRight className="size-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          {picked.length ? (
+            <div className="ingredient-selection">
+              <span>{picked.length} selected · options below use at least one</span>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={logPicked}>
+                  Log my combination
+                </Button>
+                <Button size="sm" tone="ghost" onClick={() => setPicked([])}>
+                  Clear selection
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </section>
+        {soon.length ? (
+          <section className="use-soon-strip">
+            <Leaf className="size-4 shrink-0" />
+            <div>
+              <b>Use soon</b>
+              <p>{soon.map((i) => i.name).join(" · ")}</p>
+            </div>
+          </section>
+        ) : null}
+        <section className="space-y-4">
+          <div className="kitchen-section-heading">
+            <div>
+              <h2>Ways to use your ingredients</h2>
+              <p>Options, not a fixed menu. Your original recipe library is here.</p>
+            </div>
+            <span className="kitchen-count">{options.length} options</span>
+          </div>
+          <div className="food-option-filters">
+            <label className="inventory-search">
+              <Search className="size-4" />
+              <input
+                aria-label="Search food options"
+                placeholder="Find a food option"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+            </label>
+            <select
+              className="field"
+              aria-label="Food option filter"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All options</option>
+              <option value="on-hand">Ingredients on hand</option>
+              <option value="no-cook">No-cook options</option>
+            </select>
+          </div>
+          {!options.length ? (
+            <p className="kitchen-panel text-sm text-ink-soft">
+              No saved options match. Clear a filter or add your own combination below.
+            </p>
+          ) : (
+            <div className="food-option-grid">
+              {options.map((meal) => {
+                const recipe = s.recipes.find((r) => r.id === meal.recipeId);
+                const have = meal.ingredientNames.filter(
+                  (name) =>
+                    kitchenStock(name, s.inventory) === "available" ||
+                    preparedKeys.has(ingredientKey(name)),
+                );
+                const ready = meal.ingredientNames.filter((name) =>
+                  preparedKeys.has(ingredientKey(name)),
+                );
+                return (
+                  <article key={meal.id} className="food-option-card">
+                    <div className="flex gap-2 items-start">
+                      <span className="food-option-icon">
+                        <Utensils className="size-5" />
+                      </span>
+                      <Badge>{meal.noCook ? "No cook" : "Cook / assemble"}</Badge>
+                    </div>
+                    <h3>{meal.name}</h3>
+                    <p className="option-availability">
+                      {have.length} of {meal.ingredientNames.length} ingredients on hand
+                      {ready.length ? ` · ${ready.length} prepared` : ""}
+                    </p>
+                    <div className="option-ingredients">
+                      {meal.ingredientNames.map((name) => (
+                        <span key={name} data-have={have.includes(name)}>
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="food-option-actions">
+                      <Button
+                        size="sm"
+                        tone="outline"
+                        onClick={() => s.setOverlay({ type: "repeat-meal", mealId: meal.id })}
+                      >
+                        Review &amp; log
+                      </Button>
+                      <button
+                        type="button"
+                        aria-expanded={open === meal.id}
+                        onClick={() => setOpen(open === meal.id ? null : meal.id)}
+                      >
+                        Details {open === meal.id ? "−" : "+"}
+                      </button>
+                    </div>
+                    {open === meal.id ? (
+                      <div className="option-details">
+                        {recipe ? (
+                          <ol className="list-decimal pl-5 space-y-2 text-sm">
+                            {recipe.steps.map((step) => (
+                              <li key={step}>{step}</li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <p className="text-sm text-ink-soft">
+                            Combine these ingredients as you like. This is a saved option, not a
+                            scheduled meal.
+                          </p>
+                        )}
+                        <label className="kitchen-label block mt-4">
+                          Protein per serving, optional
+                          <input
+                            className="field mt-1"
+                            aria-label={`${meal.name} protein grams`}
+                            inputMode="decimal"
+                            value={meal.proteinGrams ?? ""}
+                            onChange={(e) =>
+                              s.setMealProtein(
+                                meal.id,
+                                e.target.value.trim() ? Number(e.target.value) || 0 : null,
+                              )
+                            }
+                          />
+                        </label>
+                        <Button size="sm" tone="ghost" onClick={() => s.togglePin(meal.id)}>
+                          {meal.pinned ? "Unpin option" : "Pin option"}
+                        </Button>
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+        <details className="kitchen-panel">
+          <summary className="kitchen-summary">
+            <span>Save another food option</span>
+            <Plus className="size-4" />
+          </summary>
+          <form
+            className="grid gap-3 mt-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              s.addSavedMeal({
+                name,
+                ingredientNames: names
+                  .split(",")
+                  .map((x) => x.trim())
+                  .filter(Boolean),
+                minutes: null,
+                noCook: false,
+                proteinGrams: null,
+              });
+              setName("");
+              setNames("");
+            }}
+          >
+            <label className="kitchen-label">
+              Name
+              <input
+                className="field mt-1"
+                aria-label="New food option name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </label>
+            <label className="kitchen-label">
+              Ingredients
+              <input
+                className="field mt-1"
+                aria-label="New food option ingredients"
+                value={names}
+                onChange={(e) => setNames(e.target.value)}
+                placeholder="Separate names with commas"
+              />
+            </label>
+            <Button type="submit" disabled={!name.trim() || !names.trim()}>
+              Save option
+            </Button>
+          </form>
+        </details>
+      </div>
+      <aside className="food-log-sidebar kitchen-panel">
+        <Eyebrow>Today’s intake</Eyebrow>
+        <h2>Log what you ate.</h2>
+        <p className="kitchen-help mt-2">
+          Log what you actually ate. A complete recipe or plan is not required.
+        </p>
+        <Button className="w-full mt-4" onClick={() => s.setOverlay({ type: "log-food" })}>
+          <Utensils className="size-4" />
+          Log food
+        </Button>
+        <Button
+          tone="outline"
+          className="w-full mt-2"
+          onClick={() => s.setOverlay({ type: "log-drink" })}
+        >
+          <Droplets className="size-4" />
+          Log a drink
+        </Button>
+        <div className="quick-water-grid">
+          {[8, 12, 16, 24].map((oz) => (
+            <button
+              type="button"
+              key={oz}
+              onClick={() => {
+                s.addWater(oz);
+                s.showToast(`${oz} oz water logged`);
+              }}
+            >
+              +{oz} oz
+            </button>
+          ))}
+        </div>
+        <div className="food-intake-summary">
+          <span>
+            <b>{n.protein.total} g</b> protein logged{n.protein.unknown ? " · some unknown" : ""}
+          </span>
+          <span>
+            <b>{Math.round(n.water)} oz</b> fluid logged
+          </span>
+        </div>
+        <details className="mt-4">
+          <summary className="kitchen-summary text-sm">Your intake targets</summary>
+          <div className="mt-3">
+            <ProteinWaterRings size={80} />
+          </div>
+          <p className="kitchen-help mt-3">Targets are the values you set in Settings.</p>
+        </details>
+        <div className="food-today-log">
+          <h3>Today’s log</h3>
+          {!s.foodLogs.some((l) => l.localDate === n.today) &&
+          !s.fluidLogs.some((l) => l.localDate === n.today) ? (
+            <p className="kitchen-help mt-2">Nothing logged yet.</p>
+          ) : null}
+          {s.foodLogs
+            .filter((l) => l.localDate === n.today)
+            .map((l) => (
+              <div key={l.id}>
+                <time>{clock(l.time)}</time>
+                <span>{l.food}</span>
+              </div>
+            ))}
+          {s.fluidLogs
+            .filter((l) => l.localDate === n.today)
+            .map((l) => (
+              <div key={l.id}>
+                <time>{clock(l.time)}</time>
+                <span>
+                  {l.beverage} · {l.amountOz} oz
+                </span>
+              </div>
+            ))}
+          {s.undo?.kind === "food" || s.undo?.kind === "fluid" ? (
+            <Button size="sm" tone="ghost" onClick={() => s.undoLast()}>
+              Undo last log
+            </Button>
+          ) : null}
+        </div>
+      </aside>
     </div>
   );
 }

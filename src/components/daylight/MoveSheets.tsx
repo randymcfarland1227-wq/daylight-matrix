@@ -84,7 +84,7 @@ export function SwapMoveSheet({ weekday, slotId, onClose }: { weekday: number; s
         ))}
         {list.length === 0 ? <li className="px-1 text-sm text-ink-soft">No match. Type it below instead.</li> : null}
       </ul>
-      <div className="mt-5 rounded-2xl border border-line p-3">
+      <div className="mt-5 rounded-lg border border-line p-3">
         <Eyebrow>Or type your own move</Eyebrow>
         <input className="field mt-1.5" placeholder="e.g. Smith machine incline press" aria-label="Custom move name" value={custom} onChange={(e) => setCustom(e.target.value)} />
         <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink-soft">Muscles it hit (optional, counts on the heat map)</p>

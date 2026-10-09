@@ -176,11 +176,11 @@ export function loggedVolume(sessions: WorkoutSession[], win: LoggedWindow): { m
 export type CoverageStatus = "none" | "indirect" | "low" | "ok" | "high";
 
 export const STATUS_LABEL: Record<CoverageStatus, string> = {
-  none: "Not trained",
+  none: "No mapped sets",
   indirect: "Only indirect work",
-  low: "Light",
-  ok: "Solid",
-  high: "High",
+  low: "Below comparison range",
+  ok: "Within comparison range",
+  high: "Above comparison range",
 };
 
 /** `target` is the weekly weighted sets you’d like each muscle to reach. It is your number, not a rule. */
@@ -208,13 +208,10 @@ export type HeatSnapshot = {
   totalSets: number;
 };
 
-/** Heat source: logged volume in the window; falls back to the plan when nothing is logged in it. */
-export function heatSnapshot(sessions: WorkoutSession[], plan: PlanVersion, days: 7 | 14 | 30, today: string): HeatSnapshot {
+/** Recorded activity stays empty when there are no logs; planned work has its own explicit view. */
+export function heatSnapshot(sessions: WorkoutSession[], _plan: PlanVersion, days: 7 | 14 | 30, today: string): HeatSnapshot {
   const logged = loggedVolume(sessions, windowFor(days, today));
-  if (logged.totalSets > 0) {
-    return { map: logged.map, source: "logged", windowDays: days, weeklyFactor: days / 7, totalSets: logged.totalSets };
-  }
-  return { map: plannedVolume(plan), source: "planned", windowDays: 7, weeklyFactor: 1, totalSets: 0 };
+  return { map: logged.map, source: "logged", windowDays: days, weeklyFactor: days / 7, totalSets: logged.totalSets };
 }
 
 /** Muscles a day works. `level` "group" (default) rolls sub-parts into their group using the largest weight. */

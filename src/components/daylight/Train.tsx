@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { CalendarDays, ChevronDown, Flag, Info, ListChecks, Pencil, Play, PlayCircle, Plus, Repeat2, Shuffle, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
 import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayBlocks, dayTemplate } from "@/lib/daylight/plan";
-import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, setSummary, slotFinished, slotLogs } from "@/lib/daylight/logic";
+import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, setSummary, slotFinished, slotLogs, sessionProgress } from "@/lib/daylight/logic";
 import { lessonsForExercise } from "@/lib/daylight/learn";
 import { useDaylight } from "@/lib/daylight/store";
 import type { DayTemplate, Prescription, TrainingTab, WorkoutSession } from "@/lib/daylight/types";
-import { dayMuscles, dayTotalSets, plannedSets } from "@/lib/daylight/volume";
+import { dayMuscles } from "@/lib/daylight/volume";
 import { muscleName } from "@/lib/daylight/muscles";
 import { Badge, Button, Card, Chip, Eyebrow, PageHead, Ring, Segmented, Stepper, cn, haptic, useNow } from "./ui";
 import { MuscleChips, useGoToMuscle } from "./MuscleChips";
@@ -20,34 +20,19 @@ export function Train() {
   const tab = useDaylight((s) => s.trainingTab);
   const setTab = useDaylight((s) => s.setTrainingTab);
   const norm: TrainingTab = (["session", "week", "moves", "pt", "plan"] as string[]).includes(tab) ? tab : "session";
-  const gymDefault = useDaylight((s) => s.gymDefault);
-  const gymAutoSkip = useDaylight((s) => s.gymAutoSkip);
-  const trainDay = useDaylight((s) => s.trainDay);
-  const view = useDaylight((s) => s.view);
-  const setGymMode = useDaylight((s) => s.setGymMode);
-  const planVersions = useDaylight((s) => s.planVersions);
-  const sessions = useDaylight((s) => s.sessions);
-  const todayIdx = new Date().getDay();
-  const todayDay = dayTemplate(activePlan(planVersions, localDate()), todayIdx);
-  const todaySession = sessions.find((x) => x.localDate === localDate() && x.weekday === todayIdx);
-  // Default entry: the Train tab opens straight into gym mode for today's scheduled session.
-  const auto = view === "training" && norm === "session" && gymDefault && !gymAutoSkip && trainDay === todayIdx && todayDay.scheduled && todaySession?.status !== "finished";
-  useEffect(() => {
-    if (auto) setGymMode(todayIdx);
-  }, [auto, setGymMode, todayIdx]);
-  if (auto) return null;
   return (
-    <div>
+    <div className="training-page">
+      <PageHead title="Train" helper="Your session, form cues and physical therapy. Follow your plan one exercise at a time." />
       <Segmented
         label="Training sections"
         value={norm}
         onChange={(v) => setTab(v as TrainingTab)}
         options={[
-          { id: "session", label: "Session" },
-          { id: "week", label: "Week" },
-          { id: "moves", label: "Moves" },
-          { id: "pt", label: "PT board" },
-          { id: "plan", label: "Plan" },
+          { id: "session", label: "Exercises" },
+          { id: "week", label: "Weekly plan" },
+          { id: "moves", label: "Library" },
+          { id: "pt", label: "Physical therapy" },
+          { id: "plan", label: "Edit plan" },
         ]}
         className="mb-4"
       />
@@ -62,14 +47,13 @@ export function Train() {
 
 /* ---------------------------------------------------------------- Day switcher */
 
-export function DaySwitcher({ value, onChange, plan }: { value: number; onChange: (d: number) => void; plan: { days: DayTemplate[] } }) {
+export function DaySwitcher({ value, onChange }: { value: number; onChange: (d: number) => void; plan: { days: DayTemplate[] } }) {
   const todayIdx = new Date().getDay();
   const order = [1, 2, 3, 4, 5, 6, 0];
   return (
-    <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Choose a day">
+    <div className="day-switcher" role="tablist" aria-label="Choose a day">
       {order.map((d) => {
         const st = DAY_STYLE[d]!;
-        const day = plan.days.find((x) => x.weekday === d);
         const active = value === d;
         return (
           <button
@@ -79,13 +63,13 @@ export function DaySwitcher({ value, onChange, plan }: { value: number; onChange
             aria-selected={active}
             onClick={() => onChange(d)}
             className={cn(
-              "tap relative flex min-h-[3.75rem] min-w-[3.6rem] shrink-0 flex-col items-center justify-center rounded-2xl border px-2 text-sm font-bold",
+              "tap day-tab",
               active ? "border-accent bg-accent text-on-accent shadow-sm" : "border-line bg-surface text-ink hover:bg-surface-2",
             )}
           >
-            <span className="t-meta opacity-80">{st.short}</span>
-            <span className="text-base">{day?.scheduled ? day.slots.length : "–"}</span>
-            {d === todayIdx ? <span className={cn("absolute -top-1 right-1 rounded-full px-1.5 text-[0.6rem] font-extrabold uppercase", active ? "bg-accent text-on-accent" : "bg-accent/80 text-on-accent")}>today</span> : null}
+            <span>{st.short}</span>
+
+            {d === todayIdx ? <small>Today</small> : <small aria-hidden="true">&nbsp;</small>}
           </button>
         );
       })}
@@ -112,24 +96,10 @@ function SessionScreen() {
   const blocks = dayBlocks(day, slots);
   const isToday = weekday === new Date().getDay();
 
-  const totals = useMemo(() => {
-    let target = 0;
-    let done = 0;
-    for (const slot of slots) {
-      if (slot.optional) continue;
-      const t = slot.sets ? plannedSets(slot) : 1;
-      target += t;
-      if (session) {
-        const d = slot.sets ? Math.min(doneSetCount(session, slot), t) : slotLogs(session, slot.id).some((l) => l.status === "done") ? 1 : 0;
-        done += d;
-      }
-    }
-    return { target, done };
-  }, [slots, session]);
+  const totals = sessionProgress(slots, session);
 
   const muscles = dayMuscles({ ...day, slots }).filter((m) => m.weight >= 0.5).slice(0, 7);
   const goMuscle = useGoToMuscle();
-  const pct = totals.target ? totals.done / totals.target : 0;
   const finished = session?.status === "finished";
 
   if (!day.scheduled) {
@@ -152,13 +122,6 @@ function SessionScreen() {
     <div>
       <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
 
-      {day.psa ? (
-        <section className="mt-4 rounded-[1.25rem] border border-warn/40 bg-warn/10 p-4" data-testid="day-psa" aria-label="Day PSA">
-          <Eyebrow className="text-warn">{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
-          <p className="mt-1 t-title">{day.psa}</p>
-        </section>
-      ) : null}
-
       <Card className="animate-rise mt-4 border-accent/25" as="section" aria-label="Session overview">
         <div className="flex items-center gap-2">
           <span className="inline-block size-2.5 rounded-full" style={{ background: st.color }} aria-hidden="true" />
@@ -168,16 +131,17 @@ function SessionScreen() {
         </div>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="t-display">{day.name}</h1>
+            <h2 className="session-overview-title">{day.name}</h2>
             <p className="t-caption mt-1 text-ink-soft">
-              {slots.filter((s) => !s.optional).length} moves · ~{Math.round(dayTotalSets({ ...day, slots }))} planned sets
+              {totals.total} exercises · {totals.completed} completed{totals.skipped ? ` · ${totals.skipped} skipped` : ""}
             </p>
           </div>
-          <Ring value={pct} size={64} stroke={7} label={`${totals.done} of ${totals.target} sets done`}>
-            <span className="t-caption font-bold tabular-nums">{Math.round(pct * 100)}%</span>
+          <Ring value={totals.total ? totals.completed / totals.total : 0} size={64} stroke={7} label={`${totals.completed} of ${totals.total} exercises completed`}>
+            <span className="t-caption font-bold tabular-nums">{totals.completed}/{totals.total}</span>
           </Ring>
         </div>
-        <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Muscles worked today">
+        <div className="reason-block mt-4 text-sm" data-testid="day-psa"><Eyebrow>Your reminder · from your plan</Eyebrow><p className="mt-2 leading-relaxed text-ink-soft">{day.psa || day.why}</p></div>
+        <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Muscles in this session">
           {muscles.map((m) => (
             <button key={m.id} type="button" onClick={() => goMuscle(m.id)} className={cn("tap rounded-full px-2.5 py-1 text-xs font-bold", m.weight >= 1 ? "bg-accent/15 text-accent" : "border border-line text-ink-soft")}>
               {muscleName(m.id)}
@@ -189,7 +153,7 @@ function SessionScreen() {
         ) : null}
         {finished ? <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 font-bold">Finished. Logging another set re-opens it.</p> : null}
         <Button size="lg" tone="primary" className="mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
-          <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume in gym mode" : "Start gym mode"}
+          <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume session" : "Start session"}
         </Button>
       </Card>
 
@@ -225,13 +189,13 @@ function SessionScreen() {
         ) : null}
       </div>
 
-      <div className="safe-bottom sticky bottom-[4.9rem] z-10 mt-6 md:bottom-4">
-        <div className="flex gap-2 rounded-2xl border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
+      <div className="mt-6">
+        <div className="flex gap-2 rounded-lg border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note
           </Button>
-          <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
-            <Shuffle className="size-4" /> Else
+          <Button tone="soft" className="flex-[2]" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
+            <Shuffle className="size-4" /> Log something else
           </Button>
           <Button className="flex-[2]" tone={totals.done > 0 ? "sun" : "outline"} onClick={() => state.setOverlay({ type: "finish", weekday })}>
             <Flag className="size-4" /> {finished ? "Summary" : "Finish session"}
@@ -252,7 +216,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
   const name = exerciseLabel(exerciseId);
   const logs = session ? slotLogs(session, slot.id).filter((l) => l.status === "done") : [];
   const skipped = session ? slotLogs(session, slot.id).some((l) => l.status === "skipped" && l.setIndex === -1) : false;
-  const target = slot.sets ? plannedSets(slot) : 1;
+  const target = slot.sets ?? 1;
   const doneN = session ? (slot.sets ? doneSetCount(session, slot) : logs.length ? 1 : 0) : 0;
   const complete = session ? slotFinished(session, slot) && !skipped && doneN > 0 : false;
   const noteCount = state.observations.filter((o) => o.context.exerciseId === exerciseId).length;
@@ -461,7 +425,7 @@ function SetLogger({ weekday, slot, exerciseId, session }: { weekday: number; sl
   const holdElapsed = holdStart != null ? Math.round((now - holdStart) / 1000) : 0;
 
   return (
-    <div className="mt-4 rounded-2xl bg-surface-2 p-3">
+    <div className="mt-4 rounded-lg bg-surface-2 p-3">
       <div className="flex items-center justify-between">
         <p className="text-sm font-bold">
           {allDone ? "All sets logged" : slot.sets ? `Set ${nextNo} of ${slot.sets}${slot.setsMax ? `–${slot.setsMax}` : ""}` : "Log it"}

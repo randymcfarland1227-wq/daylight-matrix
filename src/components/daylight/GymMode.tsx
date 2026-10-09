@@ -4,11 +4,10 @@ import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
-import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine } from "@/lib/daylight/logic";
+import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine, sessionProgress } from "@/lib/daylight/logic";
 import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import type { Prescription, WorkoutSession } from "@/lib/daylight/types";
-import { plannedSets } from "@/lib/daylight/volume";
 import { MoveThumb } from "./MoveArt";
 import { MoveMedia, prefetchPhotos } from "./MoveMedia";
 import { Overlays } from "./Overlays";
@@ -38,7 +37,7 @@ export function GymMode({ weekday }: { weekday: number }) {
   const slots = session ? session.snapshot : day.slots;
   const st = DAY_STYLE[weekday]!;
   const act = slots.filter((s) => s.section === "activation" || s.section === "pt");
-  const [ptMode, setPtMode] = useState<"block" | "each">(act.length >= 2 ? "block" : "each");
+  const [ptMode, setPtMode] = useState<"block" | "each">("each");
   const [cur, setCur] = useState(0);
   const [flow, setFlow] = useState<Prescription[] | null>(null);
   const [showList, setShowList] = useState(false);
@@ -66,18 +65,8 @@ export function GymMode({ weekday }: { weekday: number }) {
   const step = steps[idx]!;
   const finishedOf = (s: Prescription) => (session ? slotFinished(session, s) : false);
   const real = slots.filter((s) => !s.optional);
-  const movesDone = real.filter(finishedOf).length;
-  const totals = useMemo(() => {
-    let target = 0;
-    let done = 0;
-    for (const slot of slots) {
-      if (slot.optional) continue;
-      const t = slot.sets ? plannedSets(slot) : 1;
-      target += t;
-      if (session) done += slot.sets ? Math.min(doneSetCount(session, slot), t) : slotLogs(session, slot.id).some((l) => l.status === "done") || (session.extras ?? []).some((e) => e.slotId === slot.id) ? 1 : 0;
-    }
-    return { target, done };
-  }, [slots, session]);
+  const movesDone = sessionProgress(slots, session).completed;
+  const totals = sessionProgress(slots, session);
   const pct = totals.target ? Math.min(1, totals.done / totals.target) : 0;
 
   const goNext = (from = idx) => {
@@ -108,14 +97,14 @@ export function GymMode({ weekday }: { weekday: number }) {
     <div className="fixed inset-0 z-40 flex flex-col bg-canvas text-ink" data-testid="gym-mode" role="region" aria-label={`Gym mode, ${WEEKDAY_NAMES[weekday]}`}>
       <header className="shrink-0 border-b border-line px-3 pb-2" style={{ paddingTop: "max(0.6rem, env(safe-area-inset-top))" }}>
         <div className="mx-auto flex max-w-xl items-center gap-2">
-          <button type="button" onClick={exit} aria-label="Exit gym mode" data-testid="gym-exit" className="tap flex min-h-11 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-sm font-bold">
+          <button type="button" onClick={exit} aria-label="Exit gym mode" data-testid="gym-exit" className="tap flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-2 px-3 text-sm font-bold">
             <X className="size-5" /> Exit
           </button>
           <div className="min-w-0 flex-1 text-center">
             <p className="t-meta truncate text-ink-soft">{WEEKDAY_NAMES[weekday]}{weekday !== new Date().getDay() ? " · logs count for today" : ""}</p>
             <p className="t-title truncate">{day.name}</p>
           </div>
-          <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-2xl bg-surface-2">
+          <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-lg bg-surface-2">
             <ListChecks className="size-5" />
           </button>
         </div>
@@ -124,8 +113,8 @@ export function GymMode({ weekday }: { weekday: number }) {
             <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: "var(--accent)" }} />
           </div>
           <p className="mt-1 flex justify-between text-xs font-semibold text-ink-soft tabular-nums">
-            <span>{movesDone} of {real.length} moves</span>
-            <span>{Math.round(totals.done)}/{Math.ceil(totals.target)} sets · {Math.round(pct * 100)}%</span>
+            <span>{totals.completed} of {real.length} exercises completed</span>
+            <span>{totals.skipped ? `${totals.skipped} skipped · ` : ""}{Math.round(pct * 100)}% of prescribed work</span>
           </p>
         </div>
       </header>
@@ -133,14 +122,15 @@ export function GymMode({ weekday }: { weekday: number }) {
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-xl px-4 pb-10 pt-3">
           {day.psa ? (
-            <button type="button" onClick={() => setPsaOpen((v) => !v)} className="mb-3 w-full rounded-2xl border border-line bg-surface-2 px-4 py-3 text-left" data-testid="gym-psa" aria-expanded={psaOpen}>
+            <button type="button" onClick={() => setPsaOpen((v) => !v)} className="mb-3 w-full rounded-lg border border-line bg-surface-2 px-4 py-3 text-left" data-testid="gym-psa" aria-expanded={psaOpen}>
               <Eyebrow>{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
               <p className={cn("t-caption mt-1 text-ink", !psaOpen && "line-clamp-2")}>{day.psa}</p>
             </button>
           ) : null}
           <RestStrip />
+          {showList && act.length >= 2 ? <Button tone="outline" size="sm" className="mb-3" onClick={() => { setPtMode(ptMode === "each" ? "block" : "each"); setCur(0); }}>{ptMode === "each" ? "Group activation into a block" : "Show activation one exercise at a time"}</Button> : null}
           {showList ? (
-            <ol className="mb-3 space-y-1 rounded-2xl border border-line bg-surface p-2" aria-label="Jump to a move">
+            <ol className="mb-3 space-y-1 rounded-lg border border-line bg-surface p-2" aria-label="Jump to a move">
               {steps.map((s, i) => {
                 const label = s.type === "pt" ? "PT activation block" : s.type === "end" ? "Finish" : exerciseLabel(session ? chosenExerciseId(s.slot!, session.chosenExercise) : s.slot!.exerciseId);
                 const done = s.type === "move" ? finishedOf(s.slot!) : s.type === "pt" ? s.slots!.every(finishedOf) : false;
@@ -218,7 +208,7 @@ function RestStrip() {
   const done = left <= 0;
   const pct = Math.max(0, Math.min(1, 1 - left / rest.total));
   return (
-    <div className="mb-3 overflow-hidden rounded-2xl bg-ink text-canvas" role="timer" aria-label="Rest timer" data-testid="gym-rest">
+    <div className="mb-3 overflow-hidden rounded-lg bg-ink text-canvas" role="timer" aria-label="Rest timer" data-testid="gym-rest">
       <div className="h-1.5 bg-canvas/20"><div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct * 100}%` }} /></div>
       <div className="flex items-center gap-3 px-4 py-2.5">
         <Timer className="size-6 shrink-0 text-sun" />
@@ -226,8 +216,8 @@ function RestStrip() {
           <p className="t-meta text-canvas/60">{done ? "Rest done" : "Rest"}</p>
           <p className="t-title text-[1.5rem]! leading-none tabular-nums">{done ? "Go" : formatSeconds(left)}</p>
         </div>
-        <button type="button" className="tap min-h-11 rounded-2xl bg-canvas/15 px-4 text-sm font-bold" onClick={() => startRest(Math.max(15, left + 15))}>+15s</button>
-        <button type="button" className="tap min-h-11 rounded-2xl bg-canvas/15 px-4 text-sm font-bold" onClick={() => clear()}>{done ? "Hide" : "Skip"}</button>
+        <button type="button" className="tap min-h-11 rounded-lg bg-canvas/15 px-4 text-sm font-bold" onClick={() => startRest(Math.max(15, left + 15))}>+15s</button>
+        <button type="button" className="tap min-h-11 rounded-lg bg-canvas/15 px-4 text-sm font-bold" onClick={() => clear()}>{done ? "Hide" : "Skip"}</button>
       </div>
     </div>
   );
@@ -377,7 +367,7 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
       {prev ? <p className="mt-2 text-sm text-ink-soft">Last time: {[prev.reps, prev.load != null ? `${prev.load} ${prev.loadUnit}` : null, prev.seconds ? `${prev.seconds}s` : null].filter(Boolean).join(" · ") || "done"}</p> : null}
 
       {adjust ? (
-        <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl bg-surface-2 p-3" data-testid="gym-adjust">
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-surface-2 p-3" data-testid="gym-adjust">
           {slot.sets ? <Stepper label="Sets" value={sets} onChange={setSets} min={1} /> : null}
           {strengthLike ? <Stepper label={slot.perSide ? "Reps / side" : "Reps"} value={reps} onChange={setReps} /> : null}
           {timed ? <Stepper label="Seconds" value={secs} onChange={setSecs} step={5} /> : null}
@@ -545,7 +535,7 @@ export function GuidedRun({ slots, session, weekday, onClose, onFinished }: { sl
   return (
     <div className="fixed inset-0 z-[45] flex flex-col bg-canvas" role="dialog" aria-modal="true" aria-label="Guided timer" data-testid="guided-run">
       <div className="mx-auto flex w-full max-w-xl items-center gap-2 px-4" style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}>
-        <button type="button" onClick={onClose} className="tap flex min-h-11 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-sm font-bold" aria-label="Stop guided timer"><X className="size-5" /> Stop</button>
+        <button type="button" onClick={onClose} className="tap flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-2 px-3 text-sm font-bold" aria-label="Stop guided timer"><X className="size-5" /> Stop</button>
         <p className="min-w-0 flex-1 truncate text-center text-xs font-bold uppercase tracking-widest text-ink-soft">
           {slots.length > 1 ? `Flow · ${phases.slice(0, i + 1).filter((x) => x.kind === "ready").length} of ${slots.length} moves` : "Guided"}
         </p>

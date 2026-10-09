@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { localDate, localTime } from "./dates";
-import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, SEED_SHOPPING, SEED_STARTER_INVENTORY, SEED_STARTER_MEALS } from "./food-seed";
+import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, INGREDIENT_PREP_IDEAS, SEED_STARTER_INVENTORY, SEED_STARTER_MEALS } from "./food-seed";
 import { SCHEMA_VERSION, STORAGE_KEY, BACKUP_KEY, BACKUP_KEY_V3, migratePersisted } from "./migrate";
+import { ingredientKey, prepIngredients, upgradeFoodWorkspace } from "./kitchen";
 import { exerciseById } from "./exercises";
 import { lastSet, newId, prescribedDefaults } from "./logic";
 import { activePlan, dayTemplate, seedPlan } from "./plan";
@@ -26,6 +27,7 @@ import type {
   Overlay,
   PlanVersion,
   PreparedPortion,
+  PrepTask,
   Prescription,
   SavedMeal,
   SetLog,
@@ -127,6 +129,8 @@ type Data = {
   inventory: InventoryItem[];
   recipes: typeof SEED_RECIPES;
   shopping: ShoppingItem[];
+  shoppingArchive: ShoppingItem[];
+  foodWorkspaceVersion: number;
   prep: typeof SEED_PREP;
   savedMeals: SavedMeal[];
   prepared: PreparedPortion[];
@@ -143,6 +147,7 @@ type Data = {
   bodyDetail: "standard" | "advanced";
   /** Body map surface: the flat front + back chart, or the turnable 6'4" figure. */
   bodyStyle: "map" | "turn";
+  bodyWorkspace: "journal" | "training";
   schemaVersion: number;
   theme: ThemeChoice;
   /** Fluid ounces per day. Yours to set. */
@@ -269,7 +274,7 @@ type Actions = {
   addSavedMeal: (meal: { name: string; ingredientNames: string[]; proteinGrams: number | null; minutes: number | null; noCook: boolean }) => void;
   togglePin: (mealId: string) => void;
   updateInventory: (id: string, patch: Partial<InventoryItem>) => void;
-  addInventory: (name: string) => void;
+  addInventory: (name: string, details?: Partial<InventoryItem>) => void;
   resolveUseSoon: (id: string, outcome: "used" | "tossed") => void;
   addShopping: (name: string, quantity: string, source: string) => void;
   removeShopping: (id: string) => void;
@@ -277,7 +282,11 @@ type Actions = {
   addShoppingToInventory: (id: string) => void;
   addMissingToShopping: (names: string[]) => number;
   setPrepStatus: (id: string, status: "planned" | "done") => void;
-  addPrepTask: (title: string, detail: string) => void;
+  addPrepTask: (title: string, detail: string, ingredients?: string[]) => void;
+  updatePrep: (id: string, patch: Partial<PrepTask>) => void;
+  archiveShopping: (ids: string[]) => void;
+  restoreShopping: (id: string) => void;
+  setPreparedAvailable: (id: string, available: boolean) => void;
   addPreparedFromPrep: (id: string) => void;
   logActivity: () => void;
   // plan editing
@@ -291,7 +300,7 @@ type Actions = {
   addGoal: () => void;
   setPtNote: (id: string, note: string) => void;
   // body / ui
-  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail" | "bodyStyle">>) => void;
+  setBody: (patch: Partial<Pick<Data, "bodyView" | "bodyMode" | "heatWindow" | "selectedMuscleId" | "bodyDetail" | "bodyStyle" | "bodyWorkspace">>) => void;
   setTheme: (theme: ThemeChoice) => void;
   setWeeklyTarget: (n: number) => void;
   setPlanContext: (text: string) => void;
@@ -355,8 +364,10 @@ const seed = (): Data => ({
   ptNotes: {},
   inventory: [...SEED_INVENTORY, ...SEED_STARTER_INVENTORY],
   recipes: SEED_RECIPES,
-  shopping: SEED_SHOPPING,
-  prep: SEED_PREP,
+  shopping: [],
+  shoppingArchive: [],
+  foodWorkspaceVersion: 1,
+  prep: [...SEED_PREP, ...INGREDIENT_PREP_IDEAS],
   savedMeals: [...SEED_MEALS, ...SEED_STARTER_MEALS],
   prepared: [],
   foodLogs: [],
@@ -370,8 +381,9 @@ const seed = (): Data => ({
   selectedMuscleId: null,
   bodyDetail: "standard",
   bodyStyle: "map",
+  bodyWorkspace: "journal",
   schemaVersion: SCHEMA_VERSION,
-  theme: "dark",
+  theme: "light",
   waterGoal: 96,
   proteinGoalRest: null,
   weeklyTarget: 10,
@@ -1008,10 +1020,18 @@ export const useDaylight = create<Data & Actions>()(
         );
       },
       removeShopping: (id) => set(saved({ shopping: get().shopping.filter((i) => i.id !== id) })),
-      addPrepTask: (title, detail) => {
+      updatePrep: (id, patch) => set(saved({ prep: get().prep.map((t) => t.id === id ? { ...t, ...patch, id: t.id } : t) })),
+      setPreparedAvailable: (id, available) => set(saved({ prepared: get().prepared.map((p) => p.id === id ? { ...p, available } : p) })),
+      archiveShopping: (ids) => set(saved({ shopping: get().shopping.filter((i) => !ids.includes(i.id)), shoppingArchive: [...get().shoppingArchive, ...get().shopping.filter((i) => ids.includes(i.id))] })),
+      restoreShopping: (id) => {
+        const item = get().shoppingArchive.find((i) => i.id === id);
+        if (!item) return;
+        get().addShopping(item.name, item.quantity, item.source);
+      },
+      addPrepTask: (title, detail, ingredients = []) => {
         const t = title.trim();
         if (!t) return;
-        set(saved({ prep: [...get().prep, { id: newId(), title: t, detail, status: "planned" }] }));
+        set(saved({ prep: [...get().prep, { id: newId(), title: t, detail, status: "planned", ingredientNames: ingredients, selected: true }] }));
       },
       addExerciseToDraft: (weekday, exerciseId, sets, reps) => {
         get().ensureDraft();
@@ -1045,25 +1065,26 @@ export const useDaylight = create<Data & Actions>()(
       updateInventory: (id, patch) => {
         set(saved({ inventory: get().inventory.map((item) => (item.id === id ? { ...item, ...patch } : item)) }));
       },
-      addInventory: (name) => {
+      addInventory: (name, details = {}) => {
         const trimmed = name.trim();
         if (!trimmed) return;
         const row: InventoryItem = {
+          ...details,
           id: newId(),
           name: trimmed,
-          quantity: "",
-          category: "Pantry",
-          cadence: "weekly",
-          storageLocation: "Cabinet",
-          status: "check_amount",
-          notes: "",
+          quantity: details.quantity ?? "",
+          category: details.category ?? "Snacks & other",
+          cadence: details.cadence ?? "weekly",
+          storageLocation: details.storageLocation ?? "Pantry",
+          status: details.status ?? (details.quantity?.trim() ? "fine" : "check_amount"),
+          notes: details.notes ?? "",
         };
         set(saved({ inventory: [row, ...get().inventory] }));
       },
       addShopping: (name, quantity, source) => {
         const trimmed = name.trim();
         if (!trimmed) return;
-        const exists = get().shopping.some((item) => item.name.toLowerCase() === trimmed.toLowerCase() && !item.checked);
+        const exists = get().shopping.some((item) => ingredientKey(item.name) === ingredientKey(trimmed) && !item.checked);
         if (exists) return;
         set(
           saved({
@@ -1077,7 +1098,7 @@ export const useDaylight = create<Data & Actions>()(
       addShoppingToInventory: (id) => {
         const item = get().shopping.find((row) => row.id === id);
         if (!item) return;
-        const match = get().inventory.find((row) => row.name.toLowerCase() === item.name.toLowerCase());
+        const match = get().inventory.find((row) => ingredientKey(row.name) === ingredientKey(item.name));
         if (match) {
           get().updateInventory(match.id, {
             quantity: item.quantity || match.quantity,
@@ -1111,13 +1132,17 @@ export const useDaylight = create<Data & Actions>()(
       },
       addPreparedFromPrep: (id) => {
         const task = get().prep.find((item) => item.id === id);
-        if (!task) return;
+        if (!task || task.status === "done") return;
         const portion: PreparedPortion = {
           id: newId(),
           name: task.title,
           detail: task.detail,
           available: true,
           fromPrepId: task.id,
+          ingredientNames: prepIngredients(task),
+          quantity: task.quantity ?? "",
+          preparedAt: localDate(),
+          storageLocation: task.storageLocation ?? "Fridge",
         };
         set(saved({ prepared: [portion, ...get().prepared], prep: get().prep.map((item) => (item.id === id ? { ...item, status: "done" } : item)) }));
       },
@@ -1277,7 +1302,7 @@ export const useDaylight = create<Data & Actions>()(
             return "That file is not a Daylight backup.";
           }
           // Old (daylight: 1) backups have no schemaVersion, so they run through the same migration as old localStorage.
-          const data = migratePersisted(parsed.daylight >= 2 ? { schemaVersion: parsed.daylight, ...parsed.data } : parsed.data);
+          const data = upgradeFoodWorkspace(migratePersisted(parsed.daylight >= 2 ? { schemaVersion: parsed.daylight, ...parsed.data } : parsed.data));
           if (parsed.customNames) saveCustomNames(parsed.customNames);
           const { view: _view, trainingTab: _tab, ...restored } = data as Partial<Data>;
           set(saved({ ...restored, overlay: null, undo: null, rest: null }));
@@ -1309,12 +1334,13 @@ export const useDaylight = create<Data & Actions>()(
         }
         return migratePersisted(persisted) as unknown as Data & Actions;
       },
+      merge: (persisted, current) => ({ ...current, ...upgradeFoodWorkspace((persisted ?? {}) as Record<string, unknown>) }) as Data & Actions,
       partialize: (state) => persistable(state) as unknown as Data & Actions,
     },
   ),
 );
 
-const EPHEMERAL = new Set(["selectedMuscleId", "gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
+const EPHEMERAL = new Set(["bodyWorkspace", "selectedMuscleId", "gymMode", "gymAutoSkip", "overlay", "undo", "toast", "rest", "openSlotId", "openExerciseId", "trainDay", "saveStatus"]);
 
 function persistable(state: Data & Actions): Record<string, unknown> {
   const out: Record<string, unknown> = {};

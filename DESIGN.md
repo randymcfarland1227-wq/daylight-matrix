@@ -1,85 +1,39 @@
-# Daylight Matrix — design system (Round 7)
+# Daylight Matrix — body, training and daily intake
 
-One product, one voice. Cool slate dark by default, calm steel-blue accent, no green, muscle hues only on the body figure.
+Daylight is a personal workspace for doing a session, keeping food manageable and recording what changes in the body. It should make the next action obvious and keep the reason close. Use exact labels and show only the controls needed for the task at hand.
 
-## Why this exists
+## Visual system
 
-Randy: the flow felt “HORENDOUS and confusing” — type and container sizing jumped around, and colors fought each other. Round 7 locks one system and forces every screen through it. Features stay; the chrome gets consistent.
+Use bundled Manrope throughout. Page headings are 32px, section headings 22–28px, reading text 14–16px and supporting labels 12–13px. Small uppercase metadata provides context; it must never carry the primary instruction. Use sentence case, clear hierarchy and consistent spacing. Avoid oversized editorial headings or decorative exercise posters.
 
-## Type scale
+The canvas is cool neutral (#f2f5f6), surfaces white, ink graphite (#172d38), and primary actions petrol (#126b67). A navy session panel distinguishes the daily training task. Dark mode respects saved preferences and uses the same hierarchy. Anatomy hues are reserved for the training map; journal colours mean only selected area or existing observations. Use fine borders and 8–14px corners. Desktop has compact horizontal navigation; phone navigation stays at the bottom with Learn and Settings in the header. Existing motion timings remain unchanged.
 
-| Role | Class | Size | Weight | Use |
-|------|-------|------|--------|-----|
-| Display | `.t-display` | 1.75rem / 2rem (md+) | 600 | Page titles only (one per screen) |
-| Title | `.t-title` | 1.25rem | 600 | Card / section headings |
-| Body | `.t-body` | 1rem | 400–500 | Default reading text |
-| Caption | `.t-caption` | 0.875rem | 500 | Helpers, secondary lines, list meta |
-| Meta | `.t-meta` | 0.75rem | 700 uppercase, tracking | Eyebrows, chip labels, tiny status |
+## Today and Train
 
-No one-off `text-[2.1rem]`, `text-7xl`, `text-[0.6rem]`, etc. Gym’s big rest clock is the only exception (`.t-clock`).
+Today offers the current session, a body check-in and ingredient prep and food options. Show the actual date, session name, required exercise count, real plan blocks, the PDF reminder and Start/Resume/Review. Exercise completion percentages use the same denominator as the exercise count. A small real photograph opens form reference. Physical therapy and training coverage are explicit links. Keep the user's purpose visible above the workspace. Keep all food work inside Food.
 
-## Spacing
+Train keeps session browsing separate from the focused workout. Day buttons fit seven across on phones; Today stays inside its button. A plan reminder belongs inside the overview. Avoid repeating a generic explanation that a workout appears on that weekday. Browse-screen actions stay in the page instead of covering the session overview.
 
-Scale: **4 / 8 / 12 / 16 / 24 / 32** (0.25 / 0.5 / 0.75 / 1 / 1.5 / 2 rem).
+## Body journal and training guide
 
-- Screen stack gap: 16 (`space-y-4`)
-- Card padding: 16 mobile, 20 desktop (`p-4 md:p-5`)
-- Section gap inside a card: 12
-- Page content max width: **40rem** (640px) for reading screens; Body map / Exercise can go to **64rem**
-- Bottom nav clearance: keep `pb-44` on mobile
+Body defaults to Area journal. Clicking a muscle or group selects it and opens an inline observation form, never a list of exercises. On phones, selection brings the observation panel into view. The date defaults to today and can be changed to an earlier date. Side is optional. Saving records the area, date, optional side and text in the existing observation store. History shows the year, area and side; it can be filtered to an exact date. Group history includes its smaller parts. A note attached to an entire group must not be presented as an observation specific to one smaller muscle. Old region-attached notes remain available. Editing and next-plan flags are available in the journal.
 
-## Radii & controls
+Training guide is separate: Planned work, Logged sets and Compare areas. Logged sets means actual recorded exercise sets, never body notes and never a substituted plan. Exercise links from Train explicitly open this guide. A secondary link from an area journal opens related exercises, with a direct return to that area's journal.
 
-| Thing | Radius | Min height | Padding |
-|-------|--------|------------|---------|
-| Card | 1.25rem | — | 16 / 20 |
-| Button lg | 1rem | 3.5rem | 24×16 |
-| Button md | 1rem | 3rem | 16×12 |
-| Button sm | 0.75rem | 2.5rem | 12×8 |
-| Chip | full | 2.5rem | 14×0 |
-| Field | 0.75rem | 3rem | 12 |
+Use the front and back maps and the named-area selector for reliable selection. The previous clay turning viewer is removed from the interface. Do not restore it or imply that the current diagram is a 3D model. Detailed anatomy is an explicit option.
 
-One primary button per view. Secondary = outline or soft. Ghost for tertiary.
+## Food
 
-## Color tokens
+Food options, Ingredient prep, Inventory and Shopping share one workspace. Prep ingredients as flexible building blocks. Preserve the original recipe library and allow personal combinations. Prepared/on-hand ingredient tiles filter varied options; show exactly which ingredients are known to be available. Keep food and drink logging immediately accessible on phones.
 
-Cool slate surfaces. **One accent** (steel blue). Weekday tints are muted chips only — never full-bleed heroes that fight the accent. Muscle heat colors live on the figure only.
+Inventory expands by Fridge, Freezer and Pantry, then food category, then editable item. Shopping starts empty: selected prep feeds a review, with missing ingredients checked and uncertain quantities requiring a check. Staples always require explicit selection. Confirm before adding groceries. Existing untouched starter groceries move to a recoverable archive; personal entries remain. Never automatically restock low inventory or convert prep servings into purchase amounts. See docs/food-ingredient-workspace.md for the complete flow.
 
-| Token | Role | Dark | Light |
-|-------|------|------|-------|
-| `canvas` | page bg | `#0e1418` | `#f1f5f8` |
-| `surface` | card | `#151d23` | `#ffffff` |
-| `surface-2` | inset / soft | `#1d2830` | `#e4ecf1` |
-| `ink` / `ink-soft` / `ink-faint` | text | ice → slate | slate → grey |
-| `line` | borders | `#2a3841` | `#d3dee6` |
-| `accent` (aka `forest`) | primary action | `#9bd0e0` | `#14566b` |
-| `accent-deep` | hover | `#bfe3ef` | `#0d4153` |
-| `on-accent` | text on primary | `#0b1a21` | `#f2fafc` |
-| `warn` (aka `copper`) | caution only | `#d08a74` | `#b0573f` |
-| `info` (aka `teal`) | underserved / info | `#8bb4d8` | `#2f6f8f` |
-| `danger` | destructive | `#e58a86` | `#b13e3e` |
+## Data, reflection and media
 
-Legacy class names `bg-forest`, `bg-sun`, `text-copper` still work (aliased) so we don’t break every file at once. Prefer `accent` going forward. **Do not introduce green.** `sun` is retired as a second competing accent — primary buttons use `accent`/`forest` only.
+Preserve the existing daylight-matrix-v1 key, schema, workout logs, food data, observations and backups. Body observations also appear in Notes, where area, date and side are searchable. Next-plan briefs include the date and side. Flags support considered changes; saving a body observation never changes a training plan automatically.
 
-## Navigation
+Retain actual creator videos and the 138 locally bundled, licensed exercise photographs. Label related variations accurately. Load the official player only after Play and offer photographs, written cues, retry and creator links when needed. Do not simulate a video with stills. Third-party videos need a connection and are never cached. The body map is an interface, separate from instructional media. Offline installs include application assets and photographs; they no longer download the unused turning model.
 
-- **Mobile:** bottom 5 tabs (Today, Train, Body, Food, Notes) + gear in the top bar + quick-note FAB.
-- **Desktop:** left sidebar, same items + Settings.
-- **Gym mode:** full-screen takeover, one Exit. No bottom tabs, no FAB. Calm: move name → media → cue → one big Done → smaller secondary actions.
+## Acceptance
 
-## Screen flows (what the user does first)
-
-1. **Today** → see today’s session card → tap **Start gym** (or Open session). Protein/water and notes sit below, quieter.
-2. **Train** → pick the day → **Start gym** or walk the list / form guides.
-3. **Gym** → one move at a time → Done → next. Exit returns to Train.
-4. **Body** → tap a region → muscle page → pick a move → exercise page.
-5. **Food** → log against today’s plan; rings show protein/water.
-6. **Notes** → capture; filter; digest for the plan builder.
-
-## Motion
-
-Subtle `rise` on page enter. Respect `prefers-reduced-motion` (already global). No decorative bouncing on chrome.
-
-## Non-goals (this round)
-
-No feature removal, no schema changes, no Vimeo/photo/diagram changes, no renaming of user-facing feature names (Today / Train / Body / Food / Notes / Gym stay).
+Verify selection → dated note → save → area history → exact-date filter → edit → reload, including optional side, group scope and legacy notes. Verify the guide remains separate. Check 390px and narrow phone widths, the seven day buttons, all main destinations and the production build. Keep source and publication changes on review branches; production changes only after the publication pull request is merged.

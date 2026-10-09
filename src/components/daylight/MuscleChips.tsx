@@ -10,7 +10,7 @@ export function useGoToMuscle() {
   return (id: string, mode: "plan" | "heat" | "grow" = "plan") => {
     if (useDaylight.getState().gymMode) return; // gym mode stays focused: no jumping to other screens
     setOverlay(null);
-    setBody({ selectedMuscleId: id, bodyMode: mode });
+    setBody({ selectedMuscleId: id, bodyMode: mode, bodyWorkspace: "training" });
     setView("body");
   };
 }
