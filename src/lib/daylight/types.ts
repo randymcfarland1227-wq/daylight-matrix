@@ -280,6 +280,10 @@ export type PreparedPortion = {
   detail: string;
   available: boolean;
   fromPrepId: string | null;
+  ingredientNames?: string[];
+  quantity?: string;
+  preparedAt?: string;
+  storageLocation?: string;
 };
 
 export type ShoppingItem = {
@@ -295,6 +299,11 @@ export type PrepTask = {
   title: string;
   detail: string;
   status: "planned" | "done";
+  ingredientNames?: string[];
+  quantity?: string;
+  selected?: boolean;
+  preparedAt?: string;
+  storageLocation?: string;
 };
 
 export type FoodLog = {

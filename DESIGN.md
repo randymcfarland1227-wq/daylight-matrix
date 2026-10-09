@@ -10,7 +10,7 @@ The canvas is cool neutral (#f2f5f6), surfaces white, ink graphite (#172d38), an
 
 ## Today and Train
 
-Today offers the current session, a body check-in and a familiar meal. Show the actual date, session name, required exercise count, real plan blocks, the PDF reminder and Start/Resume/Review. Exercise completion percentages use the same denominator as the exercise count. A small real photograph opens form reference. Physical therapy and training coverage are explicit links. Keep the user's purpose visible above the workspace. Keep all food work inside Food.
+Today offers the current session, a body check-in and ingredient prep and food options. Show the actual date, session name, required exercise count, real plan blocks, the PDF reminder and Start/Resume/Review. Exercise completion percentages use the same denominator as the exercise count. A small real photograph opens form reference. Physical therapy and training coverage are explicit links. Keep the user's purpose visible above the workspace. Keep all food work inside Food.
 
 Train keeps session browsing separate from the focused workout. Day buttons fit seven across on phones; Today stays inside its button. A plan reminder belongs inside the overview. Avoid repeating a generic explanation that a workout appears on that weekday. Browse-screen actions stay in the page instead of covering the session overview.
 
@@ -21,6 +21,12 @@ Body defaults to Area journal. Clicking a muscle or group selects it and opens a
 Training guide is separate: Planned work, Logged sets and Compare areas. Logged sets means actual recorded exercise sets, never body notes and never a substituted plan. Exercise links from Train explicitly open this guide. A secondary link from an area journal opens related exercises, with a direct return to that area's journal.
 
 Use the front and back maps and the named-area selector for reliable selection. The previous clay turning viewer is removed from the interface. Do not restore it or imply that the current diagram is a 3D model. Detailed anatomy is an explicit option.
+
+## Food
+
+Food options, Ingredient prep, Inventory and Shopping share one workspace. Prep ingredients as flexible building blocks. Preserve the original recipe library and allow personal combinations. Prepared/on-hand ingredient tiles filter varied options; show exactly which ingredients are known to be available. Keep food and drink logging immediately accessible on phones.
+
+Inventory expands by Fridge, Freezer and Pantry, then food category, then editable item. Shopping starts empty: selected prep feeds a review, with missing ingredients checked and uncertain quantities requiring a check. Staples always require explicit selection. Confirm before adding groceries. Existing untouched starter groceries move to a recoverable archive; personal entries remain. Never automatically restock low inventory or convert prep servings into purchase amounts. See docs/food-ingredient-workspace.md for the complete flow.
 
 ## Data, reflection and media
 

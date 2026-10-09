@@ -9,7 +9,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { localDate, prettyDate, recordDate } from "@/lib/daylight/dates";
-import { mealReady, progressLabel, sessionProgress } from "@/lib/daylight/logic";
+import { progressLabel, sessionProgress } from "@/lib/daylight/logic";
 import { activePlan, dayBlocks, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { exerciseById } from "@/lib/daylight/exercises";
@@ -37,10 +37,6 @@ export function Today() {
   const featuredExercise = featured ? exerciseById(featured.exerciseId) : null;
   const featuredPhoto = featured ? photosFor(featured.exerciseId) : undefined;
   const food = useFoodNumbers();
-  const lastLog = [...s.foodLogs].reverse().find((x) => x.mealId);
-  const lastMeal = s.savedMeals.find((m) => m.id === lastLog?.mealId);
-  const ready = s.savedMeals.find((m) => mealReady(m, s.inventory));
-  const repeat = lastMeal ?? ready ?? s.savedMeals.find((m) => m.pinned);
   const latest = observationsForArea(s.observations)[0];
   const flagged = s.observations.filter((x) => x.forNextPlan).length;
   const hasWork = Boolean(session?.logs.length);
@@ -254,26 +250,15 @@ export function Today() {
           </div>
           <div className="daily-food-content">
             <div>
-              <h2>{repeat ? repeat.name : "Make your next meal easier"}</h2>
+              <h2>Ingredients ready. Options open.</h2>
               <p className="mt-2 text-sm text-ink-soft">
-                {repeat
-                  ? lastMeal
-                    ? "A familiar meal you’ve logged before."
-                    : "One of your saved meals."
-                  : "Meals, ingredients, shopping and prep—all together."}
+                Prep ingredients, combine them your way, and buy only what you need.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
-                {repeat ? (
-                  <Button onClick={() => s.setOverlay({ type: "repeat-meal", mealId: repeat.id })}>
-                    Repeat this meal
-                    <ArrowRight className="size-4" />
-                  </Button>
-                ) : (
-                  <Button onClick={() => s.setView("food")}>
-                    Choose a meal
-                    <ArrowRight className="size-4" />
-                  </Button>
-                )}
+                <Button onClick={() => s.setView("food")}>
+                  Open food options
+                  <ArrowRight className="size-4" />
+                </Button>
                 <Button tone="outline" onClick={() => s.setOverlay({ type: "log-food" })}>
                   Log food
                 </Button>
