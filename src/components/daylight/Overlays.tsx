@@ -1,5 +1,5 @@
 import { PhotoPicker } from "./NoteImages";
-import { jointName } from "@/lib/daylight/joints";
+import { entityName } from "@/lib/daylight/anatomy";
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Flag, Mic } from "lucide-react";
 import { WEEKDAY_NAMES, clock, localDate, localTime } from "@/lib/daylight/dates";
@@ -121,7 +121,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
         </span>
         {exerciseId ? <Chip active onClick={() => setExerciseId(undefined)}>{exerciseLabel(exerciseId)} ✕</Chip> : null}
         {muscleId ? <Chip active tone="teal" onClick={() => setMuscleId(undefined)}>{muscleName(muscleId)} ✕</Chip> : null}
-        {jointId ? <Chip active tone="teal" onClick={() => setJointId(undefined)}>{jointName(jointId)} ✕</Chip> : null}
+        {jointId ? <Chip active tone="teal" onClick={() => setJointId(undefined)}>{entityName(jointId)} ✕</Chip> : null}
       </div>
       <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1" aria-label="Quick tags">
         {quickTags.map((t) => (

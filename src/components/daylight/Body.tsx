@@ -5,9 +5,6 @@ import {
   GROUPS,
   SUBS,
   groupInfo,
-  isGroup,
-  isRegion,
-  isSub,
   resolveMuscle,
   subInfo,
   targetFor,
@@ -38,11 +35,8 @@ import {
   ROLE_STRENGTH,
 } from "@/lib/daylight/figureColors";
 
-import { MapFigure, type MapLevel } from "./MapFigure";
-import { BodyJournal } from "./BodyJournal";
-import { JointsView } from "./Joints";
-import { MusclePage } from "./MusclePage";
-import { Badge, Button, Card, Chip, Eyebrow, PageHead, Segmented } from "./ui";
+import { BodyHub, type HubTab } from "./BodyHub";
+import { Badge, Card, Chip, Eyebrow, PageHead, Segmented } from "./ui";
 
 export const STATUS_TONE: Record<CoverageStatus, "danger" | "copper" | "sun" | "forest" | "teal"> =
   {
@@ -116,42 +110,13 @@ export function Body() {
   const mode = state.bodyMode;
   const target = state.weeklyTarget;
   const detail = state.bodyDetail;
-  const level: MapLevel = detail === "advanced" ? "sub" : "region";
   const planned = useMemo(() => plannedVolume(plan), [plan]);
   const heat = useMemo(
     () => heatSnapshot(state.sessions, plan, state.heatWindow, today),
     [state.sessions, plan, state.heatWindow, today],
   );
-  const heatSrc: Src = heat;
 
-  const raw = state.selectedMuscleId;
-  const canon = raw ? resolveMuscle(raw) : null;
-  const journal = state.bodyWorkspace !== "training";
-  const joints = state.bodyWorkspace === "joints";
-  if (!journal && canon) {
-    // a stored id can be new (group / region / sub) or old (flat v2 ids): old ones open at their sub-part or group
-    const id: AnyMuscleId = (
-      isGroup(canon.id) || isRegion(canon.id) || isSub(canon.id)
-        ? canon.id
-        : (canon.sub ?? canon.group)
-    ) as AnyMuscleId;
-    return (
-      <div>
-        <Button
-          tone="ghost"
-          className="mb-4"
-          onClick={() => state.setBody({ bodyWorkspace: "journal" })}
-        >
-          ← Return to area journal
-        </Button>
-        <p className="eyebrow mb-3">Training guide · exercises and coverage</p>
-        <MusclePage key={id} id={id} planned={planned} heat={heat} />
-      </div>
-    );
-  }
-
-  const fill = (id: AnyMuscleId) => figureFill(mode, id, planned, heatSrc, target);
-  const under = (id: AnyMuscleId) => isUnder(mode, id, planned, heatSrc, target);
+  const tab: HubTab = state.bodyWorkspace === "learn" ? "learn" : state.bodyWorkspace === "training" ? "training" : "journal";
   const underSubs = SUBS.filter((s) =>
     ["none", "indirect"].includes(statusFor(planned[s.id], 1, targetFor(s.id, target))),
   );
@@ -159,97 +124,40 @@ export function Body() {
     <div>
       <PageHead
         title="Body"
-        helper="Notice what changes. Keep a record by area. Use it when you review your plan."
+        helper="Journal what you feel, learn how it all connects, and find growth and recovery options."
       />
       <Segmented
         label="Body workspace"
-        value={joints ? "joints" : journal ? "journal" : "training"}
+        value={tab}
         onChange={(v) => state.setBody({ bodyWorkspace: v, selectedMuscleId: null })}
         options={[
-          { id: "journal", label: "Area journal" },
-          { id: "joints", label: "Joints" },
+          { id: "journal", label: "Journal" },
+          { id: "learn", label: "Learn" },
           { id: "training", label: "Training guide" },
         ]}
         className="mb-5"
       />
-      {joints ? (
-        <JointsView />
-      ) : journal ? (
-        <BodyJournal />
-      ) : (
-        <>
-          <div className="flex flex-wrap gap-3 items-center">
-            <Segmented<BodyMode>
-              label="Training coverage"
-              value={mode}
-              onChange={(v) => state.setBody({ bodyMode: v })}
-              options={[
-                { id: "plan", label: "Planned work" },
-                { id: "heat", label: "Logged sets" },
-                { id: "grow", label: "Compare areas" },
-              ]}
-            />
-            <label className="text-sm flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={detail === "advanced"}
-                onChange={(e) =>
-                  state.setBody({ bodyDetail: e.target.checked ? "advanced" : "standard" })
-                }
+      <BodyHub key={tab} tab={tab} />
+      {tab === "training" && !state.selectedMuscleId ? (
+        <div className="mt-5 grid gap-5 lg:grid-cols-2 items-start" data-testid="coverage-overview">
+          <div>
+            <div className="flex flex-wrap gap-3 items-center">
+              <Segmented<BodyMode>
+                label="Training coverage"
+                value={mode}
+                onChange={(v) => state.setBody({ bodyMode: v })}
+                options={[
+                  { id: "plan", label: "Planned work" },
+                  { id: "heat", label: "Logged sets" },
+                  { id: "grow", label: "Compare areas" },
+                ]}
               />
-              Detailed muscles
-            </label>
-          </div>
-          <p className="mt-3 text-sm text-ink-soft">
-            {mode === "heat"
-              ? `Estimated coverage from sets you logged in the last ${state.heatWindow} days. An empty log leaves the map uncoloured.`
-              : "Select an area to explore exercises and estimated training coverage."}
-          </p>
-          {mode === "heat" ? (
-            <div className="flex gap-2 mt-3">
-              {([7, 14, 30] as const).map((d) => (
-                <Chip
-                  key={d}
-                  active={state.heatWindow === d}
-                  onClick={() => state.setBody({ heatWindow: d })}
-                >
-                  {d} days
-                </Chip>
-              ))}
-              <Badge className="ml-auto">{fmt(heat.totalSets)} logged sets</Badge>
             </div>
-          ) : null}
-          <div className="mt-5 grid gap-5 lg:grid-cols-2 items-start">
-            <div>
-              <div
-                className="figure-panel card p-4 grid grid-cols-2"
-                data-testid="main-map"
-                data-level={level}
-              >
-                {(["front", "back"] as const).map((view) => (
-                  <MapFigure
-                    key={view}
-                    view={view}
-                    level={level}
-                    className="mx-auto w-full max-w-[230px]"
-                    fill={fill}
-                    under={under}
-                    onSelect={(id) => state.setBody({ selectedMuscleId: id })}
-                    showLabel
-                  />
-                ))}
-              </div>
-              <Legend mode={mode} />
-            </div>
-            <Overview
-              planned={planned}
-              heat={heat}
-              mode={mode}
-              underSubs={underSubs.map((s) => s.id)}
-            />
+            <Legend mode={mode} />
           </div>
-        </>
-      )}
+          <Overview planned={planned} heat={heat} mode={mode} underSubs={underSubs.map((s) => s.id)} />
+        </div>
+      ) : null}
     </div>
   );
 }

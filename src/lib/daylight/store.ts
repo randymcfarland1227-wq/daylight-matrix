@@ -149,7 +149,7 @@ type Data = {
   bodyDetail: "standard" | "advanced";
   /** Body map surface: the flat front + back chart, or the turnable 6'4" figure. */
   bodyStyle: "map" | "turn";
-  bodyWorkspace: "journal" | "training" | "joints";
+  bodyWorkspace: "journal" | "learn" | "training" | "joints";
   jointLogs: JointLog[];
   schemaVersion: number;
   theme: ThemeChoice;

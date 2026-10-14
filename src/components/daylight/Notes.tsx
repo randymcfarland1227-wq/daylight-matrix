@@ -1,5 +1,5 @@
 import { NoteThumbs, PhotoPicker } from "./NoteImages";
-import { jointName } from "@/lib/daylight/joints";
+import { entityName } from "@/lib/daylight/anatomy";
 import { noteImageIds, restoreImages, withImages } from "@/lib/daylight/noteImages";
 import { useMemo, useRef, useState } from "react";
 import { Copy, Download, Flag, Pencil, Trash2, Upload, Check, FileText } from "lucide-react";
@@ -150,7 +150,7 @@ function NoteCard({ note: n }: { note: Observation }) {
   const state = useDaylight();
   const [edit, setEdit] = useState(false);
   const [text, setText] = useState(n.text);
-  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, noteArea(n) ? muscleName(noteArea(n)!) : null, n.context.jointId ? jointName(n.context.jointId) : null, n.context.bodySide ? (n.context.bodySide === "both" ? "Both sides" : n.context.bodySide === "left" ? "Left" : "Right") : null].filter(Boolean);
+  const where = [n.context.exerciseId ? exerciseLabel(n.context.exerciseId) : null, noteArea(n) ? muscleName(noteArea(n)!) : null, n.context.jointId ? entityName(n.context.jointId) : null, n.context.bodySide ? (n.context.bodySide === "both" ? "Both sides" : n.context.bodySide === "left" ? "Left" : "Right") : null].filter(Boolean);
   return (
     <li>
       <article className={cn("card p-3.5", n.forNextPlan && "border-warn/50")}>

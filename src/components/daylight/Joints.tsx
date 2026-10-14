@@ -22,7 +22,7 @@ function points(j: JointInfo, view: View) {
 }
 
 /** Side profile (facing right) showing the spine's S-curve. Same 300 x 600 box as MapFigure. */
-function SideFigure() {
+export function SideFigure() {
   return (
     <svg viewBox="0 0 300 600" className="h-auto w-full" role="img" aria-label="side joints map">
       <g fill="var(--journal-idle)" stroke="var(--line-strong, var(--line))" strokeWidth="2" strokeLinejoin="round">
