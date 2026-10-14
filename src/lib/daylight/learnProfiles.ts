@@ -3,15 +3,16 @@
  * (everyday use, where you feel it, what happens if you skip it, how to train it, key patterns, common mistakes, quick answers).
  * All wording is our own. General education, not medical advice.
  */
-import type { RegionId, SubId } from "./muscles";
+import type { GroupId, RegionId, SubId } from "./muscles";
+import type { JointId } from "./joints";
 
 export type Profile = {
   tagline: string;
   everyday: string[];
   feel: string;
-  skip: string;
-  reps: string;
-  freq: string;
+  skip?: string;
+  reps?: string;
+  freq?: string;
   patterns: string[];
   mistakes: string[];
   faq?: { q: string; a: string }[];
@@ -51,4 +52,111 @@ export const ROLE: Partial<Record<SubId, string>> = {
   "adductors-sub": "Pulls the leg in and helps extend the hip from a deep squat.", "adductor-longus": "Pulls the leg in and a little forward.", gracilis: "Pulls the leg in and helps bend the knee.",
   "ham-medial": "Bends the knee, extends the hip, turns the shin in.", "ham-semimem": "Bends the knee, extends the hip, turns the shin in.", "ham-lateral": "Bends the knee, extends the hip, turns the shin out.",
   gastroc: "Points the foot; also helps bend the knee.", soleus: "Points the foot when the knee is bent; key for walking stamina.", tibialis: "Lifts the toes and controls the foot landing.",
+};
+
+/** Per sub-muscle: where you should feel it working. */
+export const FEEL: Record<SubId, string> = {
+  "chest-clav": "Just under the collarbone, toward the front of the shoulder, on incline presses and low-to-high flys.",
+  "chest-sternal": "The middle of the chest beside the breastbone, most at the bottom of a flat press or fly.",
+  "chest-lower": "The lower edge of the chest toward the armpit fold, on dips and high-to-low flys.",
+  serratus: "Along the side ribs under the armpit when you push the arms fully forward at the end of a push-up.",
+  "delt-front": "The front of the shoulder cap on presses and front raises.",
+  "delt-side": "The outer point of the shoulder; a burn there on lateral raises.",
+  "delt-rear": "Behind the shoulder, at the back of the armpit, on reverse flys and face pulls.",
+  "rotator-cuff": "Deep in the back of the shoulder blade and the back of the shoulder on external rotations: a small, targeted burn.",
+  "traps-upper": "The slope from neck to shoulder top on shrugs and heavy carries.",
+  "traps-mid": "Across the top of the shoulder blades when you squeeze them together at the end of a row.",
+  rhomboids: "Between the spine and the inner edge of the shoulder blades on rows with a pause.",
+  "traps-lower": "Under the shoulder blades toward the mid-spine on Y-raises and pulling the blades down.",
+  lats: "Down the side of the back from the armpit to the waist, most in the stretch of a pulldown.",
+  "teres-major": "A small spot at the outer lower corner of the shoulder blade near the armpit on pulldowns.",
+  erectors: "In the two columns either side of the spine on hinges and back extensions; a working warmth, not a sharp pain.",
+  "biceps-long": "The outer front of the upper arm, most in the stretch of incline curls.",
+  "biceps-short": "The inner front of the upper arm at the top of preacher or spider curls.",
+  brachialis: "On the outer side of the arm under the biceps, low near the elbow, on hammer curls.",
+  brachioradialis: "The thumb-side ridge of the forearm just below the elbow on hammer and reverse curls.",
+  "triceps-long": "The inner back of the upper arm near the armpit, most in overhead extensions.",
+  "triceps-lateral": "The outer back of the upper arm (the horseshoe) on pressdowns.",
+  "triceps-medial": "Low on the back of the arm just above the elbow at lockout.",
+  "forearm-flexors": "The palm side of the forearm on gripping, hangs and wrist curls.",
+  "forearm-extensors": "The back of the forearm on reverse curls and reverse wrist curls.",
+  "abs-upper": "The top of the six-pack under the ribs when you curl the ribs down.",
+  "abs-lower": "Below the navel when you tilt the pelvis up in reverse crunches or leg raises.",
+  obliques: "The sides of the waist when resisting a twist or bending to the side.",
+  transverse: "A deep tightening all around the waist, like a belt pulling in, on a full exhale.",
+  "glute-max": "The main mass of the buttock at the top of a hip thrust, or rising from a deep squat.",
+  "glute-med": "The upper-outer hip, just under the pelvis rim, on band walks, clamshells and single-leg work.",
+  "glute-min": "Deep in the side of the hip under the glute med, mostly as steadiness when standing on one leg.",
+  tfl: "The front-outer hip below the hip bone, on abduction with the toes turned in.",
+  "hip-flexors": "Deep in the crease at the front of the hip when lifting the knee.",
+  "quad-rf": "The centre of the front thigh up to the hip, especially on leg extensions.",
+  "quad-vl": "The outer front thigh on squats and leg presses.",
+  "quad-vm": "The teardrop just above and inside the knee at deep knee bend and full lockout.",
+  "quad-vi": "A deep front-thigh effort on every knee extension (not felt separately).",
+  "adductors-sub": "The back-inner thigh near the sit bone in deep, wide squats.",
+  "adductor-longus": "High on the inner thigh close to the groin on the adductor machine and Copenhagen planks.",
+  gracilis: "A long strip down the inner thigh toward the knee when squeezing the legs together.",
+  "ham-medial": "The inner back of the thigh toward the knee on curls with the toes turned slightly in.",
+  "ham-semimem": "The inner back of the thigh, deep, on RDLs and curls.",
+  "ham-lateral": "The outer back of the thigh toward the knee on curls with the toes turned slightly out.",
+  gastroc: "The upper calf bulge on straight-knee calf raises.",
+  soleus: "Lower and wider on the calf on bent-knee (seated) raises.",
+  tibialis: "The front of the shin on toe raises; a quick, strong burn.",
+};
+
+export const GROUP_PROFILES: Record<GroupId, Profile> = {
+  chest: { tagline: "Your pushing engine.", everyday: ["Pushing doors, carts and furniture", "Getting up off the floor"], feel: "Across the front of the ribcage.", skip: "Shoulders and triceps take over pushing.", reps: "6–12 presses, 10–20 flys", freq: F2, patterns: ["Flat and incline press", "Fly", "Dip"], mistakes: ["Short range", "Elbows flared wide", "Bouncing reps"] },
+  shoulders: { tagline: "Moves the arm in every direction.", everyday: ["Reaching overhead", "Throwing and carrying"], feel: "Around the shoulder cap: front, side and back.", skip: "Overhead reach and shoulder stability suffer.", reps: "8–25 depending on the head", freq: "2–3 sessions a week", patterns: ["Overhead press", "Lateral raise", "Reverse fly", "External rotation"], mistakes: ["Heavy swinging raises", "Neglecting the rear delts and cuff"] },
+  back: { tagline: "Pulls, holds posture and protects the spine.", everyday: ["Pulling, lifting and carrying", "Sitting and standing tall"], feel: "From the neck down to the low back, depending on the move.", skip: "Posture rounds and pulling stays weak.", reps: "6–15", freq: F2, patterns: ["Vertical pull", "Row", "Hinge", "Shrug or carry"], mistakes: ["Pulling with the arms only", "Rounding under load"] },
+  arms: { tagline: "Bends and straightens the elbow, and grips.", everyday: ["Carrying, opening jars, pushing up from a chair"], feel: "Front, back and forearm of the arm.", skip: "Arms limit your presses and pulls.", reps: "8–15 (forearms 12–25)", freq: "2–3 sessions a week", patterns: ["Curl", "Triceps extension", "Carry or grip work"], mistakes: ["Swinging", "Partial reps"] },
+  core: { tagline: "Braces, bends and resists twisting.", everyday: ["Lifting, coughing, turning to reach"], feel: "Around the stomach and waist.", skip: "Bracing weakens and the low back does more.", reps: "8–20 or 20–40 s holds", freq: "2–3 sessions a week", patterns: ["Anti-extension", "Anti-rotation", "Trunk flexion", "Carries"], mistakes: ["Holding the breath throughout", "Arching the back in planks"] },
+  glutes: { tagline: "The hips' power and stability.", everyday: ["Stairs, standing up, walking on one leg"], feel: "The buttock and the upper-outer hip.", skip: "Back and knees take more load.", reps: "8–25", freq: "2–3 sessions a week", patterns: ["Hip thrust", "Hinge", "Squat/lunge", "Abduction", "Single-leg balance"], mistakes: ["Arching at lockout", "Knees caving"] },
+  quads: { tagline: "Straightens the knee.", everyday: ["Rising from a chair", "Stairs"], feel: "The front of the thigh.", skip: "Knees lose support; stairs feel harder.", reps: "6–20", freq: F2, patterns: ["Squat", "Leg press", "Lunge", "Leg extension"], mistakes: ["Shallow depth", "Heels lifting"] },
+  adductors: { tagline: "Pulls the legs together and steadies the pelvis.", everyday: ["Getting out of a car", "Changing direction"], feel: "The inner thigh.", skip: "Groin strains are more likely.", reps: "10–20", freq: F2, patterns: ["Adductor machine", "Copenhagen plank", "Lateral lunge"], mistakes: ["Too much stretch too soon"] },
+  hamstrings: { tagline: "Bends the knee and drives the hip.", everyday: ["Walking, running, bending over"], feel: "The back of the thigh.", skip: "More low-back load and strain risk.", reps: "6–15", freq: F2, patterns: ["Hinge", "Leg curl", "Nordic"], mistakes: ["Rounded back on hinges", "Only one pattern"] },
+  calves: { tagline: "Push-off and ankle control.", everyday: ["Walking, tiptoe reaching, stairs"], feel: "The back and front of the lower leg.", skip: "Weaker push-off; less Achilles support.", reps: "10–20", freq: "2–4 sessions a week", patterns: ["Standing raise", "Seated raise", "Toe raise"], mistakes: ["Bouncing", "Half reps"] },
+};
+
+/** Joints: how you use it, where problems show up, how to keep it healthy, habits that annoy it. */
+export const JOINT_PROFILES: Record<JointId, Profile> = {
+  neck: { tagline: "Carries and aims your head all day.", everyday: ["Checking a blind spot", "Looking at a screen or down at a phone"], feel: "At the back and sides of the neck, sometimes spreading to the shoulder top.", skip: "Stiffness after long desk days.", patterns: ["Chin tucks", "Gentle rotations", "Upper-back and lower-trap work"], mistakes: ["Craning forward under load", "Shrugging on every pull", "Cranking the neck in stretches"] },
+  shoulder: { tagline: "The most mobile joint, held by muscle.", everyday: ["Reaching, throwing, lifting overhead"], feel: "Front or top of the shoulder when irritated; back of the shoulder when tired.", skip: "Loses overhead range and stability.", patterns: ["Rotator cuff external rotation", "Balanced push and pull", "Scapular control (Y, T raises)"], mistakes: ["Far more pressing than pulling", "Elbows flared at 90°", "Pushing through a pinch"] },
+  elbow: { tagline: "A hinge for every curl, press and carry.", everyday: ["Lifting a bag", "Pushing up from a chair"], feel: "The inner or outer bony point of the elbow.", skip: "Sore tendons from sudden jumps in grip work.", patterns: ["Gradual curl and extension volume", "Wrist and forearm strength"], mistakes: ["Big jumps in load", "Locking out hard and fast"] },
+  wrist: { tagline: "Passes every grip and press load to the arm.", everyday: ["Typing", "Push-ups", "Carrying"], feel: "The back or the thumb side of the wrist.", skip: "Pressing and push-ups feel sore.", patterns: ["Wrist curls both ways", "Neutral wrist on presses", "Gentle wrist mobility"], mistakes: ["Bending the wrist back under heavy presses", "Sudden high grip volume"] },
+  tspine: { tagline: "The upper-back hinge that lets the shoulders work.", everyday: ["Turning to look behind", "Sitting tall"], feel: "Between the shoulder blades and around the ribs.", skip: "Stiffness pushes load to the neck and low back.", patterns: ["Open books", "Thoracic extension over a bench", "Rows"], mistakes: ["Forcing rotation through the low back", "Long static slouching"] },
+  lumbar: { tagline: "The base of the spine; likes stiffness under load.", everyday: ["Lifting from the floor", "Sitting and standing"], feel: "Across the belt line, sometimes one side.", skip: "Less tolerance for lifting and long sitting.", patterns: ["Bracing", "Bird-dog", "Hinging with a neutral spine", "Walking"], mistakes: ["Rounding under heavy load", "Hard end-range stretching on tender days", "Long static postures"] },
+  si: { tagline: "Where the spine meets the pelvis.", everyday: ["Walking", "Standing on one leg", "Getting out of a car"], feel: "A dimple-side ache at the back of the pelvis.", skip: "One-sided pelvic aches with asymmetric loading.", patterns: ["Glute med and max strength", "Even single-leg work", "Bracing"], mistakes: ["Big asymmetric loads", "Aggressive twisting stretches"] },
+  hip: { tagline: "A deep ball-and-socket that drives the legs.", everyday: ["Walking, squatting, climbing"], feel: "The groin crease, outer hip or buttock.", skip: "Tightness and pinching in deep squats.", patterns: ["Full-range squats and hinges", "Abduction and rotation mobility", "90/90 switches"], mistakes: ["Forcing depth past a pinch", "Knees caving"] },
+  knee: { tagline: "A hinge steered by the hip and the foot.", everyday: ["Stairs, squats, getting up"], feel: "Around or behind the kneecap; inner or outer joint line.", skip: "Pain on stairs if the quads are weak.", patterns: ["Quad and hamstring strength", "Glute med for alignment", "Gradual volume increases"], mistakes: ["Knees caving in", "Sudden jumps in running or jumping volume"] },
+  ankle: { tagline: "Balance and push-off.", everyday: ["Walking on uneven ground", "Stairs", "Squatting deep"], feel: "Front of the ankle when stiff; Achilles at the back.", skip: "Squats tip forward, balance drops.", patterns: ["Calf raises", "Ankle mobility", "Balance work"], mistakes: ["Ignoring stiffness", "Big sudden jumps in running"] },
+};
+
+const NV = (tagline: string, everyday: string, feel: string, patterns: string[], mistakes: string[]): Profile => ({ tagline, everyday: [everyday], feel, patterns, mistakes });
+const GENTLE = "Gentle nerve-glide movement instead of hard static stretching";
+/** Nerves: what it lets you do, where irritation tends to show up, nerve-friendly habits, habits that irritate it. */
+export const NERVE_PROFILES: Record<string, Profile> = {
+  "nerve-cervical": NV("The roots that leave the neck for the arms and shoulders.", "Every arm movement and the feeling in your arms and hands.", "Neck pain that spreads into the shoulder blade or arm.", ["Chin tucks", "Changing position often", GENTLE], ["Long craned-neck postures", "Heavy loads with the head jutting forward"]),
+  "nerve-brachial-plexus": NV("The junction box between neck and arm.", "All arm muscles and arm feeling.", "Diffuse tingling or heaviness down the arm.", ["Relaxed shoulders", GENTLE], ["Carrying heavy bags on one shoulder", "Sleeping on an outstretched arm"]),
+  "nerve-axillary": NV("Powers the deltoid and teres minor.", "Lifting the arm out and up.", "Outer shoulder, a patch on the upper arm.", ["Balanced shoulder training"], ["Forcing heavy overhead range when the shoulder is unstable"]),
+  "nerve-musculocutaneous": NV("Powers the biceps and brachialis.", "Bending the elbow.", "The outer forearm skin.", ["Gradual curl volume"], ["Very heavy, jerky curls"]),
+  "nerve-radial": NV("Powers the triceps and wrist extensors.", "Straightening the elbow and lifting the wrist.", "The back of the forearm and hand, thumb side.", ["Relaxed grip between sets", GENTLE], ["Hanging an arm over a chair back for long periods", "Very tight grip all day"]),
+  "nerve-median": NV("Powers most grip muscles.", "Gripping and fine thumb movements.", "Thumb, index and middle fingers.", ["Neutral wrists at the keyboard", "Breaks from repeated gripping"], ["Long bent-wrist positions", "Sleeping with bent wrists"]),
+  "nerve-ulnar": NV("Powers the small hand muscles.", "Fine finger control and grip strength.", "The ring and little fingers (the funny bone).", ["Not leaning on the elbows", "Avoid long, deep elbow bends"], ["Phone held to the ear with the elbow bent for long", "Resting on the inner elbow"]),
+  "nerve-suprascapular": NV("Powers the supraspinatus and infraspinatus.", "Starting to lift and rotating the arm out.", "A deep ache over the back of the shoulder blade.", ["Rotator cuff work", "Scapular control"], ["Heavy overhead volume with poor shoulder-blade control"]),
+  "nerve-long-thoracic": NV("Powers the serratus.", "Holding the shoulder blade on the ribs when you push and reach.", "A shoulder blade that sticks out (winging).", ["Serratus work: push-up plus, wall slides"], ["Heavy backpacks on one strap"]),
+  "nerve-thoracodorsal": NV("Powers the lats.", "Pulling the arm down and back.", "Rarely felt as nerve symptoms.", ["Normal pull training"], ["—"]),
+  "nerve-pectoral": NV("Powers the chest.", "Pushing and hugging.", "Rarely felt.", ["Normal press training"], ["—"]),
+  "nerve-accessory": NV("Powers the traps (and sternocleidomastoid).", "Shrugging and turning the head.", "Upper-trap weakness or ache.", ["Shrugs and carries"], ["Heavy straps over one shoulder"]),
+  "nerve-dorsal-scapular": NV("Powers the rhomboids and levator scapulae.", "Pulling the shoulder blades together.", "An ache along the inner edge of the shoulder blade.", ["Rows", "Neck posture breaks"], ["Long forward-head posture"]),
+  "nerve-intercostal": NV("Supplies the ribs and abdominal wall.", "Breathing, bracing, trunk curls.", "A band-like ache around the ribs.", ["Breathing drills", "Gradual core work"], ["Sudden heavy twisting"]),
+  "nerve-dorsal-rami": NV("Supply the spinal muscles and the skin of the back.", "Holding the spine upright.", "Local back ache beside the spine.", ["Walking", "Bracing", "Bird-dog"], ["Long static postures", "Heavy rounded lifting"]),
+  "nerve-lumbar-plexus": NV("The low-back junction for the front of the leg.", "Lifting the thigh and straightening the knee.", "The front of the thigh or groin.", ["Hip flexor and quad mobility", GENTLE], ["Long hip-flexed sitting"]),
+  "nerve-femoral": NV("Powers the quads and hip flexors.", "Straightening the knee, climbing stairs.", "The front of the thigh and inner shin.", ["Quad strength", GENTLE], ["Very deep, prolonged hip flexion under pressure"]),
+  "nerve-obturator": NV("Powers the adductors.", "Pulling the legs together.", "The inner thigh.", ["Gradual adductor work"], ["Sudden wide splits or lunges"]),
+  "nerve-sacral-plexus": NV("The pelvic junction for the back of the leg.", "Hip extension, knee bending, foot control.", "Buttock and back of the leg.", ["Walking", "Glute strength", GENTLE], ["Sitting long on a wallet or hard edge"]),
+  "nerve-superior-gluteal": NV("Powers the glute med, glute min and TFL.", "Keeping the pelvis level when you walk.", "Hip drop on one side when walking (weakness rather than pain).", ["Side-lying abduction, band walks"], ["—"]),
+  "nerve-inferior-gluteal": NV("Powers the glute max.", "Standing up, climbing, sprinting.", "Rarely felt.", ["Hip thrusts and hinges"], ["—"]),
+  "nerve-sciatic": NV("The body's largest nerve, down the back of the leg.", "The hamstrings and everything below the knee.", "Buttock pain spreading down the back of the leg, sometimes to the foot.", ["Walking", "Gentle sciatic nerve glides", "Glute and core strength"], ["Long sitting on a hard edge", "Aggressive hamstring stretching when it's irritated"]),
+  "nerve-tibial": NV("Powers the calf and the sole of the foot.", "Pushing off, pointing the foot.", "The sole of the foot and the inner ankle.", ["Calf strength", "Ankle mobility"], ["Very tight shoes or long standing on hard ground"]),
+  "nerve-peroneal": NV("Powers the shin and the outer lower-leg muscles.", "Lifting the foot and toes.", "The outer shin and top of the foot.", ["Tibialis raises", "Changing position when kneeling or squatting"], ["Sitting with the legs crossed for long", "Pressure at the outer knee"]),
 };

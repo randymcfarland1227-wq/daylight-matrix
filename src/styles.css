@@ -546,3 +546,10 @@
   .food-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); overflow: visible; }
   .food-tabs > button { min-width: 0; white-space: normal; }
 }
+
+/* Round 13: realistic figure */
+.mapfig-real .mapreg .mr-fill { transition: fill 220ms ease; }
+.mapfig-real .mapreg:hover .mr-fill { fill: #efb489; filter: none; }
+.mapfig-real .mapreg:hover .mr-edge { fill: #c4622a; stroke: #c4622a; }
+.mapfig-real .mapreg[data-selected="true"] .mr-fill { fill: #f0843a; }
+.mapfig-real .mapreg[data-selected="true"] .mr-edge { fill: #b4501c; stroke: #b4501c; stroke-width: 3; }

@@ -1,4 +1,4 @@
-import { PROFILES, ROLE } from "@/lib/daylight/learnProfiles";
+import { PROFILES, ROLE, FEEL, GROUP_PROFILES, JOINT_PROFILES, NERVE_PROFILES } from "@/lib/daylight/learnProfiles";
 import { subInfo as subInfoR12, type RegionId as RegionIdR12, type SubId as SubIdR12 } from "@/lib/daylight/muscles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink, Pencil, Play, Trash2 } from "lucide-react";
@@ -71,7 +71,8 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
   const [side, setSide] = useState(false);
   const today = localDate();
   const muscleLevel = level === "group" || level === "muscle" || level === "detail";
-  const fill = (id: AnyMuscleId) => (muscleLevel ? mix(FIG_SKIN, GROUP_HUE[groupOf(id)], 0.42) : "var(--journal-idle)");
+  const fill = (_id: AnyMuscleId) => (muscleLevel ? "#d9b6a0" : "#e3d3c4");
+  const [sel, setSel] = useState<string | null>(null);
   const views = side && level === "joint" ? (["side"] as const) : (["front", "back"] as const);
   return (
     <div data-testid="hub-map">
@@ -83,7 +84,7 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
           {views.map((view) => (
             <div key={view} className="relative">
               {view === "side" ? <SideFigure /> : (
-                <MapFigure view={view} level={MAP_LEVEL[level]} interactive={muscleLevel} showLabel className="h-auto w-full" fill={fill} onSelect={(id) => onPick(id)} label={`${view} ${level} map`} />
+                <MapFigure realistic view={view} level={MAP_LEVEL[level]} interactive={muscleLevel} showLabel className="mapfig-real h-auto w-full" fill={fill} selected={sel} onSelect={(id) => { setSel(id); onPick(id); }} label={`${view} ${level} map`} />
               )}
               {level === "joint" ? <JointLayer view={view} logs={s.jointLogs ?? []} today={today} onPick={onPick} /> : null}
               {level === "nerve" && view !== "side" ? <NerveLayer view={view} onPick={onPick} /> : null}
@@ -325,7 +326,12 @@ function ExerciseSplit({ e }: { e: Entity }) {
 }
 
 function profileFor(e: Entity) {
-  return PROFILES[(e.kind === "detail" ? e.parent : e.id) as RegionIdR12];
+  if (e.kind === "group") return GROUP_PROFILES[e.id as keyof typeof GROUP_PROFILES];
+  if (e.kind === "joint") return JOINT_PROFILES[e.id as keyof typeof JOINT_PROFILES];
+  if (e.kind === "nerve") return NERVE_PROFILES[e.id];
+  const p = PROFILES[(e.kind === "detail" ? e.parent : e.id) as RegionIdR12];
+  if (p && e.kind === "detail" && FEEL[e.id as SubIdR12]) return { ...p, feel: FEEL[e.id as SubIdR12] };
+  return p;
 }
 
 function ProfileBlock({ e, part }: { e: Entity; part: "learn" | "guide" }) {
@@ -336,15 +342,15 @@ function ProfileBlock({ e, part }: { e: Entity; part: "learn" | "guide" }) {
     <div data-testid={`${part}-profile`}>
       {part === "learn" ? <>
       <L t="What it lets you do" xs={p.everyday} />
-      <div className="mt-4"><h3 className="text-base font-semibold">Where you feel it</h3><p className="mt-1 text-sm">{p.feel}</p></div>
-      <div className="mt-4"><h3 className="text-base font-semibold">If you skip it</h3><p className="mt-1 text-sm">{p.skip}</p></div>
+      <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "nerve" ? "Where irritation tends to show up" : e.kind === "joint" ? "Where you notice it" : "Where you feel it"}</h3><p className="mt-1 text-sm">{p.feel}</p></div>
+      {p.skip ? <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "joint" ? "If you neglect it" : "If you skip it"}</h3><p className="mt-1 text-sm">{p.skip}</p></div> : null}
       </> : <>
-      <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+      {p.reps ? <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
         <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Rep ranges</Eyebrow><p className="mt-0.5">{p.reps}</p></div>
         <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Frequency</Eyebrow><p className="mt-0.5">{p.freq}</p></div>
-      </div>
-      <L t="Key movement patterns" xs={p.patterns} />
-      <div className="mt-4"><h3 className="text-base font-semibold">Common mistakes</h3><ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm">{p.mistakes.map((x) => <li key={x}>{x}</li>)}</ol></div>
+      </div> : null}
+      <L t={e.kind === "joint" ? "Keep it healthy" : e.kind === "nerve" ? "Nerve-friendly habits" : "Key movement patterns"} xs={p.patterns} />
+      {p.mistakes.filter((x) => x !== "—").length ? <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "joint" || e.kind === "nerve" ? "Habits that annoy it" : "Common mistakes"}</h3><ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm">{p.mistakes.filter((x) => x !== "—").map((x) => <li key={x}>{x}</li>)}</ol></div> : null}
       {p.faq?.map((f) => <details key={f.q} className="mt-3 rounded-lg border border-line p-2 text-sm"><summary className="cursor-pointer font-semibold">{f.q}</summary><p className="mt-1">{f.a}</p></details>)}
       </>}
     </div>
@@ -357,11 +363,11 @@ function LearnPanel({ e, open }: { e: Entity; open: (id: string) => void }) {
   const isJoint = e.kind === "joint", isNerve = e.kind === "nerve";
   return (
     <div data-testid="learn-panel">
-      {e.kind === "muscle" && PROFILES[e.id as RegionIdR12] ? <p className="mt-4 text-base font-semibold text-accent" data-testid="learn-tagline">{PROFILES[e.id as RegionIdR12].tagline}</p> : null}
+      {e.kind !== "detail" && profileFor(e) ? <p className="mt-4 text-base font-semibold text-accent" data-testid="learn-tagline">{profileFor(e)!.tagline}</p> : null}
       {e.kind === "detail" ? <p className="mt-4 text-sm text-ink-soft" data-testid="learn-descriptor">{subInfoR12(e.id)?.blurb}</p> : null}
       <h3 className="mt-5 text-base font-semibold">{e.kind === "detail" ? "Function / role" : "What it does"}</h3>
       <p className="mt-1 text-sm leading-relaxed">{e.kind === "detail" && ROLE[e.id as SubIdR12] ? ROLE[e.id as SubIdR12] : L.does}</p>
-      {e.kind === "muscle" || e.kind === "detail" ? <ProfileBlock e={e} part="learn" /> : null}
+      <ProfileBlock e={e} part="learn" />
       {L.parts?.length ? (
         <div className="mt-5"><h3 className="text-base font-semibold">{e.kind === "detail" ? "What's inside" : "Parts"}</h3>
           {e.children.length ? <div className="mt-2 flex flex-wrap gap-2">{e.children.map((id) => <Chip key={id} onClick={() => open(id)}>{entityName(id)}</Chip>)}</div> : <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{L.parts.map((p) => <li key={p}>{p}</li>)}</ul>}
@@ -429,7 +435,7 @@ function GuidePanel({ e, open }: { e: Entity; open: (id: string) => void }) {
           </ul>
         ) : null}
         {e.kind !== "joint" && e.kind !== "nerve" ? <ExerciseSplit e={e} /> : null}
-        {e.kind === "muscle" || e.kind === "detail" ? <ProfileBlock e={e} part="guide" /> : null}
+        <ProfileBlock e={e} part="guide" />
         {G.growth?.length ? <ul className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-2">{G.growth.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
       </section>
       <section className="mt-6" data-testid="guide-recovery">

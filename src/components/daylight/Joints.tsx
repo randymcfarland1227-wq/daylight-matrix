@@ -25,7 +25,8 @@ function points(j: JointInfo, view: View) {
 export function SideFigure() {
   return (
     <svg viewBox="0 0 300 600" className="h-auto w-full" role="img" aria-label="side joints map">
-      <g fill="var(--journal-idle)" stroke="var(--line-strong, var(--line))" strokeWidth="2" strokeLinejoin="round">
+      <defs><linearGradient id="side-skin" x1="0" x2="1"><stop offset="0" stopColor="#b08a72" /><stop offset="0.45" stopColor="#e0bfa8" /><stop offset="1" stopColor="#c29c84" /></linearGradient></defs>
+      <g fill="url(#side-skin)" stroke="#93705c" strokeWidth="1.4" strokeLinejoin="round">
         <ellipse cx="160" cy="60" rx="30" ry="36" />
         <path d="M188,58 L198,70 L188,74 Z" />
         <path d="M140,88 L166,88 L170,112 L138,112 Z" />
