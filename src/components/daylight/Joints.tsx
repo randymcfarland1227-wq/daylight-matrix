@@ -14,15 +14,36 @@ import { Button, Chip, Eyebrow, cn } from "./ui";
 const TONE_FILL = { none: "var(--surface)", ok: "var(--accent)", mild: "var(--warn)", high: "var(--danger)" } as const;
 const TONE_LABEL = { none: "No check yet", ok: "Feeling fine", mild: "Some discomfort", high: "Sore / painful" } as const;
 
-function points(j: JointInfo, view: "front" | "back") {
+type View = "front" | "back" | "side";
+function points(j: JointInfo, view: View) {
   const p = j[view];
   if (!p) return [];
   return p.pair ? [{ x: p.x, y: p.y }, { x: 300 - p.x, y: p.y }] : [{ x: p.x, y: p.y }];
 }
 
+/** Side profile (facing right) showing the spine's S-curve. Same 300 x 600 box as MapFigure. */
+function SideFigure() {
+  return (
+    <svg viewBox="0 0 300 600" className="h-auto w-full" role="img" aria-label="side joints map">
+      <g fill="var(--journal-idle)" stroke="var(--line-strong, var(--line))" strokeWidth="2" strokeLinejoin="round">
+        <ellipse cx="160" cy="60" rx="30" ry="36" />
+        <path d="M188,58 L198,70 L188,74 Z" />
+        <path d="M140,88 L166,88 L170,112 L138,112 Z" />
+        <path d="M140,104 C124,128 116,160 120,195 C124,225 138,240 132,262 C120,282 112,300 120,330 L184,330 C188,300 182,270 180,240 C182,200 192,168 178,130 C172,114 166,106 162,104 Z" />
+        <path d="M122,322 L186,322 C184,370 172,400 168,425 C166,470 164,505 162,538 L140,538 C140,500 140,470 144,425 C136,390 124,360 122,322 Z" />
+        <path d="M138,534 L166,534 C178,544 196,550 202,560 L136,562 Z" />
+        <path d="M142,122 C134,160 138,190 142,215 C144,250 148,270 152,294 L168,292 C164,262 162,240 162,215 C164,185 170,155 166,122 Z" />
+      </g>
+      <path d="M146,100 C134,140 126,170 130,200 C136,235 146,250 140,275 C136,288 132,298 134,312" fill="none" stroke="var(--ink-faint)" strokeWidth="2.5" strokeDasharray="5 5" />
+      <text x="150" y="592" textAnchor="middle" fontSize="16" fill="var(--ink-soft)">SIDE</text>
+    </svg>
+  );
+}
+
 export function JointsView() {
   const s = useDaylight();
   const [open, setOpen] = useState<JointId | null>(null);
+  const [mode, setMode] = useState<"map" | "side">("map");
   const today = localDate();
   const logs = s.jointLogs ?? [];
   const top = useRef<HTMLDivElement>(null);
@@ -43,10 +64,14 @@ export function JointsView() {
           </div>
         </div>
         <p className="mt-2 text-sm text-ink-soft">Tap a joint to log how it feels, see related muscles and your PT moves, and keep notes with photos.</p>
-        <div className="journal-figures" data-testid="joints-map">
-          {(["front", "back"] as const).map((view) => (
+        <div className="mt-3 flex gap-2" role="tablist" aria-label="Joint view">
+          <Chip active={mode === "map"} onClick={() => setMode("map")}>Front &amp; back</Chip>
+          <Chip active={mode === "side"} onClick={() => setMode("side")}>Side</Chip>
+        </div>
+        <div className={cn("journal-figures", mode === "side" && "journal-figures--side")} data-testid={mode === "side" ? "joints-side" : "joints-map"}>
+          {(mode === "side" ? (["side"] as const) : (["front", "back"] as const)).map((view: View) => (
             <div key={view} className="relative">
-              <MapFigure view={view} level="region" interactive={false} showLabel className="h-auto w-full" fill={() => "var(--journal-idle)"} label={`${view} joints map`} />
+              {view === "side" ? <SideFigure /> : <MapFigure view={view} level="region" interactive={false} showLabel className="h-auto w-full" fill={() => "var(--journal-idle)"} label={`${view} joints map`} />}
               <svg viewBox="0 0 300 600" className="absolute inset-0 size-full" role="group" aria-label={`${view} joints`}>
                 {JOINTS.filter((j) => j[view]).map((j) => {
                   const t = tone(j.id);

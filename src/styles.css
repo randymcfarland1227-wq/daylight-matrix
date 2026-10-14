@@ -312,6 +312,7 @@
 .atlas-heading h2,.journal-area-heading h2 { font-size: 22px; line-height: 1.3; font-weight: 650; margin-top: 5px; letter-spacing: -.5px; }
 .journal-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px 8px 8px; margin-top: 18px; background: var(--canvas); border-radius: 10px; }
 .journal-figures svg { max-height: 400px; }
+.journal-figures--side { grid-template-columns: minmax(0, 220px); justify-content: center; }
 .atlas-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 12px; font-size: 11px; color: var(--ink-soft); }
 .atlas-key span { display: flex; align-items: center; gap: 5px; }
 .atlas-key i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }

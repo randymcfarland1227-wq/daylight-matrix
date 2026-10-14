@@ -14,6 +14,7 @@ test("all required joints exist with at least one map point", () => {
   for (const id of ["neck", "shoulder", "elbow", "wrist", "tspine", "lumbar", "si", "hip", "knee", "ankle"]) {
     const j = JOINTS.find((x) => x.id === id);
     assert.ok(j && (j.front || j.back), id);
+    assert.ok(j?.side, `${id} side point`);
   }
 });
 

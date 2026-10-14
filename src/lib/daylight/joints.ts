@@ -13,20 +13,22 @@ export type JointInfo = {
   regions: RegionId[];
   front?: JointPoint;
   back?: JointPoint;
+  /** Point on the 300 x 600 side-profile figure (facing right). */
+  side?: JointPoint;
 };
 
 /** Major joints and the muscles that move or protect them. Positions match the MapFigure silhouette. */
 export const JOINTS: JointInfo[] = [
-  { id: "neck", name: "Neck", blurb: "Cervical spine. Upper traps and the deep neck muscles hold the head.", regions: ["rg-traps"], front: { x: 150, y: 92 }, back: { x: 150, y: 92 } },
-  { id: "shoulder", name: "Shoulders", blurb: "Ball-and-socket joint held by the rotator cuff and delts.", regions: ["rg-delt-front", "rg-delt-side", "rg-delt-rear", "rg-chest", "rg-traps"], front: { x: 98, y: 128, pair: true }, back: { x: 98, y: 128, pair: true } },
-  { id: "elbow", name: "Elbows", blurb: "Hinge joint between upper arm and forearm.", regions: ["rg-biceps", "rg-triceps", "rg-forearms"], front: { x: 78, y: 212, pair: true }, back: { x: 78, y: 212, pair: true } },
-  { id: "wrist", name: "Wrists", blurb: "Grip and pressing load passes through here.", regions: ["rg-forearms"], front: { x: 60, y: 286, pair: true }, back: { x: 60, y: 286, pair: true } },
-  { id: "tspine", name: "Upper back (thoracic)", blurb: "Mid-spine rotation and extension; shoulder-blade control.", regions: ["rg-midback", "rg-lats", "rg-traps"], back: { x: 150, y: 175 } },
-  { id: "lumbar", name: "Lower back (lumbar)", blurb: "Low spine. Bracing and hip hinge control protect it.", regions: ["rg-lowback", "rg-abs", "rg-obliques", "rg-glutes"], back: { x: 150, y: 248 } },
-  { id: "si", name: "SI joints", blurb: "Where the spine meets the pelvis. Glutes and core stabilise it.", regions: ["rg-glutes", "rg-lowback"], back: { x: 138, y: 290, pair: true } },
-  { id: "hip", name: "Hips", blurb: "Ball-and-socket joint moved by glutes, hip flexors and adductors.", regions: ["rg-glutes", "rg-adductors", "rg-quads", "rg-hamstrings"], front: { x: 118, y: 306, pair: true }, back: { x: 116, y: 318, pair: true } },
-  { id: "knee", name: "Knees", blurb: "Hinge joint driven by quads and hamstrings.", regions: ["rg-quads", "rg-hamstrings", "rg-calves"], front: { x: 118, y: 418, pair: true }, back: { x: 118, y: 418, pair: true } },
-  { id: "ankle", name: "Ankles", blurb: "Calves and shins control balance and push-off.", regions: ["rg-calves"], front: { x: 122, y: 548, pair: true }, back: { x: 122, y: 548, pair: true } },
+  { id: "neck", name: "Neck", blurb: "Cervical spine. Upper traps and the deep neck muscles hold the head.", regions: ["rg-traps"], front: { x: 150, y: 92 }, back: { x: 150, y: 92 }, side: { x: 146, y: 104 } },
+  { id: "shoulder", name: "Shoulders", blurb: "Ball-and-socket joint held by the rotator cuff and delts.", regions: ["rg-delt-front", "rg-delt-side", "rg-delt-rear", "rg-chest", "rg-traps"], front: { x: 98, y: 128, pair: true }, back: { x: 98, y: 128, pair: true }, side: { x: 154, y: 138 } },
+  { id: "elbow", name: "Elbows", blurb: "Hinge joint between upper arm and forearm.", regions: ["rg-biceps", "rg-triceps", "rg-forearms"], front: { x: 78, y: 212, pair: true }, back: { x: 78, y: 212, pair: true }, side: { x: 150, y: 215 } },
+  { id: "wrist", name: "Wrists", blurb: "Grip and pressing load passes through here.", regions: ["rg-forearms"], front: { x: 60, y: 286, pair: true }, back: { x: 60, y: 286, pair: true }, side: { x: 158, y: 288 } },
+  { id: "tspine", name: "Upper back (thoracic)", blurb: "Mid-spine rotation and extension; shoulder-blade control.", regions: ["rg-midback", "rg-lats", "rg-traps"], back: { x: 150, y: 175 }, side: { x: 130, y: 178 } },
+  { id: "lumbar", name: "Lower back (lumbar)", blurb: "Low spine. Bracing and hip hinge control protect it.", regions: ["rg-lowback", "rg-abs", "rg-obliques", "rg-glutes"], back: { x: 150, y: 248 }, side: { x: 140, y: 250 } },
+  { id: "si", name: "SI joints", blurb: "Where the spine meets the pelvis. Glutes and core stabilise it.", regions: ["rg-glutes", "rg-lowback"], back: { x: 138, y: 290, pair: true }, side: { x: 132, y: 296 } },
+  { id: "hip", name: "Hips", blurb: "Ball-and-socket joint moved by glutes, hip flexors and adductors.", regions: ["rg-glutes", "rg-adductors", "rg-quads", "rg-hamstrings"], front: { x: 118, y: 306, pair: true }, back: { x: 116, y: 318, pair: true }, side: { x: 158, y: 314 } },
+  { id: "knee", name: "Knees", blurb: "Hinge joint driven by quads and hamstrings.", regions: ["rg-quads", "rg-hamstrings", "rg-calves"], front: { x: 118, y: 418, pair: true }, back: { x: 118, y: 418, pair: true }, side: { x: 158, y: 424 } },
+  { id: "ankle", name: "Ankles", blurb: "Calves and shins control balance and push-off.", regions: ["rg-calves"], front: { x: 122, y: 548, pair: true }, back: { x: 122, y: 548, pair: true }, side: { x: 150, y: 540 } },
 ];
 export const JOINT_BY_ID = new Map(JOINTS.map((j) => [j.id, j]));
 export const jointName = (id: string) => JOINT_BY_ID.get(id as JointId)?.name ?? id;
