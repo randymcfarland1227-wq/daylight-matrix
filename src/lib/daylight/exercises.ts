@@ -1,3 +1,4 @@
+import { withSplits } from "./muscles";
 import type { BackFlag, ExerciseDef, ExerciseKind, MuscleWeights } from "./types";
 
 const REVIEWED = "2026-09-30";
@@ -27,7 +28,7 @@ function ex(id: string, name: string, kind: ExerciseKind, o: Opts): ExerciseDef 
     kind,
     unilateral: Boolean(o.uni),
     usesAssistance: o.assist,
-    muscles: o.m,
+    muscles: withSplits(o.m),
     back: o.back ?? "neutral",
     backNote: o.backNote,
     equipment: o.eq,
@@ -470,7 +471,7 @@ export const exercises: ExerciseDef[] = [
   ex("lat-pulldown", "Lat Pulldown (wide or neutral)", "strength", { m: { lats: P, "biceps-short": S, "biceps-long": S, rhomboids: S, brachialis: S }, back: "friendly", backNote: SUP, eq: "Lat pulldown machine", extra: true }),
   ex("seated-cable-row", "Seated Cable Row", "strength", { m: { rhomboids: P, lats: S, "delt-rear": S, "biceps-long": S, "biceps-short": S }, back: "neutral", eq: "Cable", extra: true }),
   ex("tbar-chest-supported", "Chest-Supported T-Bar Row", "strength", { m: { rhomboids: P, lats: S, "delt-rear": S, "biceps-long": S, "traps-upper": S, "traps-lower": S }, back: "friendly", backNote: "Chest is supported.", eq: "T-bar row machine", extra: true }),
-  ex("side-plank", "Side Plank", "timed", { m: { obliques: P, "glute-med": S, transverse: S, "abs-upper": M }, back: "friendly", eq: "Floor", extra: true, uni: true, factor: 0.5 }),
+  ex("side-plank", "Side Plank", "timed", { m: { obliques: P, "glute-med": S, "glute-min": S, transverse: S, "abs-upper": M }, back: "friendly", eq: "Floor", extra: true, uni: true, factor: 0.5 }),
   ex("hanging-knee-raise", "Captain’s Chair Knee Raise", "strength", { m: { "abs-lower": P, "abs-upper": S, obliques: M, "forearm-flexors": M }, back: "neutral", backNote: "Back-supported version of a hanging raise.", eq: "Captain’s chair", extra: true }),
   ex("cable-woodchop", "Cable Woodchop", "strength", { m: { obliques: P, "abs-upper": S, transverse: S, "delt-front": M }, back: "neutral", eq: "Cable", extra: true, uni: true }),
   ex("glute-bridge", "Glute Bridge", "strength", { m: { "glute-max": P, "ham-medial": S, "ham-lateral": S, "abs-lower": M }, back: "friendly", backNote: SUP, eq: "Floor + dumbbell", extra: true }),

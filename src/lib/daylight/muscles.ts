@@ -10,13 +10,13 @@ export type GroupId = "chest" | "shoulders" | "back" | "arms" | "core" | "glutes
 export type SubId =
   | "chest-clav" | "chest-sternal" | "chest-lower" | "serratus"
   | "delt-front" | "delt-side" | "delt-rear" | "rotator-cuff"
-  | "traps-upper" | "rhomboids" | "traps-lower" | "lats" | "erectors"
-  | "biceps-long" | "biceps-short" | "brachialis" | "triceps-long" | "triceps-lateral" | "triceps-medial" | "forearm-flexors" | "forearm-extensors"
+  | "traps-upper" | "traps-mid" | "rhomboids" | "traps-lower" | "lats" | "teres-major" | "erectors"
+  | "biceps-long" | "biceps-short" | "brachialis" | "triceps-long" | "triceps-lateral" | "triceps-medial" | "forearm-flexors" | "forearm-extensors" | "brachioradialis"
   | "abs-upper" | "abs-lower" | "obliques" | "transverse"
   | "glute-max" | "glute-med" | "glute-min" | "tfl"
   | "quad-rf" | "quad-vl" | "quad-vm" | "quad-vi" | "hip-flexors"
-  | "adductors-sub"
-  | "ham-medial" | "ham-lateral"
+  | "adductors-sub" | "adductor-longus" | "gracilis"
+  | "ham-medial" | "ham-semimem" | "ham-lateral"
   | "gastroc" | "soleus" | "tibialis";
 
 /** Everything the volume engine, body map and notes can refer to. */
@@ -42,13 +42,13 @@ export type SubInfo = { id: SubId; group: GroupId; name: string; blurb: string; 
 export const GROUPS: GroupInfo[] = [
   { id: "chest", name: "Chest", blurb: "Pectoralis major (three regions) and the serratus along the ribs.", subs: ["chest-clav", "chest-sternal", "chest-lower", "serratus"], views: ["front"] },
   { id: "shoulders", name: "Shoulders", blurb: "The three heads of the deltoid, plus the rotator cuff that steadies the joint.", subs: ["delt-front", "delt-side", "delt-rear", "rotator-cuff"], views: ["front", "back"] },
-  { id: "back", name: "Back", blurb: "Lats, the muscles between and under the shoulder blades, the upper traps and the spinal erectors.", subs: ["lats", "rhomboids", "traps-lower", "traps-upper", "erectors"], views: ["back"] },
-  { id: "arms", name: "Arms", blurb: "Biceps, brachialis, triceps and forearms.", subs: ["biceps-long", "biceps-short", "brachialis", "triceps-long", "triceps-lateral", "triceps-medial", "forearm-flexors", "forearm-extensors"], views: ["front", "back"] },
+  { id: "back", name: "Back", blurb: "Lats, the muscles between and under the shoulder blades, the upper traps and the spinal erectors.", subs: ["lats", "teres-major", "rhomboids", "traps-mid", "traps-lower", "traps-upper", "erectors"], views: ["back"] },
+  { id: "arms", name: "Arms", blurb: "Biceps, brachialis, triceps and forearms.", subs: ["biceps-long", "biceps-short", "brachialis", "triceps-long", "triceps-lateral", "triceps-medial", "forearm-flexors", "forearm-extensors", "brachioradialis"], views: ["front", "back"] },
   { id: "core", name: "Core", blurb: "Rectus abdominis, obliques and the deep transverse abdominis.", subs: ["abs-upper", "abs-lower", "obliques", "transverse"], views: ["front"] },
   { id: "glutes", name: "Glutes", blurb: "Gluteus maximus, medius and minimus.", subs: ["glute-max", "glute-med", "glute-min", "tfl"], views: ["back", "front"] },
   { id: "quads", name: "Quads", blurb: "The four heads of the quadriceps.", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi", "hip-flexors"], views: ["front"] },
-  { id: "adductors", name: "Inner thigh", blurb: "The adductor group.", subs: ["adductors-sub"], views: ["front"] },
-  { id: "hamstrings", name: "Hamstrings", blurb: "Inner (semitendinosus / semimembranosus) and outer (biceps femoris) hamstrings.", subs: ["ham-medial", "ham-lateral"], views: ["back"] },
+  { id: "adductors", name: "Inner thigh", blurb: "Adductor magnus, adductor longus and gracilis.", subs: ["adductors-sub", "adductor-longus", "gracilis"], views: ["front"] },
+  { id: "hamstrings", name: "Hamstrings", blurb: "Semitendinosus and semimembranosus on the inside, biceps femoris on the outside.", subs: ["ham-medial", "ham-semimem", "ham-lateral"], views: ["back"] },
   { id: "calves", name: "Calves & shins", blurb: "Gastrocnemius, soleus and the tibialis anterior on the shin.", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"] },
 ];
 
@@ -60,19 +60,19 @@ export const REGIONS: RegionInfo[] = [
   { id: "rg-delt-side", name: "Side delts", group: "shoulders", subs: ["delt-side"], views: ["front", "back"], blurb: "The outer head of the shoulder. Lateral raises are the direct move." },
   { id: "rg-traps", name: "Traps", group: "back", subs: ["traps-upper"], views: ["front", "back"], blurb: "The slope from neck to shoulder." },
   { id: "rg-biceps", name: "Biceps & brachialis", group: "arms", subs: ["biceps-long", "biceps-short", "brachialis"], views: ["front"], blurb: "Front of the upper arm." },
-  { id: "rg-forearms", name: "Forearms", group: "arms", subs: ["forearm-flexors", "forearm-extensors"], views: ["front", "back"], blurb: "Grip and wrist muscles." },
+  { id: "rg-forearms", name: "Forearms", group: "arms", subs: ["forearm-flexors", "forearm-extensors", "brachioradialis"], views: ["front", "back"], blurb: "Grip and wrist muscles, plus the brachioradialis along the thumb side." },
   { id: "rg-abs", name: "Abs", group: "core", subs: ["abs-upper", "abs-lower", "transverse"], views: ["front"], blurb: "Rectus abdominis and the deep transverse abdominis." },
   { id: "rg-obliques", name: "Obliques", group: "core", subs: ["obliques"], views: ["front"], blurb: "The sides of the trunk." },
   { id: "rg-quads", name: "Quads", group: "quads", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi", "hip-flexors"], views: ["front"], blurb: "The four heads of the front thigh." },
-  { id: "rg-adductors", name: "Inner thigh", group: "adductors", subs: ["adductors-sub"], views: ["front"], blurb: "The adductors." },
+  { id: "rg-adductors", name: "Inner thigh", group: "adductors", subs: ["adductors-sub", "adductor-longus", "gracilis"], views: ["front"], blurb: "Adductor magnus, adductor longus and gracilis." },
   { id: "rg-calves", name: "Calves & shins", group: "calves", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"], blurb: "Gastrocnemius, soleus and tibialis anterior." },
-  { id: "rg-lats", name: "Lats", group: "back", subs: ["lats"], views: ["back"], blurb: "The wide muscle down the side of the back." },
-  { id: "rg-midback", name: "Mid-back", group: "back", subs: ["rhomboids", "traps-lower"], views: ["back"], blurb: "Rhomboids and the middle and lower traps between the shoulder blades." },
+  { id: "rg-lats", name: "Lats", group: "back", subs: ["lats", "teres-major"], views: ["back"], blurb: "The wide muscle down the side of the back, with teres major, its small partner at the shoulder blade." },
+  { id: "rg-midback", name: "Mid-back", group: "back", subs: ["traps-mid", "rhomboids", "traps-lower"], views: ["back"], blurb: "Middle traps, rhomboids and lower traps between the shoulder blades." },
   { id: "rg-lowback", name: "Lower back", group: "back", subs: ["erectors"], views: ["back"], blurb: "The spinal erectors." },
   { id: "rg-delt-rear", name: "Rear delts & cuff", group: "shoulders", subs: ["delt-rear", "rotator-cuff"], views: ["back"], blurb: "The back of the shoulder and the rotator cuff." },
   { id: "rg-triceps", name: "Triceps", group: "arms", subs: ["triceps-long", "triceps-lateral", "triceps-medial"], views: ["back"], blurb: "Back of the upper arm." },
   { id: "rg-glutes", name: "Glutes", group: "glutes", subs: ["glute-max", "glute-med", "glute-min", "tfl"], views: ["back", "front"], blurb: "Gluteus maximus, medius and minimus." },
-  { id: "rg-hamstrings", name: "Hamstrings", group: "hamstrings", subs: ["ham-medial", "ham-lateral"], views: ["back"], blurb: "Back of the thigh." },
+  { id: "rg-hamstrings", name: "Hamstrings", group: "hamstrings", subs: ["ham-medial", "ham-semimem", "ham-lateral"], views: ["back"], blurb: "Back of the thigh: three muscles." },
 ];
 export const REGION_IDS = REGIONS.map((r) => r.id) as RegionId[];
 const REGION_BY_ID = new Map<string, RegionInfo>(REGIONS.map((r) => [r.id, r]));
@@ -97,9 +97,11 @@ export const SUBS: SubInfo[] = [
   { id: "delt-rear", group: "shoulders", name: "Rear delt", blurb: "Back of the shoulder. Reverse flys, face pulls, rows.", views: ["back"] },
   { id: "rotator-cuff", group: "shoulders", name: "Rotator cuff", blurb: "Small muscles that steady the shoulder joint. External-rotation work.", views: ["back"] },
   { id: "traps-upper", group: "back", name: "Upper traps", blurb: "The slope from neck to shoulder. Shrugs and carries.", views: ["back", "front"] },
-  { id: "rhomboids", group: "back", name: "Mid-back (rhomboids / mid traps)", blurb: "Between the shoulder blades. Rows and reverse flys pull the blades together here.", views: ["back"] },
+  { id: "rhomboids", group: "back", name: "Rhomboids", blurb: "Under the middle traps, from spine to the inner edge of the shoulder blade. Rows pull the blades together and down here.", views: ["back"] },
+  { id: "traps-mid", group: "back", name: "Middle traps", blurb: "Horizontal fibres across the shoulder blades. Rows with a squeeze, reverse flys, prone T-raises.", views: ["back"] },
   { id: "traps-lower", group: "back", name: "Lower traps", blurb: "Lower fibres of the trapezius. Y-raises and good scapular control.", views: ["back"] },
   { id: "lats", group: "back", name: "Lats", blurb: "The wide muscle down the side of the back. Pull-ups and pulldowns.", views: ["back"] },
+  { id: "teres-major", group: "back", name: "Teres major", blurb: "Small 'lat helper' at the lower outer corner of the shoulder blade. Pulldowns, pull-ups, rows.", views: ["back"] },
   { id: "erectors", group: "back", name: "Spinal erectors", blurb: "Muscles either side of the spine. Hinges, back extensions, bird-dog.", views: ["back"] },
   { id: "biceps-long", group: "arms", name: "Biceps, long head", blurb: "Outer biceps. Favours curls with the arm behind the body (incline curl).", views: ["front"] },
   { id: "biceps-short", group: "arms", name: "Biceps, short head", blurb: "Inner biceps. Favours curls with the arm in front (preacher).", views: ["front"] },
@@ -109,6 +111,7 @@ export const SUBS: SubInfo[] = [
   { id: "triceps-medial", group: "arms", name: "Triceps, medial head", blurb: "Lower, deeper triceps. Works in all elbow extension.", views: ["back"] },
   { id: "forearm-flexors", group: "arms", name: "Forearm flexors (grip)", blurb: "Palm side of the forearm. Grip, carries, rows.", views: ["front"] },
   { id: "forearm-extensors", group: "arms", name: "Forearm extensors", blurb: "Top of the forearm including brachioradialis. Hammer curls, reverse grips.", views: ["front", "back"] },
+  { id: "brachioradialis", group: "arms", name: "Brachioradialis", blurb: "Thumb-side ridge of the forearm; bends the elbow in a neutral grip. Hammer and reverse curls.", views: ["front", "back"] },
   { id: "abs-upper", group: "core", name: "Upper abs", blurb: "Upper rectus abdominis. Cable crunches, sit-up style curls.", views: ["front"] },
   { id: "abs-lower", group: "core", name: "Lower abs", blurb: "Lower rectus. Reverse crunches and posterior-tilt work.", views: ["front"] },
   { id: "obliques", group: "core", name: "Obliques", blurb: "Sides of the trunk. They resist twisting in carries and Pallof holds.", views: ["front"] },
@@ -122,9 +125,12 @@ export const SUBS: SubInfo[] = [
   { id: "quad-vl", group: "quads", name: "Vastus lateralis", blurb: "Outer quad. Squats, presses, lunges.", views: ["front"] },
   { id: "quad-vm", group: "quads", name: "Vastus medialis", blurb: "The teardrop above the inner knee. Deep knee bend and full-range extensions.", views: ["front"] },
   { id: "quad-vi", group: "quads", name: "Vastus intermedius", blurb: "Deep quad under the rectus femoris. Works in every knee extension.", views: ["front"], deep: true },
-  { id: "adductors-sub", group: "adductors", name: "Adductors", blurb: "Inner thigh. Wide-stance squats and lunges help; the adductor machine hits them directly.", views: ["front"] },
-  { id: "ham-medial", group: "hamstrings", name: "Inner hamstrings", blurb: "Semitendinosus and semimembranosus. Curls and hinges.", views: ["back"] },
-  { id: "ham-lateral", group: "hamstrings", name: "Outer hamstrings", blurb: "Biceps femoris. Curls and hinges.", views: ["back"] },
+  { id: "adductors-sub", group: "adductors", name: "Adductor magnus", blurb: "The big rear adductor; also helps extend the hip. Wide squats, lunges, the adductor machine.", views: ["front"] },
+  { id: "adductor-longus", group: "adductors", name: "Adductor longus", blurb: "Front-inner thigh near the groin. Copenhagen planks, adductor machine, lateral lunges.", views: ["front"] },
+  { id: "gracilis", group: "adductors", name: "Gracilis", blurb: "Long thin strap down the inner thigh to the knee. Adduction and knee-bending work.", views: ["front", "back"] },
+  { id: "ham-medial", group: "hamstrings", name: "Semitendinosus", blurb: "Inner hamstring with a long cord-like tendon. Curls (toes in) and hinges.", views: ["back"] },
+  { id: "ham-semimem", group: "hamstrings", name: "Semimembranosus", blurb: "Broad inner hamstring under the semitendinosus. Hinges and curls.", views: ["back"] },
+  { id: "ham-lateral", group: "hamstrings", name: "Biceps femoris", blurb: "Outer hamstring, long and short heads. Curls (toes out) and hinges.", views: ["back"] },
   { id: "gastroc", group: "calves", name: "Gastrocnemius", blurb: "The visible calf bulge. Standing (straight-knee) raises.", views: ["back", "front"] },
   { id: "soleus", group: "calves", name: "Soleus", blurb: "Under the gastroc. Seated (bent-knee) raises.", views: ["back"] },
   { id: "tibialis", group: "calves", name: "Shin (tibialis anterior)", blurb: "Front of the lower leg. Toe raises.", views: ["front"] },
@@ -261,4 +267,30 @@ export function subsOf(id: string): SubId[] {
   if (l?.sub) return [l.sub];
   if (l) return GROUP_BY_ID.get(l.group)?.subs ?? [];
   return [];
+}
+
+/**
+ * Round 12 split sub-parts. Exercises were weighted before these existed, so each one inherits a share of
+ * the weight its parent part already has (an editorial estimate, applied when an exercise is defined).
+ */
+export const SPLIT_FROM: Partial<Record<SubId, { from: SubId[]; scale: number }>> = {
+  "traps-mid": { from: ["rhomboids"], scale: 1 },
+  "teres-major": { from: ["lats"], scale: 0.5 },
+  brachioradialis: { from: ["brachialis", "forearm-extensors"], scale: 1 },
+  "adductor-longus": { from: ["adductors-sub"], scale: 1 },
+  gracilis: { from: ["adductors-sub"], scale: 1 },
+  "ham-semimem": { from: ["ham-medial"], scale: 1 },
+};
+
+/** Add the split parts to a weight map, rounded down to the 1 / 0.5 / 0.25 scale. */
+export function withSplits<T extends Partial<Record<string, number>>>(m: T): T {
+  const out: Record<string, number> = { ...(m as Record<string, number>) };
+  for (const [id, rule] of Object.entries(SPLIT_FROM)) {
+    if (out[id] != null || !rule) continue;
+    const base = Math.max(0, ...rule.from.map((f) => out[f] ?? 0));
+    if (!base) continue;
+    const w = base * rule.scale;
+    out[id] = w >= 1 ? 1 : w >= 0.5 ? 0.5 : 0.25;
+  }
+  return out as T;
 }

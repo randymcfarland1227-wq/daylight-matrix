@@ -5,6 +5,8 @@ import { FIG_LINE, FIG_SKIN } from "@/lib/daylight/figureColors";
 
 const MIRROR = "translate(300 0) scale(-1 1)";
 
+const FIBRES = [...new Set([...FRONT, ...BACK].map((m) => m.fibre).filter((a): a is number => a != null))];
+
 export type MapLevel = "group" | "region" | "sub";
 
 export type MapFigureProps = {
@@ -90,6 +92,11 @@ export function MapFigure({ view, level, fill, selected, onSelect, under, dim, i
           <stop offset="0.7" stopColor="#1b2438" stopOpacity="0" />
           <stop offset="1" stopColor="#1b2438" stopOpacity="0.12" />
         </linearGradient>
+        {FIBRES.map((a) => (
+          <pattern key={a} id={`fb-${uid}-${a < 0 ? "m" + -a : a}`} width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform={`rotate(${a})`}>
+            <line x1="0" y1="1.6" x2="3.2" y2="1.6" stroke="#1b2438" strokeOpacity="0.16" strokeWidth="0.55" />
+          </pattern>
+        ))}
       </defs>
       {/* body */}
       {both(SILHOUETTE.map((p) => <path key={p.id} d={p.d} fill={FIG_SKIN} stroke={FIG_LINE} strokeWidth="1.3" strokeLinejoin="round" />), "sil")}
@@ -139,6 +146,7 @@ export function MapFigure({ view, level, fill, selected, onSelect, under, dim, i
               )),
               "f",
             )}
+            {both(parts.filter((m) => m.fibre != null).map((m, i) => <path key={i} d={m.d} fill={`url(#fb-${uid}-${m.fibre! < 0 ? "m" + -m.fibre! : m.fibre})`} pointerEvents="none" />), "fb")}
             {both(parts.map((m, i) => <path key={i} d={m.d} fill={`url(#sh-${uid})`} pointerEvents="none" />), "s")}
             {isUnder
               ? both(parts.map((m, i) => <path key={i} d={m.d} className="mr-under" fill="none" stroke="#14203a" strokeWidth="2" strokeDasharray="5 3" vectorEffect="non-scaling-stroke" pointerEvents="none" />), "u")

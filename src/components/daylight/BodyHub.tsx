@@ -1,3 +1,5 @@
+import { PROFILES, ROLE } from "@/lib/daylight/learnProfiles";
+import { subInfo as subInfoR12, type RegionId as RegionIdR12, type SubId as SubIdR12 } from "@/lib/daylight/muscles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink, Pencil, Play, Trash2 } from "lucide-react";
 import { localDate, recordDate } from "@/lib/daylight/dates";
@@ -278,14 +280,88 @@ function Links({ title, ids, open, testid }: { title: string; ids?: string[]; op
   );
 }
 
+export function useMoves(e: Entity, planIds: Set<string>) {
+  return useMemo(() => {
+    const subs = new Set((e.muscles ?? []).flatMap((m) => subsOf(m)));
+    if (!subs.size) return [];
+    return exercises
+      .map((ex) => ({ ex, w: Math.max(0, ...Object.entries(ex.muscles ?? {}).filter(([m]) => subsOf(m).some((x) => subs.has(x))).map(([, w]) => w)) }))
+      .filter((x) => x.w >= 0.5)
+      .sort((a, b) => Number(planIds.has(b.ex.id)) - Number(planIds.has(a.ex.id)) || b.w - a.w || Number(Boolean(lyftaFor(b.ex.id))) - Number(Boolean(lyftaFor(a.ex.id))))
+  }, [e, planIds]);
+}
+
+function MoveRow({ ex, inPlan }: { ex: (typeof exercises)[number]; inPlan: boolean }) {
+  const s = useDaylight();
+  const l = lyftaFor(ex.id);
+              return (
+                <li className="flex items-center gap-3 rounded-lg border border-line bg-surface p-2">
+                  {l ? <img src={l.png} alt="" className="size-12 shrink-0 rounded bg-white object-contain" loading="lazy" /> : <MoveThumb exerciseId={ex.id} size={48} />}
+                  <button type="button" className="tap min-w-0 flex-1 text-left" onClick={() => s.setOverlay({ type: "form", exerciseId: ex.id })}>
+                    <span className="block font-semibold">{ex.name}</span>
+                    <span className="block text-xs text-ink-soft">{inPlan ? "In your plan · " : ""}Form, demo and cues</span>
+                  </button>
+                  {l ? <a href={lyftaUrl(l)} target="_blank" rel="noreferrer noopener" aria-label={`${ex.name} on Lyfta`} className="tap grid size-9 place-items-center text-accent"><ExternalLink className="size-4" /></a> : <ArrowRight className="size-4 text-ink-faint" />}
+                </li>
+);
+}
+
+function ExerciseSplit({ e }: { e: Entity }) {
+  const s = useDaylight();
+  const plan = activePlan(s.planVersions, localDate());
+  const planIds = useMemo(() => new Set(plan.days.flatMap((d) => d.slots.map((x) => x.exerciseId))), [plan]);
+  const moves = useMoves(e, planIds);
+  const prim = moves.filter((m) => m.w >= 1).slice(0, 8);
+  const sec = moves.filter((m) => m.w < 1).slice(0, 6);
+  if (!moves.length) return null;
+  return (
+    <section className="mt-5" data-testid="learn-exercises">
+      <h3 className="text-base font-semibold">Exercises for {e.name}</h3>
+      {profileFor(e) ? <p className="mt-1 text-sm text-ink-soft" data-testid="guide-feel">Feel it: {profileFor(e)!.feel}</p> : null}
+      {prim.length ? <><Eyebrow className="mt-2">Main target</Eyebrow><ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-2">{prim.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}</ul></> : null}
+      {sec.length ? <><Eyebrow className="mt-3">Also works it</Eyebrow><ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-2">{sec.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}</ul></> : null}
+    </section>
+  );
+}
+
+function profileFor(e: Entity) {
+  return PROFILES[(e.kind === "detail" ? e.parent : e.id) as RegionIdR12];
+}
+
+function ProfileBlock({ e, part }: { e: Entity; part: "learn" | "guide" }) {
+  const p = profileFor(e);
+  if (!p) return null;
+  const L = ({ t, xs }: { t: string; xs: string[] }) => <div className="mt-4"><h3 className="text-base font-semibold">{t}</h3><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{xs.map((x) => <li key={x}>{x}</li>)}</ul></div>;
+  return (
+    <div data-testid={`${part}-profile`}>
+      {part === "learn" ? <>
+      <L t="What it lets you do" xs={p.everyday} />
+      <div className="mt-4"><h3 className="text-base font-semibold">Where you feel it</h3><p className="mt-1 text-sm">{p.feel}</p></div>
+      <div className="mt-4"><h3 className="text-base font-semibold">If you skip it</h3><p className="mt-1 text-sm">{p.skip}</p></div>
+      </> : <>
+      <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+        <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Rep ranges</Eyebrow><p className="mt-0.5">{p.reps}</p></div>
+        <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Frequency</Eyebrow><p className="mt-0.5">{p.freq}</p></div>
+      </div>
+      <L t="Key movement patterns" xs={p.patterns} />
+      <div className="mt-4"><h3 className="text-base font-semibold">Common mistakes</h3><ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm">{p.mistakes.map((x) => <li key={x}>{x}</li>)}</ol></div>
+      {p.faq?.map((f) => <details key={f.q} className="mt-3 rounded-lg border border-line p-2 text-sm"><summary className="cursor-pointer font-semibold">{f.q}</summary><p className="mt-1">{f.a}</p></details>)}
+      </>}
+    </div>
+  );
+}
+
 function LearnPanel({ e, open }: { e: Entity; open: (id: string) => void }) {
   const L = e.learn;
   const back = linkedFrom(e.id).map((x) => x.id).filter((id) => ![L.worksWith, L.opposes, L.joints, L.nerves].some((l) => l?.includes(id)) && id !== e.parent);
   const isJoint = e.kind === "joint", isNerve = e.kind === "nerve";
   return (
     <div data-testid="learn-panel">
-      <h3 className="mt-5 text-base font-semibold">What it does</h3>
-      <p className="mt-1 text-sm leading-relaxed">{L.does}</p>
+      {e.kind === "muscle" && PROFILES[e.id as RegionIdR12] ? <p className="mt-4 text-base font-semibold text-accent" data-testid="learn-tagline">{PROFILES[e.id as RegionIdR12].tagline}</p> : null}
+      {e.kind === "detail" ? <p className="mt-4 text-sm text-ink-soft" data-testid="learn-descriptor">{subInfoR12(e.id)?.blurb}</p> : null}
+      <h3 className="mt-5 text-base font-semibold">{e.kind === "detail" ? "Function / role" : "What it does"}</h3>
+      <p className="mt-1 text-sm leading-relaxed">{e.kind === "detail" && ROLE[e.id as SubIdR12] ? ROLE[e.id as SubIdR12] : L.does}</p>
+      {e.kind === "muscle" || e.kind === "detail" ? <ProfileBlock e={e} part="learn" /> : null}
       {L.parts?.length ? (
         <div className="mt-5"><h3 className="text-base font-semibold">{e.kind === "detail" ? "What's inside" : "Parts"}</h3>
           {e.children.length ? <div className="mt-2 flex flex-wrap gap-2">{e.children.map((id) => <Chip key={id} onClick={() => open(id)}>{entityName(id)}</Chip>)}</div> : <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{L.parts.map((p) => <li key={p}>{p}</li>)}</ul>}
@@ -334,15 +410,7 @@ function GuidePanel({ e, open }: { e: Entity; open: (id: string) => void }) {
   const today = localDate();
   const plan = activePlan(s.planVersions, today);
   const planIds = useMemo(() => new Set(plan.days.flatMap((d) => d.slots.map((x) => x.exerciseId))), [plan]);
-  const moves = useMemo(() => {
-    const subs = new Set((e.muscles ?? []).flatMap((m) => subsOf(m)));
-    if (!subs.size) return [];
-    return exercises
-      .map((ex) => ({ ex, w: Math.max(0, ...Object.entries(ex.muscles ?? {}).filter(([m]) => subsOf(m).some((x) => subs.has(x))).map(([, w]) => w)) }))
-      .filter((x) => x.w >= 0.5)
-      .sort((a, b) => Number(planIds.has(b.ex.id)) - Number(planIds.has(a.ex.id)) || b.w - a.w || Number(Boolean(lyftaFor(b.ex.id))) - Number(Boolean(lyftaFor(a.ex.id))))
-      .slice(0, e.kind === "joint" ? 6 : 8);
-  }, [e, planIds]);
+  const moves = useMoves(e, planIds).slice(0, e.kind === "joint" ? 6 : 8);
   const joint = e.kind === "joint" ? JOINTS.find((j) => j.id === e.id) : undefined;
   const pt = joint ? jointMoves(joint, plan) : [];
   const planned = useMemo(() => plannedVolume(plan), [plan]);
@@ -355,23 +423,13 @@ function GuidePanel({ e, open }: { e: Entity; open: (id: string) => void }) {
         {e.kind === "nerve" ? <p className="mt-1 text-sm text-ink-soft">Nerves aren't grown like muscles. Strong, well-conditioned muscles along the nerve's path and regular movement keep it healthy. Muscles it powers:</p> : null}
         {G.growthTips?.length ? <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{G.growthTips.map((t) => <li key={t}>{t}</li>)}</ul> : null}
         {e.kind === "nerve" ? <div className="mt-2 flex flex-wrap gap-2">{(e.learn.worksWith ?? []).filter((id) => entity(id)).map((id) => <Chip key={id} tone="teal" onClick={() => open(id)}>{entityName(id)}</Chip>)}</div> : null}
-        {moves.length ? (
+        {e.kind === "joint" && moves.length ? (
           <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-2">
-            {moves.map(({ ex }) => {
-              const l = lyftaFor(ex.id);
-              return (
-                <li key={ex.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-2">
-                  {l ? <img src={l.png} alt="" className="size-12 shrink-0 rounded bg-white object-contain" loading="lazy" /> : <MoveThumb exerciseId={ex.id} size={48} />}
-                  <button type="button" className="tap min-w-0 flex-1 text-left" onClick={() => s.setOverlay({ type: "form", exerciseId: ex.id })}>
-                    <span className="block font-semibold">{ex.name}</span>
-                    <span className="block text-xs text-ink-soft">{planIds.has(ex.id) ? "In your plan · " : ""}Form, demo and cues</span>
-                  </button>
-                  {l ? <a href={lyftaUrl(l)} target="_blank" rel="noreferrer noopener" aria-label={`${ex.name} on Lyfta`} className="tap grid size-9 place-items-center text-accent"><ExternalLink className="size-4" /></a> : <ArrowRight className="size-4 text-ink-faint" />}
-                </li>
-              );
-            })}
+            {moves.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}
           </ul>
         ) : null}
+        {e.kind !== "joint" && e.kind !== "nerve" ? <ExerciseSplit e={e} /> : null}
+        {e.kind === "muscle" || e.kind === "detail" ? <ProfileBlock e={e} part="guide" /> : null}
         {G.growth?.length ? <ul className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-2">{G.growth.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
       </section>
       <section className="mt-6" data-testid="guide-recovery">
