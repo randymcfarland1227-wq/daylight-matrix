@@ -13,8 +13,8 @@ export type SubId =
   | "traps-upper" | "rhomboids" | "traps-lower" | "lats" | "erectors"
   | "biceps-long" | "biceps-short" | "brachialis" | "triceps-long" | "triceps-lateral" | "triceps-medial" | "forearm-flexors" | "forearm-extensors"
   | "abs-upper" | "abs-lower" | "obliques" | "transverse"
-  | "glute-max" | "glute-med" | "glute-min"
-  | "quad-rf" | "quad-vl" | "quad-vm" | "quad-vi"
+  | "glute-max" | "glute-med" | "glute-min" | "tfl"
+  | "quad-rf" | "quad-vl" | "quad-vm" | "quad-vi" | "hip-flexors"
   | "adductors-sub"
   | "ham-medial" | "ham-lateral"
   | "gastroc" | "soleus" | "tibialis";
@@ -45,8 +45,8 @@ export const GROUPS: GroupInfo[] = [
   { id: "back", name: "Back", blurb: "Lats, the muscles between and under the shoulder blades, the upper traps and the spinal erectors.", subs: ["lats", "rhomboids", "traps-lower", "traps-upper", "erectors"], views: ["back"] },
   { id: "arms", name: "Arms", blurb: "Biceps, brachialis, triceps and forearms.", subs: ["biceps-long", "biceps-short", "brachialis", "triceps-long", "triceps-lateral", "triceps-medial", "forearm-flexors", "forearm-extensors"], views: ["front", "back"] },
   { id: "core", name: "Core", blurb: "Rectus abdominis, obliques and the deep transverse abdominis.", subs: ["abs-upper", "abs-lower", "obliques", "transverse"], views: ["front"] },
-  { id: "glutes", name: "Glutes", blurb: "Gluteus maximus, medius and minimus.", subs: ["glute-max", "glute-med", "glute-min"], views: ["back"] },
-  { id: "quads", name: "Quads", blurb: "The four heads of the quadriceps.", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi"], views: ["front"] },
+  { id: "glutes", name: "Glutes", blurb: "Gluteus maximus, medius and minimus.", subs: ["glute-max", "glute-med", "glute-min", "tfl"], views: ["back", "front"] },
+  { id: "quads", name: "Quads", blurb: "The four heads of the quadriceps.", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi", "hip-flexors"], views: ["front"] },
   { id: "adductors", name: "Inner thigh", blurb: "The adductor group.", subs: ["adductors-sub"], views: ["front"] },
   { id: "hamstrings", name: "Hamstrings", blurb: "Inner (semitendinosus / semimembranosus) and outer (biceps femoris) hamstrings.", subs: ["ham-medial", "ham-lateral"], views: ["back"] },
   { id: "calves", name: "Calves & shins", blurb: "Gastrocnemius, soleus and the tibialis anterior on the shin.", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"] },
@@ -63,7 +63,7 @@ export const REGIONS: RegionInfo[] = [
   { id: "rg-forearms", name: "Forearms", group: "arms", subs: ["forearm-flexors", "forearm-extensors"], views: ["front", "back"], blurb: "Grip and wrist muscles." },
   { id: "rg-abs", name: "Abs", group: "core", subs: ["abs-upper", "abs-lower", "transverse"], views: ["front"], blurb: "Rectus abdominis and the deep transverse abdominis." },
   { id: "rg-obliques", name: "Obliques", group: "core", subs: ["obliques"], views: ["front"], blurb: "The sides of the trunk." },
-  { id: "rg-quads", name: "Quads", group: "quads", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi"], views: ["front"], blurb: "The four heads of the front thigh." },
+  { id: "rg-quads", name: "Quads", group: "quads", subs: ["quad-rf", "quad-vl", "quad-vm", "quad-vi", "hip-flexors"], views: ["front"], blurb: "The four heads of the front thigh." },
   { id: "rg-adductors", name: "Inner thigh", group: "adductors", subs: ["adductors-sub"], views: ["front"], blurb: "The adductors." },
   { id: "rg-calves", name: "Calves & shins", group: "calves", subs: ["gastroc", "soleus", "tibialis"], views: ["front", "back"], blurb: "Gastrocnemius, soleus and tibialis anterior." },
   { id: "rg-lats", name: "Lats", group: "back", subs: ["lats"], views: ["back"], blurb: "The wide muscle down the side of the back." },
@@ -71,7 +71,7 @@ export const REGIONS: RegionInfo[] = [
   { id: "rg-lowback", name: "Lower back", group: "back", subs: ["erectors"], views: ["back"], blurb: "The spinal erectors." },
   { id: "rg-delt-rear", name: "Rear delts & cuff", group: "shoulders", subs: ["delt-rear", "rotator-cuff"], views: ["back"], blurb: "The back of the shoulder and the rotator cuff." },
   { id: "rg-triceps", name: "Triceps", group: "arms", subs: ["triceps-long", "triceps-lateral", "triceps-medial"], views: ["back"], blurb: "Back of the upper arm." },
-  { id: "rg-glutes", name: "Glutes", group: "glutes", subs: ["glute-max", "glute-med", "glute-min"], views: ["back"], blurb: "Gluteus maximus, medius and minimus." },
+  { id: "rg-glutes", name: "Glutes", group: "glutes", subs: ["glute-max", "glute-med", "glute-min", "tfl"], views: ["back", "front"], blurb: "Gluteus maximus, medius and minimus." },
   { id: "rg-hamstrings", name: "Hamstrings", group: "hamstrings", subs: ["ham-medial", "ham-lateral"], views: ["back"], blurb: "Back of the thigh." },
 ];
 export const REGION_IDS = REGIONS.map((r) => r.id) as RegionId[];
@@ -116,6 +116,8 @@ export const SUBS: SubInfo[] = [
   { id: "glute-max", group: "glutes", name: "Glute max", blurb: "The big hip extensor. Thrusts, hinges, lunges, step-ups.", views: ["back"] },
   { id: "glute-med", group: "glutes", name: "Glute med", blurb: "Outer hip. Clamshells, band walks, hip abduction, single-leg work.", views: ["back"] },
   { id: "glute-min", group: "glutes", name: "Glute min", blurb: "Small, deep partner of the glute med.", views: ["back"], deep: true },
+  { id: "tfl", group: "glutes", name: "TFL (outer hip, front)", blurb: "Tensor fasciae latae, at the front-outer hip. Works with the glute med in hip abduction.", views: ["front"] },
+  { id: "hip-flexors", group: "quads", name: "Hip flexors (iliopsoas)", blurb: "Deep muscles that lift the thigh and steady the pelvis. Marches, leg raises, dead bugs.", views: ["front"], deep: true },
   { id: "quad-rf", group: "quads", name: "Rectus femoris", blurb: "Centre of the thigh; also crosses the hip. Leg extensions hit it directly.", views: ["front"] },
   { id: "quad-vl", group: "quads", name: "Vastus lateralis", blurb: "Outer quad. Squats, presses, lunges.", views: ["front"] },
   { id: "quad-vm", group: "quads", name: "Vastus medialis", blurb: "The teardrop above the inner knee. Deep knee bend and full-range extensions.", views: ["front"] },

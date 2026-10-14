@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Image as ImageIcon, Play, RotateCcw } from "lucide-react";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { PHOTO_SOURCE, photosFor } from "@/lib/daylight/exImages";
+import { lyftaFor, lyftaUrl } from "@/lib/daylight/lyfta";
 import { NO_VIDEO, videoCredit, videoFor, vimeoEmbedUrl, vimeoPageUrl, type VideoEntry } from "@/lib/daylight/videos";
 import { Button, cn } from "./ui";
 
@@ -63,6 +64,27 @@ function PhotoStills({ exerciseId }: { exerciseId: string }) {
   );
 }
 
+/** Lyfta's demo (MP4 loop, PNG poster) loaded straight from Lyfta. Hides itself if it can't load. */
+function LyftaDemo({ exerciseId, online }: { exerciseId: string; online: boolean }) {
+  const entry = lyftaFor(exerciseId);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  if (!entry) return null;
+  const name = exerciseById(exerciseId)?.name ?? "Exercise";
+  const showVideo = online && entry.mp4 && !videoFailed;
+  const showImage = online && !showVideo && !imageFailed;
+  return (
+    <figure className="space-y-2" data-testid="lyfta-media" data-lyfta-kind={showVideo ? "video" : showImage ? "image" : "none"}>
+      {showVideo ? <video className="block w-full rounded-lg bg-white" style={{ maxHeight: "48vh" }} src={entry.mp4} poster={entry.png} muted loop playsInline autoPlay controls={false} preload="metadata" aria-label={`${name} demonstration from Lyfta`} onError={() => setVideoFailed(true)} data-testid="lyfta-video" /> : null}
+      {showImage ? <img className="block w-full rounded-lg bg-white object-contain" style={{ maxHeight: "48vh" }} src={entry.png} alt={`${name} demonstration from Lyfta`} loading="lazy" onError={() => setImageFailed(true)} data-testid="lyfta-image" /> : null}
+      <figcaption className="flex flex-wrap items-center gap-2 text-xs text-ink-soft">
+        <a href={lyftaUrl(entry)} target="_blank" rel="noreferrer noopener" className="inline-flex min-h-10 items-center gap-1 font-semibold text-accent underline" data-testid="lyfta-link">View on Lyfta<ExternalLink className="size-3 shrink-0" /></a>
+        <span>Demo and muscle info: Lyfta exercise library</span>
+      </figcaption>
+    </figure>
+  );
+}
+
 export function MoveMedia(props: { exerciseId: string; compact?: boolean; className?: string }) {
   return <ExerciseMedia key={props.exerciseId} {...props} />;
 }
@@ -79,6 +101,7 @@ function ExerciseMedia({ exerciseId, compact, className }: { exerciseId: string;
   const play = () => { setFailed(false); setPlaying(true); setShowPhotos(false); };
   return (
     <div className={cn("space-y-3", className)} data-testid="move-media" data-media={playing ? "video" : photos && showPhotos ? "photos" : "preview"}>
+      <LyftaDemo exerciseId={exerciseId} online={online} />
       {video?.match === "close" ? <p className="rounded-lg border border-warn/30 bg-warn/10 p-3 text-xs leading-relaxed" data-testid="video-close-match"><b>Related variation.</b> {video.matchNote ?? `This clip shows ${video.title}. Equipment or body position differs from your plan; follow your plan’s form cues.`}</p> : null}
       {playing && video && online ? <MoveVideo video={video} onFail={onFail} /> : video && online && !showPhotos ? (
         <button type="button" className="media-poster" onClick={play} aria-label={`Play demonstration: ${exerciseById(exerciseId)?.name ?? video.title}`} data-testid="play-demonstration">

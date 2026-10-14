@@ -41,3 +41,15 @@ test("joint notes filter by jointId", () => {
   const o = (id: string, jointId?: string) => ({ id, text: id, createdAt: "", updatedAt: "", tags: [], status: "open" as const, context: { date: "2026-10-09", time: "08:00", jointId } });
   assert.deepEqual(jointNotes([o("1", "knee"), o("2"), o("3", "hip")], "knee").map((n) => n.id), ["1"]);
 });
+
+import { LYFTA } from "../daylight/lyfta";
+import { exerciseById } from "../daylight/exercises";
+test("Lyfta: links only for audited matches; tibialis raise has none; reverse pec deck is a reverse fly", () => {
+  assert.equal(LYFTA["tibialis-raise"], undefined);
+  assert.match(LYFTA["reverse-pec-deck"]!.slug, /reverse-fly/);
+  for (const [id, e] of Object.entries(LYFTA)) {
+    assert.ok(exerciseById(id), id);
+    assert.match(e.png, /^https:\/\//);
+    assert.doesNotMatch(`${e.png}${e.mp4 ?? ""}`, /youtube|youtu\.be/);
+  }
+});

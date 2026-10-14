@@ -63,7 +63,7 @@ export const exercises: ExerciseDef[] = [
     eduSource: "General education summary of a posterior pelvic tilt. Not a cue from the PDF.",
   }),
   ex("pt-shoulder-flexion", "Posterior Pelvic Tilt w/ Shoulder Flexion", "activation", {
-    m: { "abs-lower": P, "abs-upper": S, transverse: S, "delt-front": S, lats: M },
+    m: { "abs-lower": P, "abs-upper": S, transverse: S, "delt-front": S, lats: M , "glute-max": S, "hip-flexors": S},
     back: "friendly",
     backNote: SUP,
     eq: "Floor",
@@ -82,7 +82,7 @@ export const exercises: ExerciseDef[] = [
     eduSource: "Coaching summary in the tradition of Stuart McGill’s bird-dog stability drill. Not a PDF cue.",
   }),
   ex("bracing-marches", "Abdominal Bracing Marches", "activation", {
-    m: { transverse: P, "abs-upper": S, "abs-lower": S, obliques: S },
+    m: { transverse: P, "abs-upper": S, "abs-lower": S, obliques: S , "glute-max": S, "hip-flexors": S},
     back: "friendly",
     backNote: SUP,
     uni: true,
@@ -205,7 +205,7 @@ export const exercises: ExerciseDef[] = [
     eduCue: "Palms face each other. Same full hang and controlled lower as a pull-up, if that range is available.",
   }),
   ex("chest-supported-row", "Chest-Supported Row", "strength", {
-    m: { rhomboids: P, lats: S, "delt-rear": S, "biceps-long": S, "traps-upper": S, "traps-lower": S, brachialis: M },
+    m: { rhomboids: P, lats: P, "delt-rear": S, "biceps-long": S, "traps-upper": S, "traps-lower": S, brachialis: M , "rotator-cuff": S},
     back: "friendly",
     backNote: "Chest is supported, so the low back is not holding you up.",
     eq: "Row machine / incline bench",
@@ -384,7 +384,7 @@ export const exercises: ExerciseDef[] = [
     eq: "45° back extension bench",
   }),
   ex("cable-hip-abduction", "Cable Hip Abduction", "strength", {
-    m: { "glute-med": P, "glute-min": S, "glute-max": M },
+    m: { "glute-med": P, "glute-min": S, "glute-max": M , tfl: P},
     back: "friendly",
     uni: true,
     eq: "Cable + ankle strap",
