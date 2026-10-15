@@ -21,3 +21,7 @@ This is a selected atlas, not a complete inventory of human muscles, nerves or j
 ## Validation
 
 `npm run typecheck`, `npm run build`, `npm run build:pages`, and `npm run test:daylight` (76 tests). Atlas checks cover field completeness, source IDs, cross-links, sensory-only targets, and selected anatomical corrections. Browser checks cover Core Learn/Training, nerve search, a sensory-only page, source disclosures, link traversal and responsive layout. Review source and generated-site changes together before publishing.
+
+## App name
+
+The user chose **Body**. Display branding, document/install titles, export labels, icons and share card use that name. Existing repository names, storage keys, app identity, and backup schema remain compatible with saved data.

@@ -85,7 +85,7 @@ export function buildDigest(input: DigestInput): string {
   const grouped = groupNotes(input.notes);
 
   L.push("# Brief for building my next training plan");
-  L.push(`Generated ${today} from my Daylight Matrix app. Everything below is my own log and notes. I am not asking for medical advice.`);
+  L.push(`Generated ${today} from my Body app. Everything below is my own log and notes. I am not asking for medical advice.`);
   L.push("");
   L.push("## Context");
   L.push(input.planContext.trim() || "(no extra context saved)");
