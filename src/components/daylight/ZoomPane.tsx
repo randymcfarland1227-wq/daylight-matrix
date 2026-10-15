@@ -42,9 +42,9 @@ export function ZoomPane({ children, className }: { children: ReactNode; classNa
       >
         <div style={{ transform: `translate(${t.x}px, ${t.y}px) scale(${t.s})`, transformOrigin: "center", transition: ptrs.current.size ? "none" : "transform 120ms ease-out" }}>{children}</div>
         <div className="absolute right-2 top-2 flex flex-col gap-1.5">
-          <button type="button" aria-label="Zoom in" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface shadow-sm" onClick={() => zoomBy(1.5)} data-testid="zoom-in"><Plus className="size-4" /></button>
-          <button type="button" aria-label="Zoom out" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface shadow-sm" onClick={() => zoomBy(1 / 1.5)}><Minus className="size-4" /></button>
-          {t.s > 1 ? <button type="button" aria-label="Reset zoom" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface shadow-sm" onClick={() => setT({ s: 1, x: 0, y: 0 })}><RotateCcw className="size-4" /></button> : null}
+          <button type="button" aria-label="Zoom in" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface" onClick={() => zoomBy(1.5)} data-testid="zoom-in"><Plus className="size-4" /></button>
+          <button type="button" aria-label="Zoom out" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface" onClick={() => zoomBy(1 / 1.5)}><Minus className="size-4" /></button>
+          {t.s > 1 ? <button type="button" aria-label="Reset zoom" className="tap grid size-9 place-items-center rounded-full border border-line bg-surface" onClick={() => setT({ s: 1, x: 0, y: 0 })}><RotateCcw className="size-4" /></button> : null}
         </div>
       </div>
       <p className="mt-1.5 text-xs text-ink-faint">Pinch or use + to zoom; drag to move when zoomed.</p>

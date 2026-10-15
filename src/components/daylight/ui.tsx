@@ -12,7 +12,7 @@ export function haptic(ms = 12) {
   }
 }
 
-type Tone = "primary" | "sun" | "soft" | "ghost" | "outline" | "danger";
+type Tone = "gold" | "lime" | "raised" | "primary" | "sun" | "soft" | "ghost" | "outline" | "danger";
 
 export function Button({
   tone = "primary",
@@ -25,16 +25,22 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "tap inline-flex select-none items-center justify-center gap-2 rounded-lg font-semibold disabled:opacity-45",
-        size === "sm" && "min-h-10 px-3 text-sm",
-        size === "md" && "min-h-12 px-4 text-sm",
-        size === "lg" && "min-h-14 px-6 text-base",
-        tone === "primary" && "bg-accent text-on-accent hover:bg-accent-deep",
-        tone === "sun" && "bg-accent text-on-accent hover:bg-accent-deep", /* sun = primary; one accent only */
-        tone === "soft" && "bg-surface-2 text-ink hover:bg-surface-2/80",
-        tone === "ghost" && "px-2 text-accent hover:bg-surface-2",
-        tone === "outline" && "border border-line bg-surface text-ink hover:bg-surface-2",
-        tone === "danger" && "bg-danger text-white hover:brightness-95",
+        "select-none disabled:opacity-45",
+        // brand kit: display caps buttons with a hard bottom edge; gold = the ONE main action per screen
+        ["primary", "sun", "gold", "outline", "lime", "raised"].includes(tone) && "btn",
+        tone === "primary" && "btn-forest",
+        tone === "sun" && "btn-forest",
+        tone === "gold" && "btn-gold",
+        tone === "lime" && "btn-lime",
+        tone === "raised" && "btn-raised",
+        tone === "outline" && "btn-ghost",
+        tone === "soft" && "tap inline-flex items-center justify-center gap-2 rounded-[10px] bg-surface-2 font-semibold text-ink hover:bg-line",
+        tone === "ghost" && "tap inline-flex items-center justify-center gap-2 rounded-[10px] px-2 font-semibold text-accent hover:bg-surface-2",
+        tone === "danger" && "btn bg-danger text-paper [--edge:#7d321d] [box-shadow:0_4px_0_#7d321d]",
+        size === "sm" && "min-h-10 px-3 !text-[15px]",
+        size === "md" && "min-h-12 px-4",
+        size === "lg" && "min-h-14 px-6 !text-[20px]",
+        (tone === "soft" || tone === "ghost") && "text-sm",
         className,
       )}
       {...props}
@@ -57,11 +63,7 @@ export function Chip({
   tone?: "forest" | "sun" | "teal";
   title?: string;
 }) {
-  const on = tone === "sun" || tone === "forest"
-    ? "bg-accent text-on-accent border-accent"
-    : tone === "teal"
-      ? "bg-info/20 text-info border-info/40"
-      : "bg-accent text-on-accent border-accent";
+  const on = tone === "teal" ? "bg-sage text-paper border-sage" : "bg-kforest text-wheat border-kforest";
   return (
     <button
       type="button"
@@ -69,7 +71,7 @@ export function Chip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "tap inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg border px-3.5 text-sm font-semibold",
+        "tap font-display inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-[6px] border px-3.5 text-[14px] font-bold uppercase tracking-[.08em]",
         active ? on : "border-line bg-surface text-ink hover:bg-surface-2",
         className,
       )}
@@ -83,13 +85,13 @@ export function Badge({ children, tone = "plain", className }: { children: React
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold",
+        "kit-chip",
         tone === "plain" && "bg-surface-2 text-ink-soft",
-        tone === "sun" && "bg-accent/15 text-accent",
-        tone === "teal" && "bg-info/15 text-info",
-        tone === "danger" && "bg-danger/15 text-danger",
-        tone === "forest" && "bg-accent/15 text-accent",
-        tone === "copper" && "bg-warn/15 text-warn",
+        tone === "sun" && "bg-gold text-pine",
+        tone === "teal" && "bg-sage text-paper",
+        tone === "danger" && "bg-clay text-paper",
+        tone === "forest" && "bg-kforest text-wheat",
+        tone === "copper" && "bg-wheat text-pine",
         className,
       )}
     >
@@ -112,7 +114,7 @@ export function Segmented<T extends string | number>({
   className?: string;
 }) {
   return (
-    <div role="tablist" aria-label={label} className={cn("no-scrollbar flex gap-1 overflow-x-auto rounded-lg border border-line bg-surface-2 p-1", className)}>
+    <div role="tablist" aria-label={label} className={cn("kit-tabs no-scrollbar flex gap-1 overflow-x-auto", className)}>
       {options.map((o) => (
         <button
           key={String(o.id)}
@@ -131,8 +133,7 @@ export function Segmented<T extends string | number>({
           }}
           onClick={() => onChange(o.id)}
           className={cn(
-            "tap min-h-10 flex-1 shrink-0 whitespace-nowrap rounded-md px-3 text-sm font-bold",
-            value === o.id ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink",
+            "tap min-h-10 flex-1 shrink-0 whitespace-nowrap px-3",
           )}
         >
           {o.label}
@@ -168,7 +169,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
-      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-[#0c0a08]/60 backdrop-blur-[2px]" onClick={onClose} />
+      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-[#0c0a08]/60-[2px]" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}

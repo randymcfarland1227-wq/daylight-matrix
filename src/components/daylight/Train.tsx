@@ -64,7 +64,7 @@ export function DaySwitcher({ value, onChange }: { value: number; onChange: (d: 
             onClick={() => onChange(d)}
             className={cn(
               "tap day-tab",
-              active ? "border-accent bg-accent text-on-accent shadow-sm" : "border-line bg-surface text-ink hover:bg-surface-2",
+              active ? "border-accent bg-accent text-on-accent" : "border-line bg-surface text-ink hover:bg-surface-2",
             )}
           >
             <span>{st.short}</span>
@@ -152,7 +152,7 @@ function SessionScreen() {
           <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 text-ink-soft">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
         ) : null}
         {finished ? <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 font-bold">Finished. Logging another set re-opens it.</p> : null}
-        <Button size="lg" tone="primary" className="mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
+        <Button size="lg" tone="gold" className="mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
           <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume session" : "Start session"}
         </Button>
       </Card>
@@ -190,7 +190,7 @@ function SessionScreen() {
       </div>
 
       <div className="mt-6">
-        <div className="flex gap-2 rounded-lg border border-line bg-canvas/95 p-2 shadow-lg backdrop-blur">
+        <div className="flex gap-2 rounded-lg border border-line bg-canvas/95 p-2">
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note
           </Button>

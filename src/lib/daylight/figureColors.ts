@@ -45,11 +45,11 @@ export function roleOfWeight(w: number): Role {
 
 /** Heat ramp, cold blue -> teal -> yellow -> orange -> hot red. level is 0..1; 0 = not trained (the plain figure). */
 const RAMP: [number, string][] = [
-  [0, "#7c9da5"],
-  [0.25, "#b5c5be"],
-  [0.5, "#d9c994"],
-  [0.75, "#c98d5e"],
-  [1, "#9c4028"],
+  // brand kit effort ramp: rested line -> light wheat -> worked brass -> sore clay
+  [0, "#d6dbcf"],
+  [0.33, "#dbc287"],
+  [0.66, "#c2993a"],
+  [1, "#b04a2c"],
 ];
 export function rampColor(level: number): string {
   if (level <= 0.001) return FIG_SKIN;
@@ -62,5 +62,5 @@ export function rampColor(level: number): string {
   return RAMP[RAMP.length - 1]![1];
 }
 /** "Indirect only": a washed, grey-blue so it reads between untouched and trained. */
-export const INDIRECT_COLOR = "#b0b9ac";
+export const INDIRECT_COLOR = "#e3e9e2";
 export const RAMP_CSS = `linear-gradient(90deg, ${RAMP.map(([t, c]) => `${c} ${t * 100}%`).join(", ")})`;

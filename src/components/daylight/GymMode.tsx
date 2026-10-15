@@ -94,7 +94,7 @@ export function GymMode({ weekday }: { weekday: number }) {
   void swapKey;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-canvas text-ink" data-testid="gym-mode" role="region" aria-label={`Gym mode, ${WEEKDAY_NAMES[weekday]}`}>
+    <div className="session fixed inset-0 z-40 flex flex-col bg-canvas text-ink" data-testid="gym-mode" role="region" aria-label={`Gym mode, ${WEEKDAY_NAMES[weekday]}`}>
       <header className="shrink-0 border-b border-line px-3 pb-2" style={{ paddingTop: "max(0.6rem, env(safe-area-inset-top))" }}>
         <div className="mx-auto flex max-w-xl items-center gap-2">
           <button type="button" onClick={exit} aria-label="Exit gym mode" data-testid="gym-exit" className="tap flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-2 px-3 text-sm font-bold">
@@ -102,7 +102,7 @@ export function GymMode({ weekday }: { weekday: number }) {
           </button>
           <div className="min-w-0 flex-1 text-center">
             <p className="t-meta truncate text-ink-soft">{WEEKDAY_NAMES[weekday]}{weekday !== new Date().getDay() ? " · logs count for today" : ""}</p>
-            <p className="t-title truncate">{day.name}</p>
+            <p className="truncate font-display text-[20px] font-extrabold uppercase tracking-[.03em]">{day.name}</p>
           </div>
           <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-lg bg-surface-2">
             <ListChecks className="size-5" />
@@ -110,7 +110,7 @@ export function GymMode({ weekday }: { weekday: number }) {
         </div>
         <div className="mx-auto mt-2 max-w-xl">
           <div className="h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct * 100)} aria-label="Session progress">
-            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: "var(--accent)" }} />
+            <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct * 100}%`, background: "var(--color-lime)" }} />
           </div>
           <p className="mt-1 flex justify-between text-xs font-semibold text-ink-soft tabular-nums">
             <span>{totals.completed} of {real.length} exercises completed</span>
@@ -128,7 +128,7 @@ export function GymMode({ weekday }: { weekday: number }) {
             </button>
           ) : null}
           <RestStrip />
-          {showList && act.length >= 2 ? <Button tone="outline" size="sm" className="mb-3" onClick={() => { setPtMode(ptMode === "each" ? "block" : "each"); setCur(0); }}>{ptMode === "each" ? "Group activation into a block" : "Show activation one exercise at a time"}</Button> : null}
+          {showList && act.length >= 2 ? <Button tone="raised" size="sm" className="mb-3" onClick={() => { setPtMode(ptMode === "each" ? "block" : "each"); setCur(0); }}>{ptMode === "each" ? "Group activation into a block" : "Show activation one exercise at a time"}</Button> : null}
           {showList ? (
             <ol className="mb-3 space-y-1 rounded-lg border border-line bg-surface p-2" aria-label="Jump to a move">
               {steps.map((s, i) => {
@@ -150,7 +150,7 @@ export function GymMode({ weekday }: { weekday: number }) {
           {step.type === "pt" ? (
             <PtBlock slots={step.slots!} session={session} weekday={weekday} onDone={() => goNext()} onEach={() => (setPtMode("each"), setCur(0))} onFlow={() => setFlow(step.slots!)} />
           ) : step.type === "move" ? (
-            <MoveStep key={step.key + (session ? chosenExerciseId(step.slot!, session.chosenExercise) : "")} slot={step.slot!} weekday={weekday} session={session} onDone={() => goNext()} onFlow={() => setFlow([step.slot!])} />
+            <MoveStep key={step.key + (session ? chosenExerciseId(step.slot!, session.chosenExercise) : "")} slot={step.slot!} weekday={weekday} session={session} pos={steps.filter((x) => x.type !== "end").indexOf(step) + 1} of={steps.length - 1} onDone={() => goNext()} onFlow={() => setFlow([step.slot!])} />
           ) : (
             <EndStep weekday={weekday} session={session} totals={totals} movesDone={movesDone} total={real.length} />
           )}
@@ -257,14 +257,14 @@ function PtBlock({ slots, session, weekday, onDone, onEach, onFlow }: { slots: P
           );
         })}
       </ul>
-      <Button size="lg" className="mt-4 min-h-16 w-full text-xl" tone="sun" data-testid="pt-done-all" onClick={doneAll}>
+      <Button size="lg" className="mt-4 min-h-16 w-full text-xl" tone="lime" data-testid="pt-done-all" onClick={doneAll}>
         <Check className="size-6" strokeWidth={3} /> {allDone ? "Block logged · continue" : "Done: whole block as prescribed"}
       </Button>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <Button tone="outline" size="lg" data-testid="pt-flow" onClick={onFlow}>
+        <Button tone="raised" size="lg" data-testid="pt-flow" onClick={onFlow}>
           <Play className="size-5" /> Flow mode
         </Button>
-        <Button tone="outline" size="lg" onClick={onEach} data-testid="pt-each">
+        <Button tone="raised" size="lg" onClick={onEach} data-testid="pt-each">
           One by one
         </Button>
       </div>
@@ -275,7 +275,7 @@ function PtBlock({ slots, session, weekday, onDone, onEach, onFlow }: { slots: P
 
 /* ---------------------------------------------------------------- one move */
 
-function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescription; weekday: number; session: WorkoutSession | null; onDone: () => void; onFlow: () => void }) {
+function MoveStep({ slot, weekday, session, onDone, onFlow, pos, of }: { slot: Prescription; weekday: number; session: WorkoutSession | null; onDone: () => void; onFlow: () => void; pos: number; of: number }) {
   const state = useDaylight();
   const exerciseId = session ? chosenExerciseId(slot, session.chosenExercise) : slot.exerciseId;
   const ex = exerciseById(exerciseId);
@@ -298,7 +298,6 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
   const [secs, setSecs] = useState(def.seconds != null ? String(minutes ? Math.round(def.seconds / 60) : def.seconds) : "");
   const [dist, setDist] = useState(def.distance ?? "");
   const [adjust, setAdjust] = useState(false);
-  const [setByset, setSetByset] = useState(false);
   const finished = session ? slotFinished(session, slot) : false;
   const remaining = Math.max(0, num(sets)! - done);
 
@@ -344,26 +343,40 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
 
   return (
     <section className="animate-rise" data-testid="gym-move" data-slot={slot.id}>
-      <div className="flex flex-wrap items-center gap-2">
+      <p className="t-label !text-fog" data-testid="gym-set-label">{slot.section === "activation" || slot.section === "pt" ? "Activate" : slot.section === "finisher" ? "Finish" : "Main work"} · set {Math.min(done + 1, planned)} of {planned}</p>
+      <div className="mt-2 flex gap-1.5" aria-hidden="true" data-testid="gym-set-bars">
+        {Array.from({ length: planned }, (_, i) => <span key={i} className="h-2 flex-1 rounded-full" style={{ background: i < done ? "var(--color-lime)" : i === done ? "var(--color-lime-mist)" : "var(--color-raised)" }} />)}
+      </div>
+      <p className="mt-4 font-display text-[16px] font-extrabold uppercase tracking-[.08em] text-lime">Exercise {pos} of {of}</p>
+      <div className="mt-1 flex flex-wrap items-center gap-2">
         {slot.section === "activation" ? <Badge tone="teal">PT activation</Badge> : slot.section === "finisher" ? <Badge tone="copper">abs / cardio / finisher</Badge> : <Badge>workout</Badge>}
         {slot.optional ? <Badge>optional</Badge> : null}
         {ex?.back === "caution" ? <Badge tone="copper">back: go easy</Badge> : null}
         {finished ? <Badge tone="forest">done</Badge> : null}
       </div>
-      <h1 className="t-display mt-1" data-testid="gym-move-name">{exerciseLabel(exerciseId)}</h1>
-      <p className="t-title mt-1 text-ink-soft" data-testid="gym-dose">{dose || "Open slot"}</p>
+      <h1 className="mt-2 font-display text-[40px] font-extrabold uppercase leading-[.95] text-white" data-testid="gym-move-name">{exerciseLabel(exerciseId)}</h1>
+      <p className="mt-1 text-[15px] text-fog" data-testid="gym-dose">{dose || "Open slot"}</p>
+      {slot.sourceCue ? <p className="mt-2 text-[15px] leading-snug text-lime-mist">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p> : null}
+      <div className="mt-4 grid grid-cols-2 gap-2" data-testid="gym-stats">
+        <div className="rounded-[12px] bg-deep p-3">
+          <p className="t-label !text-fog">{timed ? "Seconds" : minutes ? "Minutes" : slot.perSide ? "Reps / side" : "Reps"}</p>
+          <p className="font-display text-[56px] font-extrabold leading-[.9] tabular-nums text-lime">{(timed || minutes ? secs : reps) || "—"}</p>
+        </div>
+        <div className="rounded-[12px] bg-deep p-3">
+          <p className="t-label !text-fog">Load{showLoad ? ` (${unit})` : ""}</p>
+          <p className="font-display text-[56px] font-extrabold leading-[.9] tabular-nums text-lime">{showLoad && load ? load : ex?.usesAssistance && assist ? `-${assist}` : "BW"}</p>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-2 rounded-[12px] bg-deep px-3 py-2.5 text-sm text-fog" data-testid="gym-rest-row">
+        <Timer className="size-4 text-lime" /> Rest {state.restDefault}s between sets
+        <button type="button" className="tap ml-auto font-display text-[15px] font-bold uppercase tracking-[.05em] text-lime-mist" onClick={() => state.startRest()}>Start rest</button>
+      </div>
       {replaced ? <p className="mt-1 rounded-xl bg-accent/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
 
       <div className="mt-3">
         <MoveMedia key={exerciseId} exerciseId={exerciseId} compact />
       </div>
 
-      {slot.sourceCue ? (
-        <div className="mt-3 rounded-xl bg-surface-2 p-3">
-          <Eyebrow>Your plan cue</Eyebrow>
-          <p className="t-body mt-1 font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
-        </div>
-      ) : null}
       {prev ? <p className="mt-2 text-sm text-ink-soft">Last time: {[prev.reps, prev.load != null ? `${prev.load} ${prev.loadUnit}` : null, prev.seconds ? `${prev.seconds}s` : null].filter(Boolean).join(" · ") || "done"}</p> : null}
 
       {adjust ? (
@@ -383,33 +396,28 @@ function MoveStep({ slot, weekday, session, onDone, onFlow }: { slot: Prescripti
         </div>
       ) : null}
 
-      <Button size="lg" tone="primary" className="mt-4 w-full" data-testid="gym-done" onClick={complete}>
+      {slot.sets && !finished ? (
+        <Button size="lg" tone="lime" className="mt-4 w-full" data-testid="gym-log-set" onClick={logOne}>
+          <Check className="size-6 shrink-0" strokeWidth={3} /> Log set {Math.min(done + 1, planned)}
+        </Button>
+      ) : null}
+      <Button size="lg" tone={slot.sets && !finished ? "raised" : "lime"} className="mt-3 w-full" data-testid="gym-done" onClick={complete}>
         <Check className="size-6 shrink-0" strokeWidth={3} />
-        <span className="text-left">
+        <span className="text-left normal-case">
           {finished ? "Already done · next" : done > 0 && done < planned ? `Finish remaining ${remaining} set${remaining > 1 ? "s" : ""}` : slot.sets ? `Done ${num(sets) ?? planned} set${(num(sets) ?? planned) > 1 ? "s" : ""} as prescribed` : "Done as prescribed"}
           {summary && !finished ? <span className="block text-sm font-semibold opacity-80">{summary}</span> : null}
         </span>
       </Button>
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <Button tone="outline" size="md" aria-pressed={adjust} data-testid="gym-adjust-toggle" onClick={() => setAdjust((v) => !v)}>
+        <Button tone="raised" size="md" aria-pressed={adjust} data-testid="gym-adjust-toggle" onClick={() => setAdjust((v) => !v)}>
           {adjust ? "Hide adjust" : "Adjust"}
         </Button>
         {kind !== "cardio" || slot.durationLabel ? (
-          <Button tone="outline" size="md" data-testid="gym-guide" onClick={onFlow}>
+          <Button tone="raised" size="md" data-testid="gym-guide" onClick={onFlow}>
             <Play className="size-4" /> Guide me
           </Button>
         ) : null}
       </div>
-      {slot.sets && slot.sets > 1 ? (
-        <button type="button" className="tap mt-2 w-full rounded-xl py-2 text-sm font-bold text-ink-soft underline-offset-2 hover:underline" onClick={() => setSetByset((v) => !v)}>
-          {setByset ? "Hide set-by-set" : `Log one set at a time (${done}/${planned} done)`}
-        </button>
-      ) : null}
-      {setByset ? (
-        <Button tone="soft" size="lg" className="mt-1 w-full" onClick={logOne}>
-          Log set {Math.min(done + 1, planned)} of {planned}
-        </Button>
-      ) : null}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button tone="soft" size="sm" data-testid="gym-form" onClick={() => state.setOverlay({ type: "form", exerciseId })}>
@@ -444,10 +452,10 @@ function EndStep({ weekday, session, totals, movesDone, total }: { weekday: numb
       <p className="t-caption mt-1 text-ink-soft">
         {movesDone} of {total} moves · {Math.round(totals.done)} sets{extras.length ? ` · ${extras.length} off-plan` : ""}
       </p>
-      <Button size="lg" tone="primary" className="mt-6 w-full" data-testid="gym-finish" onClick={() => state.setOverlay({ type: "finish", weekday })}>
+      <Button size="lg" tone="lime" className="mt-6 w-full" data-testid="gym-finish" onClick={() => state.setOverlay({ type: "finish", weekday })}>
         <Flag className="size-6" /> Finish session
       </Button>
-      <Button tone="outline" size="lg" className="mt-2 w-full" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
+      <Button tone="raised" size="lg" className="mt-2 w-full" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
         <Shuffle className="size-5" /> Log something else I did
       </Button>
       <Button tone="ghost" size="lg" className="mt-2 w-full" onClick={() => state.setGymMode(null)}>
@@ -559,11 +567,11 @@ export function GuidedRun({ slots, session, weekday, onClose, onFinished }: { sl
         {nextPhase ? <p className="mt-3 text-sm text-ink-soft">Next: {nextPhase.kind === "rest" ? "rest" : nextPhase.kind === "ready" ? `get ready for ${nextPhase.label}` : `${nextPhase.label}${nextPhase.side ? `, ${nextPhase.side}` : ""}`}</p> : <p className="mt-3 text-sm text-ink-soft">Last one. Everything is logged as prescribed when you finish.</p>}
       </div>
       <div className="mx-auto grid w-full max-w-xl grid-cols-3 gap-2 px-4" style={{ paddingBottom: "max(0.9rem, env(safe-area-inset-bottom))" }}>
-        <Button tone="outline" size="lg" onClick={() => (setI(Math.max(0, i - 1)), setElapsed(0))} aria-label="Previous">Back</Button>
+        <Button tone="raised" size="lg" onClick={() => (setI(Math.max(0, i - 1)), setElapsed(0))} aria-label="Previous">Back</Button>
         <Button tone="sun" size="lg" onClick={() => setRunning((r) => !r)} data-testid="guided-pause" aria-label={running ? "Pause" : "Resume"}>
           {running ? <Pause className="size-6" /> : <Play className="size-6" />}
         </Button>
-        <Button tone="outline" size="lg" onClick={next} data-testid="guided-skip" aria-label={i >= phases.length - 1 ? "Finish" : "Skip ahead"}>
+        <Button tone="raised" size="lg" onClick={next} data-testid="guided-skip" aria-label={i >= phases.length - 1 ? "Finish" : "Skip ahead"}>
           {i >= phases.length - 1 ? "Finish" : "Skip"}
         </Button>
       </div>

@@ -67,11 +67,11 @@ test("MuscleWiki links only exist for real exercise ids, as link-outs on musclew
   }
 });
 
-test("figure colours: ramp is cold to hot, roles get weaker, groups are distinct and never bright green", () => {
+test("figure colours: brand-kit effort ramp runs light (rested) to clay (sore), roles get weaker, groups are distinct and never bright green", () => {
   const rgb = (h: string) => (h.startsWith("#") ? [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) : (h.match(/\d+/g) ?? []).map(Number));
   const lo = rgb(rampColor(0.05));
   const hi = rgb(rampColor(1));
-  assert.ok(lo[2]! > lo[0]! && hi[0]! > hi[2]!, "blue at the cold end, red at the hot end");
+  assert.ok(lo.reduce((a, b) => a + b, 0) > hi.reduce((a, b) => a + b, 0) && hi[0]! > hi[2]! + 60, "light at the rested end, clay red at the sore end");
   assert.notEqual(rampColor(0), rampColor(0.3));
   assert.ok(ROLE_STRENGTH.primary > ROLE_STRENGTH.secondary && ROLE_STRENGTH.secondary > ROLE_STRENGTH.tertiary);
   assert.notEqual(roleColor("chest", "primary"), roleColor("chest", "tertiary"));

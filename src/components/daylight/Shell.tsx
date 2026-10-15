@@ -21,25 +21,14 @@ const ITEMS: { id: AppView; label: string; icon: typeof SunMedium }[] = [
   { id: "food", label: "Food", icon: Utensils },
   { id: "notes", label: "Notes", icon: StickyNote },
 ];
-export function Logo({ size = 28 }: { size?: number }) {
+/** Brand kit badge: gold plate, forest Big Shoulders 900 caps. `compact` = the DM app-icon form. */
+export function Logo({ size = 28, compact }: { size?: number; compact?: boolean }) {
+  if (compact) return <span aria-hidden="true" className="inline-grid place-items-center rounded-[6px] bg-gold font-display font-black text-kforest" style={{ height: size, minWidth: size * 1.3, fontSize: size * 0.62, lineHeight: 1, paddingTop: 2 }}>DM</span>;
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="var(--accent)" />
-      <path
-        d="M8 23V9h6a7 7 0 0 1 0 14H8Z"
-        fill="none"
-        stroke="var(--on-accent)"
-        strokeWidth="2.5"
-      />
-      <path
-        d="m14 17 3-3 3 3"
-        fill="none"
-        stroke="var(--on-accent)"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <span aria-hidden="true" className="kit-badge" style={{ fontSize: size * 0.72 }}>
+      <b>DAYLIGHT</b>
+      <i>MATRIX</i>
+    </span>
   );
 }
 export function Shell({ children }: { children: ReactNode }) {
@@ -66,9 +55,6 @@ export function Shell({ children }: { children: ReactNode }) {
             aria-label="Daylight Matrix home"
           >
             <Logo size={30} />
-            <span>
-              Daylight<span className="brand-secondary">Matrix</span>
-            </span>
           </button>
           <nav aria-label="Primary" className="desktop-nav">
             {[...ITEMS, { id: "learn" as AppView, label: "Learn", icon: BookOpen }].map((item) => (

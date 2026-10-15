@@ -53,9 +53,9 @@ export function BodyHub({ tab }: { tab: HubTab }) {
   const lv = LEVELS.find((l) => l.id === level)!;
   return (
     <div ref={top} className="scroll-mt-20 space-y-4" data-testid={`hub-${tab}`} data-level={level}>
-      <div role="tablist" aria-label="Body level" className="grid grid-cols-5 gap-1 rounded-lg border border-line bg-surface-2 p-1">
+      <div role="tablist" aria-label="Body level" className="kit-tabs-sub grid grid-cols-5 gap-1">
         {LEVELS.map((l) => (
-          <button key={l.id} type="button" role="tab" aria-selected={level === l.id} onClick={() => setLevel(l.id)} className={cn("tap min-h-10 rounded-md px-0.5 text-[13px] font-bold", level === l.id ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink")}>{l.label}</button>
+          <button key={l.id} type="button" role="tab" aria-selected={level === l.id} onClick={() => setLevel(l.id)} className="tap min-h-10 px-0.5">{l.label}</button>
         ))}
       </div>
       <p className="text-sm text-ink-soft">
@@ -98,13 +98,13 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
       </ZoomPane>
       {muscleLevel ? (
         selE ? (
-          <div className="mt-3 flex items-center gap-3 rounded-xl border border-line bg-surface p-3 shadow-sm" data-testid="map-select-card">
-            <span className="size-3 shrink-0 rounded-full bg-[#ff7a1a]" />
+          <div className="mt-3 flex items-center gap-3 rounded-[12px] border border-line bg-surface p-3" data-testid="map-select-card">
+            <span className="size-3 shrink-0 rounded-full bg-[#c2993a]" />
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{selE.name}</p>
               <p className="line-clamp-2 text-xs text-ink-soft">{selE.kind === "detail" ? (ROLE[selE.id as SubIdR12] ?? selE.learn.does) : selE.learn.does}</p>
             </div>
-            <button type="button" className="tap inline-flex min-h-10 items-center gap-1 rounded-lg bg-accent px-3 text-sm font-semibold text-white" onClick={() => onPick(selE.id)} data-testid="map-open">Open<ArrowRight className="size-4" /></button>
+            <button type="button" className="btn btn-forest !min-h-10 !px-3 !text-[15px]" onClick={() => onPick(selE.id)} data-testid="map-open">Open<ArrowRight className="size-4" /></button>
           </div>
         ) : <p className="mt-2 text-center text-xs text-ink-soft">Tap a muscle to highlight it{typeof window !== "undefined" && window.matchMedia?.("(hover: hover)").matches ? ", or point at it" : ""}.</p>
       ) : null}

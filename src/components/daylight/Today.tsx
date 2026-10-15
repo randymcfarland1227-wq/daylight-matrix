@@ -54,7 +54,7 @@ export function Today() {
       <header className="daily-heading">
         <div>
           <Eyebrow>{prettyDate(today)}</Eyebrow>
-          <h1>Today</h1>
+          <h1 className="t-hero">Today</h1>
           <p>Move well. Eat with less effort. Notice what helps.</p>
         </div>
         <Button tone="outline" size="sm" onClick={() => s.setOverlay({ type: "activity" })}>
@@ -81,7 +81,7 @@ export function Today() {
         <PenLine className="size-4 shrink-0" />
       </button>
       <div className="today-workspace">
-        <section className="session-dashboard" aria-label="Today's session">
+        <section className="session-dashboard kit-feature" aria-label="Today's session">
           <div className="dashboard-label">
             <Dumbbell className="size-4" />
             <Eyebrow>Today’s training</Eyebrow>
@@ -138,6 +138,7 @@ export function Today() {
               <div className="session-actions">
                 <Button
                   size="lg"
+                  tone="gold"
                   data-testid="start-gym"
                   onClick={finished ? overview : () => s.setGymMode(weekday)}
                 >
