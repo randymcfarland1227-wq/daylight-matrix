@@ -50,6 +50,9 @@ export function Train() {
 export function DaySwitcher({ value, onChange }: { value: number; onChange: (d: number) => void; plan: { days: DayTemplate[] } }) {
   const todayIdx = new Date().getDay();
   const order = [1, 2, 3, 4, 5, 6, 0];
+  const state = useDaylight();
+  const weekStart = (() => { const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return localDate(t); })();
+  const doneDays = new Set(state.sessions.filter((s) => s.localDate >= weekStart && s.logs.some((l) => l.status === "done")).map((s) => s.weekday));
   return (
     <div className="day-switcher" role="tablist" aria-label="Choose a day">
       {order.map((d) => {
@@ -64,12 +67,13 @@ export function DaySwitcher({ value, onChange }: { value: number; onChange: (d: 
             onClick={() => onChange(d)}
             className={cn(
               "tap day-tab",
-              active ? "border-accent bg-accent text-on-accent" : "border-line bg-surface text-ink hover:bg-surface-2",
+              doneDays.has(d) ? "day-done" : d === todayIdx ? "day-next" : "day-later",
+              active && "day-active",
             )}
           >
             <span>{st.short}</span>
 
-            {d === todayIdx ? <small>Today</small> : <small aria-hidden="true">&nbsp;</small>}
+            {d === todayIdx ? <small>Today</small> : doneDays.has(d) ? <small>Done</small> : <small aria-hidden="true">&nbsp;</small>}
           </button>
         );
       })}
@@ -122,7 +126,7 @@ function SessionScreen() {
     <div>
       <DaySwitcher value={weekday} onChange={state.setTrainDay} plan={plan} />
 
-      <Card className="animate-rise mt-4 border-accent/25" as="section" aria-label="Session overview">
+      <Card className="animate-rise mt-4 kit-feature" as="section" aria-label="Session overview">
         <div className="flex items-center gap-2">
           <span className="inline-block size-2.5 rounded-full" style={{ background: st.color }} aria-hidden="true" />
           <Eyebrow>
@@ -131,7 +135,7 @@ function SessionScreen() {
         </div>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="session-overview-title">{day.name}</h2>
+            <h2 className="session-overview-title t-display !text-[34px]">{day.name}</h2>
             <p className="t-caption mt-1 text-ink-soft">
               {totals.total} exercises · {totals.completed} completed{totals.skipped ? ` · ${totals.skipped} skipped` : ""}
             </p>
@@ -149,9 +153,9 @@ function SessionScreen() {
           ))}
         </div>
         {!isToday ? (
-          <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 text-ink-soft">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
+          <p className="t-caption mt-3 rounded-[12px] bg-surface-2 px-3 py-2 text-ink-soft">You’re looking at {WEEKDAY_NAMES[weekday]}. Anything you log counts for today’s date.</p>
         ) : null}
-        {finished ? <p className="t-caption mt-3 rounded-xl bg-surface-2 px-3 py-2 font-bold">Finished. Logging another set re-opens it.</p> : null}
+        {finished ? <p className="t-caption mt-3 rounded-[12px] bg-surface-2 px-3 py-2 font-bold">Finished. Logging another set re-opens it.</p> : null}
         <Button size="lg" tone="gold" className="mt-4 w-full" data-testid="start-gym-overview" onClick={() => state.setGymMode(weekday)}>
           <Play className="size-5" fill="currentColor" /> {session && totals.done > 0 ? "Resume session" : "Start session"}
         </Button>
@@ -274,7 +278,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
             </Button>
           </div>
           {slot.sourceCue ? (
-            <div className="rounded-xl bg-accent/20 p-3">
+            <div className="rounded-[12px] bg-accent/20 p-3">
               <Eyebrow className="text-warn">Your plan cue · from your PDF</Eyebrow>
               <p className="mt-0.5 text-base font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
             </div>
@@ -319,7 +323,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           {logs.length ? (
             <ul className="mt-3 space-y-1.5" aria-label="Logged sets">
               {logs.map((l, i) => (
-                <li key={l.id} className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-1.5 text-sm">
+                <li key={l.id} className="flex items-center gap-2 rounded-[12px] bg-surface-2 px-3 py-1.5 text-sm">
                   <span className="grid size-6 place-items-center rounded-full bg-accent text-xs font-extrabold text-on-accent">{i + 1}</span>
                   <span className="flex-1 font-semibold tabular-nums">{setSummary(l)}</span>
                   <button type="button" aria-label="Remove this set" className="tap grid size-8 place-items-center rounded-full text-ink-faint hover:bg-line" onClick={() => state.removeLog(l.id)}>
@@ -333,7 +337,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           {notes.length ? (
             <ul className="mt-3 space-y-1">
               {notes.slice(0, 3).map((n) => (
-                <li key={n.id} className="rounded-xl border border-info/30 bg-info/10 px-3 py-1.5 text-sm">
+                <li key={n.id} className="rounded-[12px] border border-info/30 bg-info/10 px-3 py-1.5 text-sm">
                   <span className="text-ink-faint">{n.context.date.slice(5)} · </span>
                   {n.text}
                   {n.forNextPlan ? <span className="ml-1 text-warn">★</span> : null}
@@ -436,7 +440,7 @@ function SetLogger({ weekday, slot, exerciseId, session }: { weekday: number; sl
       {perSide ? (
         <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Side">
           {(["left", "right", "both"] as const).map((s) => (
-            <button key={s} type="button" aria-pressed={side === s} onClick={() => setSide(s)} className={cn("tap min-h-11 rounded-xl border text-sm font-bold capitalize", side === s ? "border-accent bg-accent text-on-accent" : "border-line bg-surface")}>
+            <button key={s} type="button" aria-pressed={side === s} onClick={() => setSide(s)} className={cn("tap min-h-11 rounded-[12px] border text-sm font-bold capitalize", side === s ? "border-accent bg-accent text-on-accent" : "border-line bg-surface")}>
               {s === "both" ? "Both" : s}
             </button>
           ))}

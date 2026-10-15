@@ -67,14 +67,14 @@ export function ImageFigure({ view, level, selected, onSelect, interactive = tru
                 onClick={() => onSelect?.(p.sub)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onSelect?.(p.sub))}>
                 <title>{`${name(p.sub)} (deep)`}</title>
                 <circle cx={x} cy={p.y} r="20" fill="transparent" />
-                <circle cx={x} cy={p.y} r="10" fill={selected === p.sub ? "#c2993a" : "#fff"} fillOpacity="0.85" stroke="#c4501a" strokeWidth="2.5" strokeDasharray="4 3" />
+                <circle cx={x} cy={p.y} r="10" fill={selected === p.sub ? "#c2993a" : "#fff"} fillOpacity="0.85" stroke="#b04a2c" strokeWidth="2.5" strokeDasharray="4 3" />
               </g>
             )))
           : null}
       </svg>
       {children}
       {hov ? (
-        <span className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[140%] whitespace-nowrap rounded-full bg-[#1d1a17]/90 px-2.5 py-1 text-xs font-semibold text-white" style={{ left: `${hov.x}%`, top: `${hov.y}%` }} data-testid="map-hover-label">{name(hov.id)}</span>
+        <span className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[140%] whitespace-nowrap rounded-full bg-kforest px-2.5 py-1 text-xs font-semibold text-white" style={{ left: `${hov.x}%`, top: `${hov.y}%` }} data-testid="map-hover-label">{name(hov.id)}</span>
       ) : null}
       <span className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 text-[11px] font-bold tracking-[0.2em] text-ink-soft">{view === "front" ? "FRONT" : "BACK"}</span>
     </div>

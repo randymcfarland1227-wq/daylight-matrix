@@ -243,7 +243,7 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
       </div>
       <ul className="mt-4 space-y-1.5">
         {moves.map(({ slot, id, logs }) => (
-          <li key={slot.id} className={cn("rounded-xl border px-3 py-2", logs.length ? "border-accent/40 bg-accent/5" : "border-line")}>
+          <li key={slot.id} className={cn("rounded-[12px] border px-3 py-2", logs.length ? "border-accent/40 bg-accent/5" : "border-line")}>
             <div className="flex items-center gap-2">
               {logs.length ? <Check className="size-4 text-accent" strokeWidth={3} /> : <span className="size-4 rounded-full border border-line" />}
               <p className="flex-1 font-semibold">{exerciseLabel(id)}</p>
@@ -261,7 +261,7 @@ function Finish({ weekday, onClose }: { weekday: number; onClose: () => void }) 
           <p className="eyebrow">Notes from today ({notes.length})</p>
           <ul className="mt-1 space-y-1 text-sm">
             {notes.map((n) => (
-              <li key={n.id} className="rounded-xl bg-info/10 px-3 py-1.5">
+              <li key={n.id} className="rounded-[12px] bg-info/10 px-3 py-1.5">
                 {n.text}
                 {n.forNextPlan ? <span className="ml-1 text-warn">★</span> : null}
               </li>

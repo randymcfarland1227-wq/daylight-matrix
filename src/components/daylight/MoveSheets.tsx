@@ -73,7 +73,7 @@ export function SwapMoveSheet({ weekday, slotId, onClose }: { weekday: number; s
       <ul className="mt-2 max-h-[34dvh] space-y-1.5 overflow-y-auto" data-testid="swap-list">
         {list.map((e) => (
           <li key={e.id}>
-            <button type="button" onClick={() => pick(e.id)} className="tap flex w-full items-center gap-3 rounded-xl border border-line px-3 py-2 text-left hover:bg-surface-2">
+            <button type="button" onClick={() => pick(e.id)} className="tap flex w-full items-center gap-3 rounded-[12px] border border-line px-3 py-2 text-left hover:bg-surface-2">
               <MoveThumb exerciseId={e.id} size={44} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-semibold">{e.name}</span>

@@ -77,7 +77,7 @@ export function Settings() {
         <h2 className="t-title">Back up everything</h2>
         <p className="text-sm text-ink-soft">Plan versions, session logs, notes and their photos, joint checks, food, pantry and settings. {s.saveStatus}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button tone="sun" onClick={async () => downloadText(`daylight-matrix-backup-${localDate()}.json`, await withImages(s.exportJson(), noteImageIds(s.observations)))}>
+          <Button tone="gold" onClick={async () => downloadText(`daylight-matrix-backup-${localDate()}.json`, await withImages(s.exportJson(), noteImageIds(s.observations)))}>
             <Download className="size-4" /> Download backup
           </Button>
           <Button tone="outline" onClick={() => file.current?.click()}>
@@ -114,7 +114,7 @@ export function Settings() {
         {s.goals.length === 0 ? <p className="mt-1 text-sm text-ink-soft">None yet. Add what you want the plan to move toward.</p> : null}
         <ul className="mt-2 space-y-2">
           {s.goals.map((g) => (
-            <li key={g.id} className="rounded-xl border border-line p-3 text-sm">
+            <li key={g.id} className="rounded-[12px] border border-line p-3 text-sm">
               <b>{g.name}</b>
               {g.improvement ? <p className="text-ink-soft">{g.improvement}</p> : null}
               {g.check ? <p className="text-ink-faint">Check: {g.check}</p> : null}

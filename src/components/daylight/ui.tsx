@@ -106,15 +106,17 @@ export function Segmented<T extends string | number>({
   options,
   label,
   className,
+  variant = "sub",
 }: {
   value: T;
   onChange: (v: T) => void;
   options: { id: T; label: ReactNode }[];
   label: string;
   className?: string;
+  variant?: "main" | "sub";
 }) {
   return (
-    <div role="tablist" aria-label={label} className={cn("kit-tabs no-scrollbar flex gap-1 overflow-x-auto", className)}>
+    <div role="tablist" aria-label={label} className={cn(variant === "main" ? "kit-tabs" : "kit-tabs-sub", "no-scrollbar flex gap-1 overflow-x-auto", className)}>
       {options.map((o) => (
         <button
           key={String(o.id)}
@@ -169,7 +171,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
-      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-[#0c0a08]/60-[2px]" onClick={onClose} />
+      <button type="button" aria-label="Close" className="fade-in absolute inset-0 bg-kforest/60" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}
@@ -177,7 +179,7 @@ export function Sheet({ title, onClose, children, tall }: { title: string; onClo
         aria-modal="true"
         aria-label={title}
         className={cn(
-          "sheet-in safe-bottom relative z-10 flex w-full max-w-xl flex-col rounded-t-xl border border-line bg-canvas outline-none md:rounded-xl",
+          "sheet-in safe-bottom relative z-10 flex w-full max-w-xl flex-col rounded-t-xl border border-line bg-canvas outline-none md:rounded-[12px]",
           tall ? "h-[92dvh] md:h-[85dvh]" : "max-h-[90dvh]",
         )}
       >

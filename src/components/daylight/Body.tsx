@@ -127,6 +127,7 @@ export function Body() {
         helper="Journal what you feel, learn how it all connects, and find growth and recovery options."
       />
       <Segmented
+        variant="main"
         label="Body workspace"
         value={tab}
         onChange={(v) => state.setBody({ bodyWorkspace: v, selectedMuscleId: null })}
@@ -250,7 +251,7 @@ export function Overview({
                 <button
                   type="button"
                   onClick={() => state.setBody({ selectedMuscleId: g.id })}
-                  className="tap flex w-full items-center gap-2 rounded-xl border border-line px-3 py-2 text-left hover:bg-surface-2"
+                  className="tap flex w-full items-center gap-2 rounded-[12px] border border-line px-3 py-2 text-left hover:bg-surface-2"
                 >
                   <span className="flex-1 font-semibold">{g.name}</span>
                   <span className="text-sm tabular-nums text-ink-soft">

@@ -176,7 +176,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
                 <Eyebrow>Logged off-plan work that counted</Eyebrow>
                 <ul className="mt-1 space-y-1">
                   {offPlan.map((h) => (
-                    <li key={h.exerciseId} className="rounded-xl border border-line px-3 py-2 text-sm">
+                    <li key={h.exerciseId} className="rounded-[12px] border border-line px-3 py-2 text-sm">
                       <b>{h.name}</b> <span className="text-ink-soft">· {fmt(r1(h.sets))} sets · {h.role}</span>
                     </li>
                   ))}
@@ -316,7 +316,7 @@ function MoveCard({ row, muscleId, loggedSets, windowDays, showLogged }: { row: 
   const steps = guide?.s.slice(0, 3) ?? [];
   const hue = GROUP_HUE[groupOfAny(muscleId)];
   return (
-    <article className="overflow-hidden rounded-xl border border-line bg-surface" data-testid="move-card" data-exercise={ex.id}>
+    <article className="overflow-hidden rounded-[12px] border border-line bg-surface" data-testid="move-card" data-exercise={ex.id}>
       <header className="flex items-center gap-2 bg-surface-2 px-4 py-3">
         <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
         <h3 className="min-w-0 flex-1 truncate t-title">{ex.name}</h3>
@@ -324,7 +324,7 @@ function MoveCard({ row, muscleId, loggedSets, windowDays, showLogged }: { row: 
       </header>
       <div className="p-4">
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="flex items-center gap-1 rounded-full px-2 py-0.5 font-bold" style={{ background: mix(FIG_SKIN, hue, ROLE_STRENGTH[row.role]), color: "#10151f" }}>
+          <span className="flex items-center gap-1 rounded-full px-2 py-0.5 font-bold" style={{ background: mix(FIG_SKIN, hue, ROLE_STRENGTH[row.role]), color: "#1c2f2a" }}>
             {row.role[0]!.toUpperCase() + row.role.slice(1)} for this muscle
           </span>
           {row.inPlan ? (

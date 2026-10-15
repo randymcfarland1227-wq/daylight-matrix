@@ -97,14 +97,14 @@ export function GymMode({ weekday }: { weekday: number }) {
     <div className="session fixed inset-0 z-40 flex flex-col bg-canvas text-ink" data-testid="gym-mode" role="region" aria-label={`Gym mode, ${WEEKDAY_NAMES[weekday]}`}>
       <header className="shrink-0 border-b border-line px-3 pb-2" style={{ paddingTop: "max(0.6rem, env(safe-area-inset-top))" }}>
         <div className="mx-auto flex max-w-xl items-center gap-2">
-          <button type="button" onClick={exit} aria-label="Exit gym mode" data-testid="gym-exit" className="tap flex min-h-11 items-center gap-1.5 rounded-lg bg-surface-2 px-3 text-sm font-bold">
+          <button type="button" onClick={exit} aria-label="Exit gym mode" data-testid="gym-exit" className="tap flex min-h-11 items-center gap-1.5 rounded-[10px] bg-raised px-3 font-display text-base font-extrabold uppercase tracking-wide text-paper">
             <X className="size-5" /> Exit
           </button>
           <div className="min-w-0 flex-1 text-center">
             <p className="t-meta truncate text-ink-soft">{WEEKDAY_NAMES[weekday]}{weekday !== new Date().getDay() ? " · logs count for today" : ""}</p>
             <p className="truncate font-display text-[20px] font-extrabold uppercase tracking-[.03em]">{day.name}</p>
           </div>
-          <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-lg bg-surface-2">
+          <button type="button" onClick={() => setShowList((v) => !v)} aria-label="All moves" aria-expanded={showList} className="tap grid size-11 place-items-center rounded-[10px] bg-raised text-paper">
             <ListChecks className="size-5" />
           </button>
         </div>
@@ -136,7 +136,7 @@ export function GymMode({ weekday }: { weekday: number }) {
                 const done = s.type === "move" ? finishedOf(s.slot!) : s.type === "pt" ? s.slots!.every(finishedOf) : false;
                 return (
                   <li key={s.key}>
-                    <button type="button" onClick={() => (setCur(i), setShowList(false))} className={cn("tap flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold", i === idx ? "bg-accent/15" : "hover:bg-surface-2")}>
+                    <button type="button" onClick={() => (setCur(i), setShowList(false))} className={cn("tap flex w-full items-center gap-2 rounded-[12px] px-3 py-2.5 text-left text-sm font-semibold", i === idx ? "bg-accent/15" : "hover:bg-surface-2")}>
                       <span className={cn("grid size-6 place-items-center rounded-full text-xs font-extrabold", done ? "bg-accent text-on-accent" : "bg-surface-2 text-ink-soft")}>{done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}</span>
                       <span className="min-w-0 flex-1 truncate">{label}</span>
                       {s.type === "move" && s.slot!.optional ? <Badge>optional</Badge> : null}
@@ -150,22 +150,22 @@ export function GymMode({ weekday }: { weekday: number }) {
           {step.type === "pt" ? (
             <PtBlock slots={step.slots!} session={session} weekday={weekday} onDone={() => goNext()} onEach={() => (setPtMode("each"), setCur(0))} onFlow={() => setFlow(step.slots!)} />
           ) : step.type === "move" ? (
-            <MoveStep key={step.key + (session ? chosenExerciseId(step.slot!, session.chosenExercise) : "")} slot={step.slot!} weekday={weekday} session={session} pos={steps.filter((x) => x.type !== "end").indexOf(step) + 1} of={steps.length - 1} onDone={() => goNext()} onFlow={() => setFlow([step.slot!])} />
+            <MoveStep key={step.key + (session ? chosenExerciseId(step.slot!, session.chosenExercise) : "")} slot={step.slot!} weekday={weekday} session={session} pos={real.indexOf(step.slot!) + 1} of={real.length} onDone={() => goNext()} onFlow={() => setFlow([step.slot!])} />
           ) : (
             <EndStep weekday={weekday} session={session} totals={totals} movesDone={movesDone} total={real.length} />
           )}
         </div>
       </div>
 
-      <footer className="shrink-0 border-t border-line px-3 pt-2" style={{ paddingBottom: "max(0.6rem, env(safe-area-inset-bottom))" }}>
+      <footer className="shrink-0 border-t border-raised px-3 pt-2" style={{ paddingBottom: "max(0.6rem, env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-xl items-center gap-2">
-          <Button tone="soft" size="lg" className="min-w-14 px-3" aria-label="Previous move" disabled={idx === 0} onClick={() => setCur(Math.max(0, idx - 1))}>
+          <Button tone="raised" size="lg" className="min-w-14 px-3" aria-label="Previous move" disabled={idx === 0} onClick={() => setCur(Math.max(0, idx - 1))}>
             <ChevronLeft className="size-6" />
           </Button>
-          <p className="min-w-0 flex-1 text-center text-sm font-bold text-ink-soft tabular-nums">
-            {step.type === "end" ? "Wrap up" : `Step ${idx + 1} of ${steps.length - 1}`}
+          <p className="min-w-0 flex-1 text-center font-display text-base font-extrabold uppercase tracking-wide text-fog tabular-nums">
+            {step.type === "end" ? "Wrap up" : `${Math.max(0, real.length - totals.completed)} of ${real.length} left`}
           </p>
-          <Button tone="soft" size="lg" className="min-w-14 px-3" aria-label="Next move" disabled={idx >= steps.length - 1} onClick={() => setCur(Math.min(steps.length - 1, idx + 1))}>
+          <Button tone="raised" size="lg" className="min-w-14 px-3" aria-label="Next move" disabled={idx >= steps.length - 1} onClick={() => setCur(Math.min(steps.length - 1, idx + 1))}>
             <ChevronRight className="size-6" />
           </Button>
         </div>
@@ -208,10 +208,10 @@ function RestStrip() {
   const done = left <= 0;
   const pct = Math.max(0, Math.min(1, 1 - left / rest.total));
   return (
-    <div className="mb-3 overflow-hidden rounded-lg bg-ink text-canvas" role="timer" aria-label="Rest timer" data-testid="gym-rest">
-      <div className="h-1.5 bg-canvas/20"><div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct * 100}%` }} /></div>
+    <div className="mb-3 overflow-hidden rounded-lg bg-deep text-paper" role="timer" aria-label="Rest timer" data-testid="gym-rest">
+      <div className="h-1.5 bg-raised"><div className="h-full bg-lime transition-[width] duration-300" style={{ width: `${pct * 100}%` }} /></div>
       <div className="flex items-center gap-3 px-4 py-2.5">
-        <Timer className="size-6 shrink-0 text-sun" />
+        <Timer className="size-6 shrink-0 text-lime" />
         <div className="min-w-0 flex-1">
           <p className="t-meta text-canvas/60">{done ? "Rest done" : "Rest"}</p>
           <p className="t-title text-[1.5rem]! leading-none tabular-nums">{done ? "Go" : formatSeconds(left)}</p>
@@ -347,7 +347,7 @@ function MoveStep({ slot, weekday, session, onDone, onFlow, pos, of }: { slot: P
       <div className="mt-2 flex gap-1.5" aria-hidden="true" data-testid="gym-set-bars">
         {Array.from({ length: planned }, (_, i) => <span key={i} className="h-2 flex-1 rounded-full" style={{ background: i < done ? "var(--color-lime)" : i === done ? "var(--color-lime-mist)" : "var(--color-raised)" }} />)}
       </div>
-      <p className="mt-4 font-display text-[16px] font-extrabold uppercase tracking-[.08em] text-lime">Exercise {pos} of {of}</p>
+      <p className="mt-4 font-display text-[16px] font-extrabold uppercase tracking-[.08em] text-lime">{pos > 0 ? `Exercise ${pos} of ${of}` : `Optional extra · ${of} required`}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
         {slot.section === "activation" ? <Badge tone="teal">PT activation</Badge> : slot.section === "finisher" ? <Badge tone="copper">abs / cardio / finisher</Badge> : <Badge>workout</Badge>}
         {slot.optional ? <Badge>optional</Badge> : null}
@@ -371,7 +371,7 @@ function MoveStep({ slot, weekday, session, onDone, onFlow, pos, of }: { slot: P
         <Timer className="size-4 text-lime" /> Rest {state.restDefault}s between sets
         <button type="button" className="tap ml-auto font-display text-[15px] font-bold uppercase tracking-[.05em] text-lime-mist" onClick={() => state.startRest()}>Start rest</button>
       </div>
-      {replaced ? <p className="mt-1 rounded-xl bg-accent/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
+      {replaced ? <p className="mt-1 rounded-[12px] bg-accent/15 px-3 py-2 text-sm">You logged <b>{replaced.name}</b> here instead.</p> : null}
 
       <div className="mt-3">
         <MoveMedia key={exerciseId} exerciseId={exerciseId} compact />
@@ -568,7 +568,7 @@ export function GuidedRun({ slots, session, weekday, onClose, onFinished }: { sl
       </div>
       <div className="mx-auto grid w-full max-w-xl grid-cols-3 gap-2 px-4" style={{ paddingBottom: "max(0.9rem, env(safe-area-inset-bottom))" }}>
         <Button tone="raised" size="lg" onClick={() => (setI(Math.max(0, i - 1)), setElapsed(0))} aria-label="Previous">Back</Button>
-        <Button tone="sun" size="lg" onClick={() => setRunning((r) => !r)} data-testid="guided-pause" aria-label={running ? "Pause" : "Resume"}>
+        <Button tone="lime" size="lg" onClick={() => setRunning((r) => !r)} data-testid="guided-pause" aria-label={running ? "Pause" : "Resume"}>
           {running ? <Pause className="size-6" /> : <Play className="size-6" />}
         </Button>
         <Button tone="raised" size="lg" onClick={next} data-testid="guided-skip" aria-label={i >= phases.length - 1 ? "Finish" : "Skip ahead"}>

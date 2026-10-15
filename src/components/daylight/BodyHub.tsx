@@ -35,7 +35,7 @@ const LEVELS: { id: Kind; label: string; plural: string }[] = [
 ];
 const MAP_LEVEL: Record<Kind, MapLevel> = { group: "group", muscle: "region", detail: "sub", joint: "region", nerve: "region" };
 const TONE_FILL = { none: "var(--surface)", ok: "var(--accent)", mild: "var(--warn)", high: "var(--danger)" } as const;
-const NERVE_COLOR = "#d4a017";
+const NERVE_COLOR = "#c2993a";
 const MIRROR = "translate(300 0) scale(-1 1)";
 const KIND_LABEL: Record<Kind, string> = { group: "Muscle group", muscle: "Muscle", detail: "Detail", joint: "Joint", nerve: "Nerve" };
 const groupOf = (id: string) => resolveMuscle(id)?.group ?? "chest";
@@ -99,7 +99,7 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
       {muscleLevel ? (
         selE ? (
           <div className="mt-3 flex items-center gap-3 rounded-[12px] border border-line bg-surface p-3" data-testid="map-select-card">
-            <span className="size-3 shrink-0 rounded-full bg-[#c2993a]" />
+            <span className="size-3 shrink-0 rounded-full bg-brass" />
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{selE.name}</p>
               <p className="line-clamp-2 text-xs text-ink-soft">{selE.kind === "detail" ? (ROLE[selE.id as SubIdR12] ?? selE.learn.does) : selE.learn.does}</p>

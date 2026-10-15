@@ -39,7 +39,7 @@ export function Notes() {
         title="Notes"
         helper="Capture what happened. Try one change. Review whether it helped."
         right={
-          <Button tone="primary" onClick={() => state.setOverlay({ type: "note" })}>
+          <Button tone="gold" onClick={() => state.setOverlay({ type: "note" })}>
             <Pencil className="size-4" /> Add observation
           </Button>
         }

@@ -49,7 +49,7 @@ export function Learn() {
         <ul className="mt-4 grid gap-2">
           {list.map((lesson) => (
             <li key={lesson.id}>
-              <button type="button" className="min-h-14 w-full rounded-xl border border-line bg-surface px-3 text-left" onClick={() => setOpen(lesson.id)}>
+              <button type="button" className="min-h-14 w-full rounded-[12px] border border-line bg-surface px-3 text-left" onClick={() => setOpen(lesson.id)}>
                 <span className="block text-xl font-display">{lesson.title}</span>
                 <span className="text-ink-soft">{lesson.why.slice(0, 110)}…</span>
               </button>

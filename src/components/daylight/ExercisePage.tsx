@@ -64,7 +64,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   weights.sort((a, b) => b[1] - a[1]);
   const topSub = weights[0]?.[0];
   const topGroup = topSub ? groupOfSub(topSub) : null;
-  const hue = topGroup ? GROUP_HUE[topGroup] : "#7d86e8";
+  const hue = topGroup ? GROUP_HUE[topGroup] : "#426f62";
   const mw = muscleWikiUrl(exerciseId);
   const clip = videoFor(exerciseId);
   const tags = tagsFor(exerciseId);
@@ -134,10 +134,12 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-1">
-          <header className="flex flex-wrap items-center gap-3 rounded-xl bg-surface-2 px-5 py-4">
-            <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
-            <h1 className="t-display min-w-0 flex-1" data-testid="exercise-title">{name}</h1>
-            {ex?.equipment ? <span className="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink-soft">{ex.equipment}</span> : null}
+          <header className="kit-feature px-5 py-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={DIFF_TONE[meta.difficulty]}>{meta.difficulty}</Badge>
+              {ex?.equipment ? <span className="t-label !text-wheat">{ex.equipment}</span> : null}
+            </div>
+            <h1 className="t-display mt-2 !text-[40px] !leading-[0.95] md:!text-[56px]" data-testid="exercise-title">{name}</h1>
           </header>
 
           <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
@@ -189,7 +191,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     {ex?.back === "friendly" ? <Badge tone="teal">back-friendly</Badge> : ex?.back === "caution" ? <Badge tone="copper">go easy on the back</Badge> : null}
                   </div>
                   {g.clarify ? (
-                    <p className="rounded-xl border border-warn/40 bg-warn/10 p-3 text-sm">
+                    <p className="rounded-[12px] border border-warn/40 bg-warn/10 p-3 text-sm">
                       <b className="text-warn">About the PDF entry:</b> {g.clarify}
                     </p>
                   ) : null}
@@ -236,7 +238,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                       ))}
                     </ul>
                   </Section>
-                  <p className="flex items-start gap-1.5 rounded-xl bg-surface-2 p-3 text-sm">
+                  <p className="flex items-start gap-1.5 rounded-[12px] bg-surface-2 p-3 text-sm">
                     <Info className="mt-0.5 size-4 shrink-0 text-info" />
                     <span>
                       <b>Back-friendly note:</b> {g.back} <span className="text-ink-faint">General movement information, not medical advice.</span>
@@ -244,7 +246,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </p>
                 </>
               ) : (
-                <p className="rounded-xl bg-surface-2 p-3 text-sm text-ink-soft">No written guide for this move yet. Use the demo link.</p>
+                <p className="rounded-[12px] bg-surface-2 p-3 text-sm text-ink-soft">No written guide for this move yet. Use the demo link.</p>
               )}
             </div>
 

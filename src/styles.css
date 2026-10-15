@@ -356,6 +356,12 @@
 .reason-block { border-left: 2px solid var(--accent); padding-left: 12px; }
 .day-switcher { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 6px; max-width: 700px; }
 .day-tab { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; min-width: 0; min-height: 58px; border: 1px solid var(--line); border-radius: 8px; padding: 7px 2px; font-size: 13px; font-weight: 650; }
+.day-tab span { font-family: var(--font-display); font-weight: 800; font-size: 17px; text-transform: uppercase; letter-spacing: .04em; }
+.day-tab { border-radius: 10px; border: 0; }
+.day-done { background: var(--color-kforest); color: var(--color-wheat); }
+.day-next { background: var(--color-paper); color: var(--color-pine); box-shadow: inset 0 0 0 2.5px var(--color-gold); }
+.day-later { background: var(--color-tint); color: var(--color-pine); }
+.day-active { outline: 2.5px solid var(--color-pine); outline-offset: 2px; }
 .day-tab small { font-size: 10px; line-height: 1.3; font-weight: 500; }
 .session-overview-title { font-size: 25px; font-weight: 650; line-height: 1.25; letter-spacing: -.7px; }
 .body-journal { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 24px; align-items: start; }
