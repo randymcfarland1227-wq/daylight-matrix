@@ -1,3 +1,4 @@
+import { ImageFigure } from "./ImageFigure";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Flag, MapPin, Pencil, X } from "lucide-react";
 import { localDate, recordDate } from "@/lib/daylight/dates";
@@ -106,22 +107,13 @@ export function BodyJournal() {
         </div>
         <div className="journal-figures" data-testid="journal-map">
           {(["front", "back"] as const).map((view) => (
-            <MapFigure
-              key={view}
-              view={view}
-              level={level}
-              showLabel
-              className="w-full h-auto"
-              selected={area}
-              fill={(id) =>
+            <ImageFigure key={view} view={view} level={level} selected={area} tint={(id) =>
                 selected(id)
                   ? "var(--accent)"
                   : hasNotes(id)
                     ? "var(--journal-noted)"
                     : "var(--journal-idle)"
-              }
-              onSelect={choose}
-            />
+              } onSelect={choose} />
           ))}
         </div>
         <p className="atlas-key">

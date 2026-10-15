@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDaylight } from "@/lib/daylight/store";
+import { VIEW_SLUG, BODY_TABS, TRAINING_TABS, buildHash, parseHash, pushHash, setTitle } from "@/lib/daylight/hashRoute";
+import type { TrainingTab } from "@/lib/daylight/types";
 import { Body } from "./Body";
 import { Food } from "./Food";
 import { GymMode } from "./GymMode";
@@ -56,6 +58,51 @@ export function DaylightApp() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [view]);
+
+  // Per-section URLs: restore from the hash on load and on Back/Forward; mirror the store into the hash.
+  const trainingTab = useDaylight((state) => state.trainingTab);
+  const bodyWorkspace = useDaylight((state) => state.bodyWorkspace);
+  useEffect(() => {
+    if (!ready) return;
+    const apply = () => {
+      const { view: v, sub } = parseHash();
+      if (!v) return;
+      const st = useDaylight.getState();
+      if (v === "training") {
+        const tab = (TRAINING_TABS as string[]).includes(sub) ? (sub as TrainingTab) : "session";
+        if (st.trainingTab !== tab) st.setTrainingTab(tab);
+      }
+      if (v === "body") {
+        const ws = (BODY_TABS as readonly string[]).includes(sub) ? (sub as (typeof BODY_TABS)[number]) : "journal";
+        if (st.bodyWorkspace !== ws) st.setBody({ bodyWorkspace: ws });
+      }
+      if (st.view !== v && !(v === "settings" && ["history", "goals", "review"].includes(st.view))) st.setView(v);
+    };
+    if (!new URLSearchParams(location.search).get("go")) apply();
+    window.addEventListener("popstate", apply);
+    window.addEventListener("hashchange", apply);
+    return () => {
+      window.removeEventListener("popstate", apply);
+      window.removeEventListener("hashchange", apply);
+    };
+  }, [ready]);
+  const synced = useRef(false);
+  useEffect(() => {
+    if (!ready) return;
+    setTitle(view);
+    const cur = parseHash();
+    // First run after load: the hash is the source of truth; wait until the store has caught up with it.
+    if (!synced.current) {
+      if (cur.view && cur.view !== view && !new URLSearchParams(location.search).get("go")) return;
+      synced.current = true;
+      if (cur.view) return;
+    }
+    const sub =
+      view === "training" ? (trainingTab === "session" ? "" : trainingTab)
+      : view === "body" ? (bodyWorkspace === "journal" ? "" : bodyWorkspace)
+      : VIEW_SLUG[view] === cur.slug ? cur.sub : "";
+    pushHash(buildHash(view, sub || undefined), !location.hash);
+  }, [ready, view, trainingTab, bodyWorkspace]);
 
   if (!ready) return <Opening />;
   if (gymMode) return <GymMode key={gymMode.weekday} weekday={gymMode.weekday} />;

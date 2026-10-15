@@ -1,3 +1,4 @@
+import { ImageFigure } from "./ImageFigure";
 import {
   ArrowRight,
   Check,
@@ -156,7 +157,7 @@ export function Today() {
               </div>
             </>
           ) : (
-            <Button className="mt-5" onClick={() => s.setTrainingTab("week")}>
+            <Button tone="outline" className="mt-5" onClick={() => s.setTrainingTab("week")}>
               Choose a session
               <ArrowRight className="size-4" />
             </Button>
@@ -213,14 +214,9 @@ export function Today() {
           <p className="mt-2 text-sm text-ink-soft">Choose an area. Save what you notice.</p>
           <div className="daily-mini-map">
             {(["front", "back"] as const).map((view) => (
-              <MapFigure
-                key={view}
-                view={view}
-                level="region"
-                fill={() => "var(--journal-idle)"}
-                onSelect={(id) => body(id)}
-                className="h-48 w-auto"
-              />
+              <div key={view} className="w-32">
+                <ImageFigure view={view} level="region" showView={false} label={`${view} body, tap an area to check in`} onSelect={(id) => body(id)} />
+              </div>
             ))}
           </div>
           <Button tone="outline" className="w-full" onClick={() => body()}>
@@ -256,7 +252,7 @@ export function Today() {
                 Prep ingredients, combine them your way, and buy only what you need.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
-                <Button onClick={() => s.setView("food")}>
+                <Button tone="outline" onClick={() => s.setView("food")}>
                   Open food options
                   <ArrowRight className="size-4" />
                 </Button>

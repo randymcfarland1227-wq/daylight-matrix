@@ -4,6 +4,7 @@ import { clock, localDate } from "@/lib/daylight/dates";
 import { dayKind, isUseSoon, sumProtein, waterToday } from "@/lib/daylight/foodplan";
 import { ingredientKey, kitchenStock, readyIngredients } from "@/lib/daylight/kitchen";
 import { useDaylight } from "@/lib/daylight/store";
+import { useHashTab } from "@/lib/daylight/hashRoute";
 import { IngredientPrep } from "./IngredientPrep";
 import { KitchenInventory } from "./KitchenInventory";
 import { KitchenShopping } from "./KitchenShopping";
@@ -12,7 +13,7 @@ import { Badge, Button, Eyebrow, PageHead, Ring, Segmented } from "./ui";
 type Tab = "options" | "prep" | "inventory" | "shopping";
 export function Food() {
   const s = useDaylight();
-  const [tab, setTab] = useState<Tab>("options");
+  const [tab, setTab] = useHashTab<Tab>("food", ["options", "prep", "inventory", "shopping"] as const, "options");
   const [review, setReview] = useState(false);
   const need = s.shopping.filter((i) => !i.checked).length;
   return (
@@ -30,6 +31,12 @@ export function Food() {
           { id: "shopping", label: `Shopping${need ? ` · ${need}` : ""}` },
         ]}
       />
+      {tab !== "prep" && !s.inventory.some((i) => kitchenStock(i.name, s.inventory) === "available") && !readyIngredients(s.prepared, s.prep).length ? (
+        <div className="kit-note mt-4 flex flex-wrap items-center justify-between gap-3" data-testid="food-prep-first">
+          <p className="min-w-0 flex-1 basis-[14rem]"><b>Prep ingredients first.</b> Once something is prepped or stocked, options show what you can make.</p>
+          <Button tone="outline" size="sm" onClick={() => setTab("prep")}>Go to ingredient prep</Button>
+        </div>
+      ) : null}
       <div className="mt-6">
         {tab === "options" ? (
           <FoodOptions prep={() => setTab("prep")} />
@@ -274,10 +281,12 @@ function FoodOptions({ prep }: { prep: () => void }) {
                       <Badge>{meal.noCook ? "No cook" : "Cook / assemble"}</Badge>
                     </div>
                     <h3>{meal.name}</h3>
-                    <p className="option-availability">
-                      {have.length} of {meal.ingredientNames.length} ingredients on hand
-                      {ready.length ? ` · ${ready.length} prepared` : ""}
-                    </p>
+                    {ingredients.length ? (
+                      <p className="option-availability">
+                        {have.length} of {meal.ingredientNames.length} ingredients on hand
+                        {ready.length ? ` · ${ready.length} prepared` : ""}
+                      </p>
+                    ) : null}
                     <div className="option-ingredients">
                       {meal.ingredientNames.map((name) => (
                         <span key={name} data-have={have.includes(name)}>
