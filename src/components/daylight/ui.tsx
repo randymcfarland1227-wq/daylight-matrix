@@ -249,8 +249,8 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
 export function PageHead({ eyebrow, title, helper, right, children }: { eyebrow?: string; title: string; helper?: ReactNode; right?: ReactNode; children?: ReactNode }) {
   return (
     <header className="mb-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-3">
+        <div className="min-w-0 flex-1 basis-[16rem]">
           {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
           <h1 className="t-display mt-0.5">{title}</h1>
           {helper ? <p className="t-caption mt-1 text-ink-soft">{helper}</p> : null}

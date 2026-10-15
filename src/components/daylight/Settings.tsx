@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { Download, Upload, Plus, Smartphone } from "lucide-react";
 import { clock, localDate, prettyDate } from "@/lib/daylight/dates";
 import { useDaylight } from "@/lib/daylight/store";
-import type { ThemeChoice } from "@/lib/daylight/types";
 import { Button, Card, Chip, PageHead, Segmented, Stepper, downloadText } from "./ui";
 
 type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
@@ -53,10 +52,8 @@ export function Settings() {
 
       <Card>
         <h2 className="t-title">Look</h2>
-        <div className="mt-2">
-          <Segmented<ThemeChoice> label="Theme" value={s.theme} onChange={s.setTheme} options={[{ id: "dark", label: "Dusk (dark)" }, { id: "light", label: "Daylight (light)" }, { id: "auto", label: "Match device" }]} />
-        </div>
-        <p className="mt-4 text-sm text-ink-soft">Train opens your overview. Choose Start session when you want the focused workout screen.</p>
+        <p className="mt-2 text-ink-soft">Daylight is one light look. The workout screen switches to night colours while a session runs, then back.</p>
+        <p className="mt-3 text-sm text-ink-soft">Train opens your overview. Choose Start session when you want the focused workout screen.</p>
       </Card>
 
       <Card>
