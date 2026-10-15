@@ -553,3 +553,6 @@
 .mapfig-real .mapreg:hover .mr-edge { fill: #c4622a; stroke: #c4622a; }
 .mapfig-real .mapreg[data-selected="true"] .mr-fill { fill: #f0843a; }
 .mapfig-real .mapreg[data-selected="true"] .mr-edge { fill: #b4501c; stroke: #b4501c; stroke-width: 3; }
+
+.imgreg, .imgreg:focus { outline: none; }
+.imgreg:focus-visible path { stroke: #ff7a1a; stroke-width: 3; }

@@ -28,3 +28,10 @@ test("round 13: every sub has its own feel text; every group, joint and nerve ha
   for (const j of JOINTS) assert.ok(JOINT_PROFILES[j.id], j.id);
   for (const n of NERVES) assert.ok(NERVE_PROFILES[n.id], n.id);
 });
+
+test("round 14: every sub-muscle is tappable on the image figure (area or deep marker)", async () => {
+  const { IMAGE_MAP, IMAGE_PINS, warpPath } = await import("../daylight/imageMap.ts");
+  const have = new Set([...IMAGE_MAP.front, ...IMAGE_MAP.back].map((r) => r.sub).concat([...IMAGE_PINS.front, ...IMAGE_PINS.back].map((p) => p.sub)));
+  for (const s of SUBS) assert.ok(have.has(s.id), s.id);
+  assert.match(warpPath("M150 92 C140 100 120 110 100 120"), /^M448 \d+ C\d+ \d+ \d+ \d+ \d+ \d+$/);
+});

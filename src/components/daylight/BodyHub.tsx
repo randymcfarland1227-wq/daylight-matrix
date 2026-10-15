@@ -1,3 +1,5 @@
+import { ImageFigure } from "./ImageFigure";
+import { IMG_H, IMG_W, warp, warpPath } from "@/lib/daylight/imageMap";
 import { PROFILES, ROLE, FEEL, GROUP_PROFILES, JOINT_PROFILES, NERVE_PROFILES } from "@/lib/daylight/learnProfiles";
 import { subInfo as subInfoR12, type RegionId as RegionIdR12, type SubId as SubIdR12 } from "@/lib/daylight/muscles";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -69,44 +71,61 @@ export function BodyHub({ tab }: { tab: HubTab }) {
 function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }) {
   const s = useDaylight();
   const [side, setSide] = useState(false);
+  const [view, setView] = useState<"front" | "back">("front");
+  const [sel, setSel] = useState<string | null>(null);
   const today = localDate();
   const muscleLevel = level === "group" || level === "muscle" || level === "detail";
-  const fill = (_id: AnyMuscleId) => (muscleLevel ? "#d9b6a0" : "#e3d3c4");
-  const [sel, setSel] = useState<string | null>(null);
-  const views = side && level === "joint" ? (["side"] as const) : (["front", "back"] as const);
+  useEffect(() => setSel(null), [level]);
+  const selE = sel ? entity(sel) : undefined;
+  const sideOnly = side && level === "joint";
   return (
     <div data-testid="hub-map">
-      {level === "joint" ? (
-        <div className="mb-3 flex gap-2"><Chip active={!side} onClick={() => setSide(false)}>Front &amp; back</Chip><Chip active={side} onClick={() => setSide(true)}>Side</Chip></div>
-      ) : null}
+      <div className="mb-3 flex flex-wrap gap-2">
+        {!sideOnly ? (["front", "back"] as const).map((v) => <Chip key={v} active={view === v} onClick={() => setView(v)}>{v === "front" ? "Front" : "Back"}</Chip>) : null}
+        {level === "joint" ? <Chip active={side} onClick={() => setSide(!side)}>Side</Chip> : null}
+      </div>
       <ZoomPane>
-        <div className={cn("journal-figures !mt-0", views.length === 1 && "journal-figures--side")}>
-          {views.map((view) => (
-            <div key={view} className="relative">
-              {view === "side" ? <SideFigure /> : (
-                <MapFigure realistic view={view} level={MAP_LEVEL[level]} interactive={muscleLevel} showLabel className="mapfig-real h-auto w-full" fill={fill} selected={sel} onSelect={(id) => { setSel(id); onPick(id); }} label={`${view} ${level} map`} />
-              )}
-              {level === "joint" ? <JointLayer view={view} logs={s.jointLogs ?? []} today={today} onPick={onPick} /> : null}
-              {level === "nerve" && view !== "side" ? <NerveLayer view={view} onPick={onPick} /> : null}
-            </div>
-          ))}
+        <div className="mx-auto max-w-[400px]">
+          {sideOnly ? (
+            <div className="relative"><SideFigure /><JointLayer view="side" logs={s.jointLogs ?? []} today={today} onPick={onPick} /></div>
+          ) : (
+            <ImageFigure view={view} level={MAP_LEVEL[level]} interactive={muscleLevel} selected={sel} onSelect={(id) => setSel(id)}>
+              {level === "joint" ? <JointLayer view={view} img logs={s.jointLogs ?? []} today={today} onPick={onPick} /> : null}
+              {level === "nerve" ? <NerveLayer view={view} img onPick={onPick} /> : null}
+            </ImageFigure>
+          )}
         </div>
       </ZoomPane>
+      {muscleLevel ? (
+        selE ? (
+          <div className="mt-3 flex items-center gap-3 rounded-xl border border-line bg-surface p-3 shadow-sm" data-testid="map-select-card">
+            <span className="size-3 shrink-0 rounded-full bg-[#ff7a1a]" />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">{selE.name}</p>
+              <p className="line-clamp-2 text-xs text-ink-soft">{selE.kind === "detail" ? (ROLE[selE.id as SubIdR12] ?? selE.learn.does) : selE.learn.does}</p>
+            </div>
+            <button type="button" className="tap inline-flex min-h-10 items-center gap-1 rounded-lg bg-accent px-3 text-sm font-semibold text-white" onClick={() => onPick(selE.id)} data-testid="map-open">Open<ArrowRight className="size-4" /></button>
+          </div>
+        ) : <p className="mt-2 text-center text-xs text-ink-soft">Tap a muscle to highlight it{typeof window !== "undefined" && window.matchMedia?.("(hover: hover)").matches ? ", or point at it" : ""}.</p>
+      ) : null}
       {level === "nerve" ? <p className="mt-2 text-xs text-ink-soft">Nerve lines are a simplified guide to where each major nerve runs, drawn on one side and mirrored. Smaller nerves are in the list below.</p> : null}
+      <p className="mt-1 text-[10px] text-ink-faint">Body renders: Gymkee muscle map.</p>
     </div>
   );
 }
 
-function JointLayer({ view, logs, today, onPick }: { view: "front" | "back" | "side"; logs: JointLog[]; today: string; onPick: (id: string) => void }) {
+function JointLayer({ view, logs, today, onPick, img }: { view: "front" | "back" | "side"; logs: JointLog[]; today: string; onPick: (id: string) => void; img?: boolean }) {
   return (
-    <svg viewBox="0 0 300 600" className="absolute inset-0 size-full" role="group" aria-label={`${view} joints`}>
+    <svg viewBox={img ? `0 0 ${IMG_W} ${IMG_H}` : "0 0 300 600"} className="absolute inset-0 size-full" role="group" aria-label={`${view} joints`}>
       {JOINTS.filter((j) => j[view]).map((j) => {
         const p = j[view]!;
-        const pts = p.pair ? [p, { x: 300 - p.x, y: p.y }] : [p];
+        const raw = p.pair ? [p, { x: 300 - p.x, y: p.y }] : [p];
+        const pts = img ? raw.map((q) => { const [x, y] = warp(q.x, q.y); return { x, y }; }) : raw;
+        const k = img ? 2.4 : 1;
         const t = heatTone(jointHeat(logs, j.id, today));
         return (
           <g key={j.id} role="button" tabIndex={0} aria-label={j.name} data-joint={j.id} className="cursor-pointer" onClick={() => onPick(j.id)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick(j.id))}>
-            {pts.map((q, i) => <g key={i}><circle cx={q.x} cy={q.y} r="18" fill="transparent" /><circle cx={q.x} cy={q.y} r="9" fill={TONE_FILL[t]} fillOpacity={t === "none" ? 1 : 0.85} stroke="var(--ink)" strokeWidth="2" /></g>)}
+            {pts.map((q, i) => <g key={i}><circle cx={q.x} cy={q.y} r={18 * k} fill="transparent" /><circle cx={q.x} cy={q.y} r={9 * k} fill={TONE_FILL[t]} fillOpacity={t === "none" ? 1 : 0.85} stroke="var(--ink)" strokeWidth={2 * k} /></g>)}
           </g>
         );
       })}
@@ -114,19 +133,23 @@ function JointLayer({ view, logs, today, onPick }: { view: "front" | "back" | "s
   );
 }
 
-function NerveLayer({ view, onPick }: { view: "front" | "back"; onPick: (id: string) => void }) {
+function NerveLayer({ view, onPick, img }: { view: "front" | "back"; onPick: (id: string) => void; img?: boolean }) {
+  const k = img ? 2.4 : 1;
   return (
-    <svg viewBox="0 0 300 600" className="absolute inset-0 size-full" role="group" aria-label={`${view} nerves`}>
+    <svg viewBox={img ? `0 0 ${IMG_W} ${IMG_H}` : "0 0 300 600"} className="absolute inset-0 size-full" role="group" aria-label={`${view} nerves`}>
       {NERVES.filter((n) => n.paths.some((p) => p.view === view)).map((n) => (
         <g key={n.id} role="button" tabIndex={0} aria-label={n.name} data-nerve={n.id} className="cursor-pointer" onClick={() => onPick(n.id)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick(n.id))}>
-          {[undefined, MIRROR].map((tr, i) => (
-            <g key={i} transform={tr}>
-              {n.paths.filter((p) => p.view === view).map((p, k) => (
-                <g key={k}>
-                  <path d={p.d} fill="none" stroke="transparent" strokeWidth="14" strokeLinecap="round" />
-                  <path d={p.d} fill="none" stroke={NERVE_COLOR} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-                </g>
-              ))}
+          {[false, true].map((mir, i) => (
+            <g key={i} transform={!img && mir ? MIRROR : undefined}>
+              {n.paths.filter((p) => p.view === view).map((p, j) => {
+                const d = img ? warpPath(p.d, mir) : p.d;
+                return (
+                  <g key={j}>
+                    <path d={d} fill="none" stroke="transparent" strokeWidth={14 * k} strokeLinecap="round" />
+                    <path d={d} fill="none" stroke={NERVE_COLOR} strokeWidth={2.6 * k} strokeLinecap="round" strokeLinejoin="round" />
+                  </g>
+                );
+              })}
             </g>
           ))}
         </g>
