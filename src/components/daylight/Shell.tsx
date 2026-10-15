@@ -23,11 +23,10 @@ const ITEMS: { id: AppView; label: string; icon: typeof SunMedium }[] = [
 ];
 /** Brand kit badge: gold plate, forest Big Shoulders 900 caps. `compact` = the DM app-icon form. */
 export function Logo({ size = 28, compact }: { size?: number; compact?: boolean }) {
-  if (compact) return <span aria-hidden="true" className="inline-grid place-items-center rounded-[6px] bg-gold font-display font-black text-kforest" style={{ height: size, minWidth: size * 1.3, fontSize: size * 0.62, lineHeight: 1, paddingTop: 2 }}>DM</span>;
+  if (compact) return <span aria-hidden="true" className="inline-grid place-items-center rounded-[6px] bg-gold font-display font-black text-kforest" style={{ height: size, minWidth: size * 1.3, fontSize: size * 0.62, lineHeight: 1, paddingTop: 2 }}>B</span>;
   return (
     <span aria-hidden="true" className="kit-badge" style={{ fontSize: size * 0.72 }}>
-      <b>DAYLIGHT</b>
-      <i>MATRIX</i>
+      <b>BODY</b>
     </span>
   );
 }
@@ -52,7 +51,7 @@ export function Shell({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => go("today")}
             className="app-brand"
-            aria-label="Daylight Matrix home"
+            aria-label="Body home"
           >
             <Logo size={30} />
           </button>
@@ -120,7 +119,7 @@ export function Opening() {
         <div className="sun-bob mx-auto w-fit">
           <Logo size={64} />
         </div>
-        <p className="t-display mt-4">Daylight Matrix</p>
+        <p className="t-display mt-4">Body</p>
         <p className="t-caption mt-2 text-ink-soft">Opening your day.</p>
       </div>
     </div>

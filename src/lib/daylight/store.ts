@@ -1319,7 +1319,7 @@ export const useDaylight = create<Data & Actions>()(
         try {
           const parsed = JSON.parse(raw) as { daylight?: number; customNames?: Record<string, string>; data?: Record<string, unknown> };
           if (!parsed.daylight || !parsed.data || !Array.isArray(parsed.data.planVersions) || !parsed.data.planVersions.length) {
-            return "That file is not a Daylight backup.";
+            return "That file is not a Body backup.";
           }
           // Old (daylight: 1) backups have no schemaVersion, so they run through the same migration as old localStorage.
           const data = upgradeFoodWorkspace(migratePersisted(parsed.daylight >= 2 ? { schemaVersion: parsed.daylight, ...parsed.data } : parsed.data));

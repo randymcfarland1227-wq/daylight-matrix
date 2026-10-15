@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Daylight Matrix";
+const APP_NAME = "Body";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,7 +15,7 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#2f4f46" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "Daylight" },
+      { name: "apple-mobile-web-app-title", content: "Body" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
     links: [

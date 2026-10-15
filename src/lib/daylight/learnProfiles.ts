@@ -160,3 +160,9 @@ export const NERVE_PROFILES: Record<string, Profile> = {
   "nerve-tibial": NV("Powers the calf and the sole of the foot.", "Pushing off, pointing the foot.", "The sole of the foot and the inner ankle.", ["Calf strength", "Ankle mobility"], ["Very tight shoes or long standing on hard ground"]),
   "nerve-peroneal": NV("Powers the shin and the outer lower-leg muscles.", "Lifting the foot and toes.", "The outer shin and top of the foot.", ["Tibialis raises", "Changing position when kneeling or squatting"], ["Sitting with the legs crossed for long", "Pressure at the outer knee"]),
 };
+
+// Keep legacy consumers aligned with the expanded nerve atlas.
+import { NERVE_ATLAS } from "./nerveAtlas";
+for (const [id, n] of Object.entries(NERVE_ATLAS)) {
+  NERVE_PROFILES[id] = { tagline: n.motor, everyday: [n.motor], feel: n.sensory, skip: "A nerve does not need isolated exercise; sensory or motor loss needs assessment.", patterns: [n.habit], mistakes: ["Stretching through numbness, tingling or electrical pain"] };
+}

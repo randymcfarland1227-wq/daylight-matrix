@@ -1,4 +1,4 @@
-# Daylight Matrix
+# Body
 
 A personal daily app for food, training, and body awareness. Choose what to do, do it, notice what happened, then adjust.
 

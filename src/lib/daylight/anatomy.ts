@@ -5,6 +5,8 @@
  */
 import { GROUPS, REGIONS, SUBS, regionOfSub, subInfo, regionInfo, groupInfo, type GroupId, type RegionId, type SubId } from "./muscles";
 import { JOINTS, type JointId } from "./joints";
+import { DETAIL, referenceFor } from "./atlas";
+import { NERVE_ATLAS } from "./nerveAtlas";
 
 export type Kind = "group" | "muscle" | "detail" | "joint" | "nerve";
 export type Ref = { slug: string; name: string; how: string };
@@ -76,6 +78,7 @@ export type NerveId =
   | "nerve-cervical" | "nerve-brachial-plexus" | "nerve-axillary" | "nerve-musculocutaneous" | "nerve-radial" | "nerve-median" | "nerve-ulnar"
   | "nerve-suprascapular" | "nerve-long-thoracic" | "nerve-thoracodorsal" | "nerve-pectoral" | "nerve-accessory" | "nerve-dorsal-scapular"
   | "nerve-intercostal" | "nerve-dorsal-rami" | "nerve-lumbar-plexus" | "nerve-femoral" | "nerve-obturator" | "nerve-sacral-plexus"
+  | "nerve-subscapular" | "nerve-iliohypogastric" | "nerve-ilioinguinal" | "nerve-lateral-femoral-cutaneous" | "nerve-saphenous" | "nerve-deep-fibular" | "nerve-superficial-fibular" | "nerve-sural"
   | "nerve-superior-gluteal" | "nerve-inferior-gluteal" | "nerve-sciatic" | "nerve-tibial" | "nerve-peroneal";
 export type NervePath = { view: "front" | "back"; d: string };
 export type NerveInfo = { id: NerveId; name: string; roots: string; major: boolean; learn: Learn; paths: NervePath[]; guide?: Guide };
@@ -145,6 +148,19 @@ export const NERVES: NerveInfo[] = [
     learn: { does: "Wraps around the head of the fibula just below the outer knee. Its deep branch lifts the foot and toes (tibialis anterior); its superficial branch turns the foot out and gives feeling to the top of the foot.", joints: ["knee", "ankle"], worksWith: ["tibialis"], nerves: ["nerve-sciatic"],
       overwork: ["Foot slapping or catching the toes (foot drop)", "Numb top of the foot, e.g. after sitting cross-legged; it sits close to the skin at the outer knee"] } },
 ];
+// Complete the selected nerve library, including smaller branches with no drawn route.
+for (const [id, n] of Object.entries(NERVE_ATLAS)) {
+  let entry = NERVES.find(x => x.id === id);
+  if (!entry) {
+    entry = { id: id as NerveId, name: n.name, roots: n.roots, major: false, paths: [], learn: { does: n.motor } };
+    NERVES.push(entry);
+  }
+  entry.name = n.name;
+  entry.roots = n.roots;
+  entry.learn = { does: `${n.route} ${n.motor}`, worksWith: n.powers, nerves: n.connected, joints: n.joints, parts: n.branches, overwork: [n.signs] };
+  // Stretch demos are muscle mobility, not a treatment for a nerve lesion.
+  entry.guide = { recoveryTips: [n.habit, "Stop movement that brings on electrical pain, numbness or tingling; nerve glides require individual guidance."] };
+}
 export const NERVE_BY_ID = new Map(NERVES.map((n) => [n.id, n]));
 
 // ---------- muscle-level (region) content ----------
@@ -294,6 +310,20 @@ export function entities(): Map<string, Entity> {
     ...JOINTS.map((j) => jointEntity(j.id)),
     ...NERVES.map(nerveEntity),
   ];
+  // Use the precise detail records at every level rather than inheriting a parent's supply.
+  for (const e of all) {
+    if (e.kind === "nerve") continue;
+    if (e.kind === "joint") { e.learn.does = referenceFor(e).function; continue; }
+    const ids = e.kind === "detail" ? [e.id] : e.kind === "muscle" ? regionInfo(e.id)!.subs : groupInfo(e.id)!.subs;
+    const rows = ids.map(id => DETAIL[id]);
+    const own = new Set([e.id, ...ids]);
+    e.learn = { ...e.learn, does: referenceFor(e).function,
+      ...(e.kind === "detail" ? { does: rows[0].action, parts: [rows[0].attachment, rows[0].note] } : {}),
+      worksWith: uniq(rows.flatMap(d => d.with)).filter(id => !own.has(id)),
+      opposes: uniq(rows.flatMap(d => d.against)).filter(id => !own.has(id)),
+      joints: uniq(rows.flatMap(d => d.joints)), nerves: uniq(rows.flatMap(d => d.nerves)),
+    };
+  }
   cache = new Map(all.map((e) => [e.id, e]));
   return cache;
 }

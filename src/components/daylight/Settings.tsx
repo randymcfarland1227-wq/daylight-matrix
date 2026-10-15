@@ -67,7 +67,7 @@ export function Settings() {
         {standalone ? (
           <p className="mt-1 text-sm text-ink-soft">Running as an installed app.</p>
         ) : install ? (
-          <Button className="mt-2" onClick={() => install.prompt()}>Install Daylight Matrix</Button>
+          <Button className="mt-2" onClick={() => install.prompt()}>Install Body</Button>
         ) : (
           <p className="mt-1 text-sm text-ink-soft">iPhone: Share → Add to Home Screen. Android: browser menu → Install app / Add to Home screen.</p>
         )}
@@ -77,7 +77,7 @@ export function Settings() {
         <h2 className="t-title">Back up everything</h2>
         <p className="text-sm text-ink-soft">Plan versions, session logs, notes and their photos, joint checks, food, pantry and settings. {s.saveStatus}.</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button tone="gold" onClick={async () => downloadText(`daylight-matrix-backup-${localDate()}.json`, await withImages(s.exportJson(), noteImageIds(s.observations)))}>
+          <Button tone="gold" onClick={async () => downloadText(`body-backup-${localDate()}.json`, await withImages(s.exportJson(), noteImageIds(s.observations)))}>
             <Download className="size-4" /> Download backup
           </Button>
           <Button tone="outline" onClick={() => file.current?.click()}>

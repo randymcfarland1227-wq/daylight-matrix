@@ -1,11 +1,13 @@
+import { referenceFor, CONTENT_DATE, SOURCES, GROWTH_PRINCIPLES } from "@/lib/daylight/atlas";
+import { NERVE_ATLAS } from "@/lib/daylight/nerveAtlas";
 import { ImageFigure } from "./ImageFigure";
 import { IMG_H, IMG_W, warp, warpPath } from "@/lib/daylight/imageMap";
-import { PROFILES, ROLE, FEEL, GROUP_PROFILES, JOINT_PROFILES, NERVE_PROFILES } from "@/lib/daylight/learnProfiles";
+import { PROFILES, FEEL, GROUP_PROFILES, JOINT_PROFILES, NERVE_PROFILES } from "@/lib/daylight/learnProfiles";
 import { subInfo as subInfoR12, type RegionId as RegionIdR12, type SubId as SubIdR12 } from "@/lib/daylight/muscles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ExternalLink, Pencil, Play, Trash2 } from "lucide-react";
 import { localDate, recordDate } from "@/lib/daylight/dates";
-import { NERVES, entitiesOf, entity, entityName, linkedFrom, type Entity, type Kind, type Ref } from "@/lib/daylight/anatomy";
+import { NERVES, entitiesOf, entity, entityName, type Entity, type Kind, type Ref } from "@/lib/daylight/anatomy";
 import { observationsForArea, noteArea } from "@/lib/daylight/bodyNotes";
 import { exercises } from "@/lib/daylight/exercises";
 import { FIG_SKIN, GROUP_HUE, mix } from "@/lib/daylight/figureColors";
@@ -62,7 +64,7 @@ export function BodyHub({ tab }: { tab: HubTab }) {
         {tab === "journal" ? `Tap any of the ${lv.plural} to log how it feels and keep notes with photos.` : tab === "learn" ? `Tap any of the ${lv.plural} to learn what it does and how it connects.` : `Tap any of the ${lv.plural} for growth and recovery options, with demos from Lyfta.`}
       </p>
       <section className="body-atlas"><HubMap level={level} onPick={open} /></section>
-      <EntityList level={level} open={open} />
+      <EntityList key={level} level={level} open={open} />
       {tab === "journal" ? <RecentBodyNotes open={open} /> : null}
     </div>
   );
@@ -102,7 +104,7 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
             <span className="size-3 shrink-0 rounded-full bg-brass" />
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{selE.name}</p>
-              <p className="line-clamp-2 text-xs text-ink-soft">{selE.kind === "detail" ? (ROLE[selE.id as SubIdR12] ?? selE.learn.does) : selE.learn.does}</p>
+              <p className="line-clamp-2 text-xs text-ink-soft">{selE.kind === "detail" ? (selE.learn.does) : selE.learn.does}</p>
             </div>
             <button type="button" className="btn btn-forest !min-h-10 !px-3 !text-[15px]" onClick={() => onPick(selE.id)} data-testid="map-open">Open<ArrowRight className="size-4" /></button>
           </div>
@@ -159,7 +161,8 @@ function NerveLayer({ view, onPick, img }: { view: "front" | "back"; onPick: (id
 }
 
 function EntityList({ level, open }: { level: Kind; open: (id: string) => void }) {
-  const list = entitiesOf(level);
+  const [query, setQuery] = useState("");
+  const list = entitiesOf(level).filter(e => `${e.name} ${e.learn.does}`.toLowerCase().includes(query.trim().toLowerCase()));
   const groups: [string, Entity[]][] = level === "detail"
     ? [...new Set(list.map((e) => e.parent!))].map((p) => [entityName(p), list.filter((e) => e.parent === p)])
     : level === "muscle"
@@ -169,6 +172,10 @@ function EntityList({ level, open }: { level: Kind; open: (id: string) => void }
         : [["", list]];
   return (
     <section className="journal-panel" aria-label="List" data-testid="entity-list">
+      <label className="mb-4 block text-sm font-semibold">Find an area
+        <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search names or functions" className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-sm font-normal text-ink" />
+      </label>
+      {!list.length ? <p className="mb-3 text-sm text-ink-soft">No matches in this category. Try another name or category.</p> : null}
       {groups.map(([title, items]) => (
         <div key={title} className="mb-3 last:mb-0">
           {title ? <Eyebrow>{title}</Eyebrow> : null}
@@ -341,7 +348,7 @@ function ExerciseSplit({ e }: { e: Entity }) {
   return (
     <section className="mt-5" data-testid="learn-exercises">
       <h3 className="text-base font-semibold">Exercises for {e.name}</h3>
-      {profileFor(e) ? <p className="mt-1 text-sm text-ink-soft" data-testid="guide-feel">Feel it: {profileFor(e)!.feel}</p> : null}
+      {profileFor(e) ? <p className="mt-1 text-sm text-ink-soft" data-testid="guide-feel">Feel it: {referenceFor(e).feel}</p> : null}
       {prim.length ? <><Eyebrow className="mt-2">Main target</Eyebrow><ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-2">{prim.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}</ul></> : null}
       {sec.length ? <><Eyebrow className="mt-3">Also works it</Eyebrow><ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-2">{sec.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}</ul></> : null}
     </section>
@@ -357,59 +364,57 @@ function profileFor(e: Entity) {
   return p;
 }
 
-function ProfileBlock({ e, part }: { e: Entity; part: "learn" | "guide" }) {
-  const p = profileFor(e);
-  if (!p) return null;
-  const L = ({ t, xs }: { t: string; xs: string[] }) => <div className="mt-4"><h3 className="text-base font-semibold">{t}</h3><ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{xs.map((x) => <li key={x}>{x}</li>)}</ul></div>;
-  return (
-    <div data-testid={`${part}-profile`}>
-      {part === "learn" ? <>
-      <L t="What it lets you do" xs={p.everyday} />
-      <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "nerve" ? "Where irritation tends to show up" : e.kind === "joint" ? "Where you notice it" : "Where you feel it"}</h3><p className="mt-1 text-sm">{p.feel}</p></div>
-      {p.skip ? <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "joint" ? "If you neglect it" : "If you skip it"}</h3><p className="mt-1 text-sm">{p.skip}</p></div> : null}
-      </> : <>
-      {p.reps ? <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-        <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Rep ranges</Eyebrow><p className="mt-0.5">{p.reps}</p></div>
-        <div className="rounded-lg border border-line bg-surface p-2"><Eyebrow>Frequency</Eyebrow><p className="mt-0.5">{p.freq}</p></div>
-      </div> : null}
-      <L t={e.kind === "joint" ? "Keep it healthy" : e.kind === "nerve" ? "Nerve-friendly habits" : "Key movement patterns"} xs={p.patterns} />
-      {p.mistakes.filter((x) => x !== "—").length ? <div className="mt-4"><h3 className="text-base font-semibold">{e.kind === "joint" || e.kind === "nerve" ? "Habits that annoy it" : "Common mistakes"}</h3><ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm">{p.mistakes.filter((x) => x !== "—").map((x) => <li key={x}>{x}</li>)}</ol></div> : null}
-      {p.faq?.map((f) => <details key={f.q} className="mt-3 rounded-lg border border-line p-2 text-sm"><summary className="cursor-pointer font-semibold">{f.q}</summary><p className="mt-1">{f.a}</p></details>)}
-      </>}
-    </div>
-  );
+function SourceNotes({ e }: { e: Entity }) {
+  const r = referenceFor(e);
+  return <details className="atlas-sources mt-6 rounded-xl border border-line p-4" data-testid="atlas-sources">
+    <summary className="cursor-pointer text-sm font-semibold">Sources &amp; content notes · {r.sources.length} references</summary>
+    <p className="mt-3 text-xs text-ink-soft">Content checked against the references below on {CONTENT_DATE}. Original educational summaries; no clinician has reviewed this library. Anatomy references support structure and function. Practice cues and starting doses are editorial coaching suggestions, not a personalized treatment plan.</p>
+    <ul className="mt-3 space-y-3">{r.sources.map(id => <li key={id}><a className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-accent underline" href={SOURCES[id].url} target="_blank" rel="noreferrer noopener">{SOURCES[id].title}<ExternalLink className="size-3 shrink-0" /></a><p className="text-xs text-ink-soft">{SOURCES[id].scope}</p></li>)}</ul>
+    <p className="mt-3 text-xs text-ink-soft">This is a selected atlas. Some entries combine several muscles; deeper structures and neighbouring muscles may be described without their own map marker. Typical roots and sensory territories vary between people.</p>
+  </details>;
+}
+
+function AtlasText({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
+  return <section id={id} className="atlas-section scroll-mt-24"><h3 className="text-lg font-bold">{title}</h3><div className="mt-2 text-sm leading-relaxed">{children}</div></section>;
 }
 
 function LearnPanel({ e, open }: { e: Entity; open: (id: string) => void }) {
-  const L = e.learn;
-  const back = linkedFrom(e.id).map((x) => x.id).filter((id) => ![L.worksWith, L.opposes, L.joints, L.nerves].some((l) => l?.includes(id)) && id !== e.parent);
-  const isJoint = e.kind === "joint", isNerve = e.kind === "nerve";
-  return (
-    <div data-testid="learn-panel">
-      {e.kind !== "detail" && profileFor(e) ? <p className="mt-4 text-base font-semibold text-accent" data-testid="learn-tagline">{profileFor(e)!.tagline}</p> : null}
-      {e.kind === "detail" ? <p className="mt-4 text-sm text-ink-soft" data-testid="learn-descriptor">{subInfoR12(e.id)?.blurb}</p> : null}
-      <h3 className="mt-5 text-base font-semibold">{e.kind === "detail" ? "Function / role" : "What it does"}</h3>
-      <p className="mt-1 text-sm leading-relaxed">{e.kind === "detail" && ROLE[e.id as SubIdR12] ? ROLE[e.id as SubIdR12] : L.does}</p>
-      <ProfileBlock e={e} part="learn" />
-      {L.parts?.length ? (
-        <div className="mt-5"><h3 className="text-base font-semibold">{e.kind === "detail" ? "What's inside" : "Parts"}</h3>
-          {e.children.length ? <div className="mt-2 flex flex-wrap gap-2">{e.children.map((id) => <Chip key={id} onClick={() => open(id)}>{entityName(id)}</Chip>)}</div> : <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{L.parts.map((p) => <li key={p}>{p}</li>)}</ul>}
-        </div>
-      ) : null}
-      <Links title={isJoint ? "Muscles that move and protect it" : isNerve ? "Muscles it powers" : "Works with"} ids={L.worksWith} open={open} testid="learn-works-with" />
-      <Links title="Works against (opposite side)" ids={L.opposes} open={open} />
-      {!isJoint ? <Links title={isNerve ? "Joints it runs past" : "Joints it moves"} ids={L.joints} open={open} /> : null}
-      <Links title={isNerve ? "Connected nerves" : "Nerve supply"} ids={L.nerves} open={open} />
-      {L.overwork?.length ? (
-        <div className="mt-5 rounded-lg border border-warn/30 bg-warn/10 p-3" data-testid="learn-overwork">
-          <h3 className="text-base font-semibold">{isNerve ? "Signs it may be irritated" : "Signs of overwork or irritation"}</h3>
-          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{L.overwork.map((x) => <li key={x}>{x}</li>)}</ul>
-          <p className="mt-2 text-xs text-ink-soft">Education, not a diagnosis. Pain that persists, numbness, weakness or anything sudden is worth checking with your PT or doctor.</p>
-        </div>
-      ) : null}
-      <Links title="Also connected" ids={back.slice(0, 16)} open={open} />
+  const r = referenceFor(e);
+  const prefix = `atlas-${e.id}`;
+  const isNerve = e.kind === 'nerve';
+  const jump = [['overview', 'Everyday use'], ['anatomy', isNerve ? 'Route & territories' : 'Anatomy'], ['connections', 'Connections'], ['notice', 'What to notice']];
+  return <div className="atlas-learn mt-5" data-testid="learn-panel">
+    <nav aria-label={`Explore ${e.name}`} className="atlas-jump flex flex-wrap gap-2 border-b border-line pb-4">{jump.map(([id, label]) => <a key={id} href={`#${prefix}-${id}`} className="inline-flex min-h-10 items-center rounded-full border border-line px-3 text-xs font-semibold">{label}</a>)}</nav>
+    <div className="atlas-intro mt-5 rounded-xl bg-surface-2 p-4 sm:p-5">
+      <Eyebrow>{isNerve ? r.nerve!.type : 'Function in context'}</Eyebrow>
+      <h3 className="mt-2 text-lg font-bold">What it does</h3><p className="mt-2 text-sm leading-relaxed">{r.function}</p>
     </div>
-  );
+    <div id={`${prefix}-overview`} className="mt-5 grid scroll-mt-24 gap-5 lg:grid-cols-2">
+      <AtlasText title="What it lets you do"><ul className="list-disc space-y-2 pl-5">{r.everyday.map(x => <li key={x}>{x}</li>)}</ul></AtlasText>
+      <AtlasText title={isNerve ? 'Where sensation goes' : 'Where you feel it'}><p>{r.feel}</p></AtlasText>
+    </div>
+    <div className="mt-5"><AtlasText title={isNerve ? 'Does it need its own workout?' : 'If you skip it'}><p>{r.skip}</p></AtlasText></div>
+    <div id={`${prefix}-anatomy`} className="mt-7 scroll-mt-24 border-t border-line pt-5">
+      <h3 className="text-lg font-bold">{isNerve ? 'Route, branches & territories' : e.kind === 'joint' ? 'Structures & movement' : 'Parts & anatomy'}</h3>
+      {r.nerve ? <dl className="mt-3 grid gap-3 sm:grid-cols-2" data-testid="nerve-territories">{[['Typical roots', r.nerve.roots], ['Course / route', r.nerve.route], ['Motor supply', r.nerve.motor], ['Sensory supply', r.nerve.sensory]].map(([label, text]) => <div key={label} className="rounded-xl border border-line p-3"><dt className="text-xs font-bold uppercase tracking-wide text-ink-soft">{label}</dt><dd className="mt-2 text-sm leading-relaxed">{text}</dd></div>)}</dl> : null}
+      {e.children.length ? <div className="mt-3 grid gap-2 sm:grid-cols-2">{e.children.map(id => { const child = entity(id)!; return <button type="button" key={id} onClick={() => open(id)} className="atlas-link flex min-h-16 items-start gap-3 rounded-xl border border-line p-3 text-left"><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{child.name}</span><span className="mt-1 block text-xs leading-relaxed text-ink-soft">{child.learn.does}</span></span><ArrowRight className="mt-1 size-4 shrink-0" /></button>; })}</div> : null}
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">{(e.children.length ? r.structure.filter(x => !e.children.some(id => x.startsWith(`${entityName(id)}:`))) : r.structure).map(x => <li key={x}>{x}</li>)}</ul>
+    </div>
+    <div id={`${prefix}-connections`} className="mt-7 scroll-mt-24 border-t border-line pt-5" data-testid="atlas-connections">
+      <h3 className="text-lg font-bold">How it connects</h3>
+      <div className="mt-3 grid gap-5 lg:grid-cols-2">{r.connections.map(c => <section key={c.label} data-testid={c.label === 'Works with' ? 'learn-works-with' : undefined}>
+        <h4 className="text-sm font-bold">{c.label}</h4><p className="mt-1 text-xs leading-relaxed text-ink-soft">{c.text}</p>
+        <div className="mt-2 grid gap-2">{c.ids.filter(id => entity(id)).map(id => { const t = entity(id)!; return <button type="button" key={id} className="atlas-link flex items-start gap-2 rounded-lg border border-line px-3 py-2 text-left" onClick={() => open(id)}><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{t.name}</span><span className="mt-1 block text-xs leading-relaxed text-ink-soft">{t.kind === 'nerve' ? NERVE_ATLAS[id]?.motor : t.learn.does}</span></span><ArrowRight className="mt-1 size-3.5 shrink-0" /></button>; })}</div>
+      </section>)}</div>
+    </div>
+    <div id={`${prefix}-notice`} className="mt-7 scroll-mt-24 border-t border-line pt-5" data-testid="learn-overwork">
+      <h3 className="text-lg font-bold">What to notice</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2"><section className="rounded-xl border border-line p-4"><h4 className="text-sm font-bold">{isNerve ? 'Muscle effort vs nerve symptoms' : 'Effort & ordinary fatigue'}</h4><ul className="mt-2 list-disc space-y-2 pl-4 text-sm leading-relaxed">{r.fatigue.map(x => <li key={x}>{x}</li>)}</ul></section><section className="rounded-xl border border-warn/30 bg-warn/10 p-4"><h4 className="text-sm font-bold">{isNerve ? 'Possible irritation' : 'Overload or irritation'}</h4><ul className="mt-2 list-disc space-y-2 pl-4 text-sm leading-relaxed">{r.irritation.map(x => <li key={x}>{x}</li>)}</ul></section></div>
+      <p className="mt-3 text-xs leading-relaxed text-ink-soft">{r.watch}</p>
+    </div>
+    <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl bg-surface-2 p-4"><div className="flex-1"><h3 className="text-sm font-bold">Put this into practice</h3><p className="mt-1 text-xs text-ink-soft">Starting movements, cues and recovery for this exact area.</p></div><Button onClick={() => useDaylight.getState().setBody({ bodyWorkspace: 'training' })}>Training guide<ArrowRight className="size-4" /></Button></div>
+    <SourceNotes e={e} />
+  </div>;
 }
 
 function RefCard({ r }: { r: Ref }) {
@@ -445,25 +450,28 @@ function GuidePanel({ e, open }: { e: Entity; open: (id: string) => void }) {
   const planned = useMemo(() => plannedVolume(plan), [plan]);
   const heat = useMemo(() => heatSnapshot(s.sessions, plan, s.heatWindow, today), [s.sessions, plan, s.heatWindow, today]);
   const G = e.guide;
+  const reference = referenceFor(e);
   return (
     <div data-testid="guide-panel">
       <section className="mt-5" data-testid="guide-growth">
-        <h3 className="text-lg font-bold">Growth</h3>
-        {e.kind === "nerve" ? <p className="mt-1 text-sm text-ink-soft">Nerves aren't grown like muscles. Strong, well-conditioned muscles along the nerve's path and regular movement keep it healthy. Muscles it powers:</p> : null}
-        {G.growthTips?.length ? <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{G.growthTips.map((t) => <li key={t}>{t}</li>)}</ul> : null}
-        {e.kind === "nerve" ? <div className="mt-2 flex flex-wrap gap-2">{(e.learn.worksWith ?? []).filter((id) => entity(id)).map((id) => <Chip key={id} tone="teal" onClick={() => open(id)}>{entityName(id)}</Chip>)}</div> : null}
+        <h3 className="text-lg font-bold">{e.kind === "nerve" ? "Movement & muscle control" : "Growth & movement practice"}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{e.kind === "nerve" ? "Nerves carry signals; training suggestions apply to their supplied muscles, while sensory-only branches have no muscle-growth target." : "Choose a starting drill below, then use the exercise library for variations that fit your plan."}</p>
+        {e.kind !== "nerve" && e.kind !== "joint" ? <p className="mt-3 text-sm leading-relaxed">{GROWTH_PRINCIPLES}</p> : null}
+        <ol className="mt-4 grid gap-3" data-testid="atlas-practice">{reference.practice.map((p, i) => <li key={`${p.name}-${i}`} className="rounded-xl border border-line p-4"><div className="flex items-start gap-3"><span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface-2 text-xs font-bold">{i + 1}</span><div><h4 className="text-base font-bold">{p.name}</h4><p className="mt-1 text-xs text-ink-soft">{p.purpose}</p><p className="mt-2 text-sm leading-relaxed">{p.cue}</p></div></div></li>)}</ol>
+        <div className="mt-4 rounded-xl bg-surface-2 p-4"><h4 className="text-sm font-bold">A starting dose</h4><p className="mt-2 text-sm leading-relaxed">{reference.dosage}</p><h4 className="mt-4 text-sm font-bold">When to progress</h4><p className="mt-2 text-sm leading-relaxed">{reference.progress}</p></div>
+        {e.kind === "nerve" ? <Links title="Explore supplied muscles" ids={e.learn.worksWith} open={open} /> : null}
         {e.kind === "joint" && moves.length ? (
           <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-2">
             {moves.map(({ ex }) => <MoveRow key={ex.id} ex={ex} inPlan={planIds.has(ex.id)} />)}
           </ul>
         ) : null}
         {e.kind !== "joint" && e.kind !== "nerve" ? <ExerciseSplit e={e} /> : null}
-        <ProfileBlock e={e} part="guide" />
-        {G.growth?.length ? <ul className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-2">{G.growth.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
+
+        {e.kind === "detail" ? null : G.growth?.length ? <ul className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-2">{G.growth.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
       </section>
       <section className="mt-6" data-testid="guide-recovery">
         <h3 className="text-lg font-bold">Recovery</h3>
-        {G.recoveryTips?.length ? <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm">{G.recoveryTips.map((t) => <li key={t}>{t}</li>)}</ul> : null}
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed">{reference.recovery.map(t => <li key={t}>{t}</li>)}</ul>
         {pt.length ? (
           <>
             <Eyebrow className="mt-3">Your PT &amp; mobility moves</Eyebrow>
@@ -472,9 +480,10 @@ function GuidePanel({ e, open }: { e: Entity; open: (id: string) => void }) {
             </ul>
           </>
         ) : null}
-        {G.recovery?.length ? <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-2">{G.recovery.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
+        {e.kind === "detail" || e.kind === "nerve" ? null : G.recovery?.length ? <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-2">{G.recovery.map((r) => <RefCard key={r.slug} r={r} />)}</ul> : null}
         <p className="mt-2 text-xs text-ink-faint">Demos and exercise pages: Lyfta exercise library. Short instructions are our own summary.</p>
       </section>
+      <SourceNotes e={e} />
       {e.kind === "group" || e.kind === "muscle" || e.kind === "detail" ? (
         <details className="mt-6 rounded-lg border border-line p-3" data-testid="guide-coverage">
           <summary className="cursor-pointer font-semibold">Coverage and every exercise for {e.name}</summary>
