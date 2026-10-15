@@ -2,14 +2,17 @@ import { useMemo, useState } from "react";
 import { IMAGE_MAP, IMAGE_PINS, IMG_H, IMG_W, imgBase, imgOverlay } from "@/lib/daylight/imageMap";
 import { groupOfSub, muscleName, regionOfSub, type AnyMuscleId, type SubId, type View } from "@/lib/daylight/muscles";
 import type { MapLevel } from "./MapFigure";
+import { FIG_SKIN } from "@/lib/daylight/figureColors";
 
 /**
  * Gymkee-style figure: a rendered body image, our own tappable regions on top, and Gymkee's per-muscle highlight layer
  * shown through the selected region (so a sub-muscle glows only where it is). Regions without a Gymkee layer get a
  * translucent orange fill instead.
  */
-export function ImageFigure({ view, level, selected, onSelect, interactive = true, children }: {
+export function ImageFigure({ view, level, selected, onSelect, interactive = true, children, tint, label, className, showView = true }: {
   view: View; level: MapLevel; selected?: string | null; onSelect?: (id: AnyMuscleId) => void; interactive?: boolean; children?: React.ReactNode;
+  /** Optional per-area colour (effort ramp, noted areas …); idle/skin values are ignored. */
+  tint?: (id: AnyMuscleId) => string | null | undefined; label?: string; className?: string; showView?: boolean;
 }) {
   const [hov, setHov] = useState<{ id: AnyMuscleId; x: number; y: number } | null>(null);
   const [broken, setBroken] = useState(false);
@@ -40,10 +43,17 @@ export function ImageFigure({ view, level, selected, onSelect, interactive = tru
   };
   const name = (id: AnyMuscleId) => muscleName(id);
   return (
-    <div className="relative w-full select-none" style={{ aspectRatio: `${IMG_W} / ${IMG_H}` }} data-view={view} data-testid={`img-figure-${view}`}>
+    <div className={`relative w-full select-none ${className ?? ""}`} style={{ aspectRatio: `${IMG_W} / ${IMG_H}` }} data-view={view} data-testid={`img-figure-${view}`}>
       <img src={imgBase(view)} alt={`${view} body`} className="absolute inset-0 size-full object-contain" draggable={false} onError={() => setBroken(true)} />
       {broken ? <p className="absolute inset-x-0 top-1/3 text-center text-sm text-ink-soft">Body image couldn't load (offline?). The list below still works.</p> : null}
-      <svg viewBox={`0 0 ${IMG_W} ${IMG_H}`} className="absolute inset-0 size-full" role="group" aria-label={`${view} body map`} style={{ touchAction: "manipulation" }}>
+      <svg viewBox={`0 0 ${IMG_W} ${IMG_H}`} className="absolute inset-0 size-full" role="group" aria-label={label ?? `${view} body map`} style={{ touchAction: "manipulation" }}>
+        {tint
+          ? [...byId.entries()].map(([id, parts]) => {
+              const c = tint(id);
+              if (!c || c === FIG_SKIN || c.includes("journal-idle")) return null;
+              return <g key={`t-${id}`} pointerEvents="none">{parts.map((r, i) => <path key={i} d={r.d} fill={c} fillOpacity="0.6" stroke={c} strokeOpacity="0.8" strokeWidth="1.5" strokeLinejoin="round" />)}</g>;
+            })
+          : null}
         {active.map((id) => glow(id, id === selected))}
         {interactive
           ? [...byId.entries()].map(([id, parts]) => (
@@ -76,7 +86,7 @@ export function ImageFigure({ view, level, selected, onSelect, interactive = tru
       {hov ? (
         <span className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[140%] whitespace-nowrap rounded-full bg-kforest px-2.5 py-1 text-xs font-semibold text-white" style={{ left: `${hov.x}%`, top: `${hov.y}%` }} data-testid="map-hover-label">{name(hov.id)}</span>
       ) : null}
-      <span className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 text-[11px] font-bold tracking-[0.2em] text-ink-soft">{view === "front" ? "FRONT" : "BACK"}</span>
+      {showView ? <span className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 text-[14px] font-bold tracking-[0.2em] text-ink-soft">{view === "front" ? "FRONT" : "BACK"}</span> : null}
     </div>
   );
 }

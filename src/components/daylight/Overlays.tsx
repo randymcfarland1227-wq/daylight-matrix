@@ -1,3 +1,4 @@
+import { ImageFigure } from "./ImageFigure";
 import { PhotoPicker } from "./NoteImages";
 import { entityName } from "@/lib/daylight/anatomy";
 import { useEffect, useRef, useState } from "react";
@@ -188,7 +189,7 @@ function NoteSheet({ init, onClose }: { init: NoteInit; onClose: () => void }) {
             <p className="eyebrow mb-1">Muscle</p>
             <div className="figure-panel mb-2 grid grid-cols-2 gap-1 rounded-lg p-2" data-testid="note-figure">
               {(["front", "back"] as const).map((v) => (
-                <MapFigure key={v} view={v} level="region" className="mx-auto h-auto w-full max-w-[150px]" fill={(id) => (muscleId === id ? "#4aa3d8" : FIG_SKIN)} selected={muscleId} onSelect={(id) => setMuscleId(id)} />
+                <ImageFigure key={v} view={v} level="region" className="mx-auto max-w-[150px]" selected={muscleId} onSelect={(id) => setMuscleId(id)} />
               ))}
               <p className="col-span-2 text-center text-xs" style={{ color: "var(--fig-ink)" }}>{muscleId ? `Attached to ${muscleName(muscleId)}` : "Tap the figure to attach this note to a muscle"}</p>
             </div>

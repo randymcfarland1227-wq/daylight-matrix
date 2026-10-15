@@ -32,7 +32,7 @@ function Thumb({ id, onOpen, onRemove, size = 72 }: { id: string; onOpen: () => 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <button type="button" onClick={onOpen} aria-label="View photo" className="tap block size-full overflow-hidden rounded-lg border border-line bg-surface-2" data-testid="note-thumb">
-        {url ? <img src={url} alt="" className="size-full object-cover" /> : <span className="grid size-full place-items-center text-[11px] text-ink-faint">{missing ? "Missing" : "…"}</span>}
+        {url ? <img src={url} alt="" className="size-full object-cover" /> : <span className="grid size-full place-items-center text-[14px] text-ink-faint">{missing ? "Missing" : "…"}</span>}
       </button>
       {onRemove ? (
         <button type="button" aria-label="Remove photo" onClick={onRemove} className="tap absolute -right-1.5 -top-1.5 grid size-6 place-items-center rounded-full border border-line bg-surface text-ink">

@@ -53,9 +53,10 @@ export function BodyHub({ tab }: { tab: HubTab }) {
   const lv = LEVELS.find((l) => l.id === level)!;
   return (
     <div ref={top} className="scroll-mt-20 space-y-4" data-testid={`hub-${tab}`} data-level={level}>
-      <div role="tablist" aria-label="Body level" className="kit-tabs-sub grid grid-cols-5 gap-1">
+      <div role="tablist" aria-label="Body level" className="level-chips no-scrollbar flex gap-2 overflow-x-auto">
+        <span className="t-label shrink-0 self-center">Show</span>
         {LEVELS.map((l) => (
-          <button key={l.id} type="button" role="tab" aria-selected={level === l.id} onClick={() => setLevel(l.id)} className="tap min-h-10 px-0.5">{l.label}</button>
+          <button key={l.id} type="button" role="tab" aria-selected={level === l.id} onClick={() => setLevel(l.id)} className="tap level-chip">{l.label}</button>
         ))}
       </div>
       <p className="text-sm text-ink-soft">
@@ -109,7 +110,7 @@ function HubMap({ level, onPick }: { level: Kind; onPick: (id: string) => void }
         ) : <p className="mt-2 text-center text-xs text-ink-soft">Tap a muscle to highlight it{typeof window !== "undefined" && window.matchMedia?.("(hover: hover)").matches ? ", or point at it" : ""}.</p>
       ) : null}
       {level === "nerve" ? <p className="mt-2 text-xs text-ink-soft">Nerve lines are a simplified guide to where each major nerve runs, drawn on one side and mirrored. Smaller nerves are in the list below.</p> : null}
-      <p className="mt-1 text-[10px] text-ink-faint">Body renders: Gymkee muscle map.</p>
+      <p className="mt-1 text-[14px] text-ink-faint">Body renders: Gymkee muscle map.</p>
     </div>
   );
 }

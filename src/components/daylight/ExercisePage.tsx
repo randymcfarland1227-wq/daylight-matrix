@@ -1,3 +1,4 @@
+import { ImageFigure } from "./ImageFigure";
 import { useEffect, useRef } from "react";
 import { ArrowLeft, ChevronRight, ExternalLink, Info, PencilLine, PlayCircle } from "lucide-react";
 import { localDate } from "@/lib/daylight/dates";
@@ -256,7 +257,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                 <h2 className="t-title">Muscles worked</h2>
                 <div className="mt-1 grid grid-cols-2 gap-1">
                   {(["front", "back"] as const).map((v) => (
-                    <MapFigure key={v} view={v} level="sub" className="mx-auto h-auto w-full max-w-[150px]" fill={fill} interactive={false} label={`${v} view, muscles this move works`} />
+                    <ImageFigure key={v} view={v} level="sub" className="mx-auto max-w-[150px]" tint={fill} interactive={false} label={`${v} view, muscles this move works`} />
                   ))}
                 </div>
                 <ul className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs" data-testid="role-legend">

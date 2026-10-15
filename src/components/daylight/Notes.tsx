@@ -10,6 +10,7 @@ import { noteArea } from "@/lib/daylight/bodyNotes";
 import { muscleName } from "@/lib/daylight/muscles";
 import { activePlan } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
+import { useHashTab } from "@/lib/daylight/hashRoute";
 import { GYM_TAGS, type Observation } from "@/lib/daylight/types";
 import { Badge, Button, Card, Chip, Empty, PageHead, Segmented, cn, copyText, downloadText } from "./ui";
 
@@ -17,7 +18,7 @@ type Tab = "all" | "next" | "digest";
 
 export function Notes() {
   const state = useDaylight();
-  const [tab, setTab] = useState<Tab>("all");
+  const [tab, setTab] = useHashTab<Tab>("notes", ["all", "next", "digest"] as const, "all");
   const [tag, setTag] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [msg, setMsg] = useState("");

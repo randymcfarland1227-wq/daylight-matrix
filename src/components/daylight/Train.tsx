@@ -198,9 +198,6 @@ function SessionScreen() {
           <Button tone="soft" className="flex-1" onClick={() => state.setOverlay({ type: "note", weekday, kind: "gym" })}>
             <Pencil className="size-4" /> Note
           </Button>
-          <Button tone="soft" className="flex-[2]" onClick={() => state.setOverlay({ type: "did-else", weekday, slotId: null })}>
-            <Shuffle className="size-4" /> Log something else
-          </Button>
           <Button className="flex-[2]" tone={totals.done > 0 ? "sun" : "outline"} onClick={() => state.setOverlay({ type: "finish", weekday })}>
             <Flag className="size-4" /> {finished ? "Summary" : "Finish session"}
           </Button>

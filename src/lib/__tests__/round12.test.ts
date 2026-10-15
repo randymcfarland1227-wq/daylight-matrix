@@ -35,3 +35,13 @@ test("round 14: every sub-muscle is tappable on the image figure (area or deep m
   for (const s of SUBS) assert.ok(have.has(s.id), s.id);
   assert.match(warpPath("M150 92 C140 100 120 110 100 120"), /^M448 \d+ C\d+ \d+ \d+ \d+ \d+ \d+$/);
 });
+
+test("R17 per-section URLs: hash round-trips view and sub-tab", async () => {
+  const { parseHash, buildHash } = await import("../daylight/hashRoute");
+  assert.equal(buildHash("food", "prep"), "#/food/prep");
+  assert.equal(buildHash("training"), "#/train");
+  assert.deepEqual(parseHash("#/food/prep"), { view: "food", slug: "food", sub: "prep" });
+  assert.equal(parseHash("#/train/week").view, "training");
+  assert.equal(parseHash("#/nope").view, null);
+  assert.equal(buildHash("goals"), "#/settings");
+});

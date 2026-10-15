@@ -1,3 +1,4 @@
+import { ImageFigure } from "./ImageFigure";
 import { useMemo, useState } from "react";
 import { ChevronRight, Lightbulb, Pencil } from "lucide-react";
 import { exercises, exerciseById } from "@/lib/daylight/exercises";
@@ -237,7 +238,7 @@ export function MusclePage({ id, planned, heat }: { id: AnyMuscleId; planned: Vo
             </label>
             <div className="mt-1 grid grid-cols-2 gap-1">
               {(["front", "back"] as const).map((v) => (
-                <MapFigure key={v} view={v} level={level} className="mx-auto h-auto max-h-[230px] w-full max-w-[150px] lg:max-h-none lg:max-w-[150px]" fill={figFill} selected={undefined} dim={(fid) => !figSel(fid) && false} onSelect={(fid) => goto(fid)} label={`${v} view, ${name} highlighted`} />
+                <ImageFigure key={v} view={v} level={level} className="mx-auto max-w-[150px]" tint={figFill} onSelect={(fid) => goto(fid)} label={`${v} view, ${name} highlighted`} />
               ))}
             </div>
             <p className="mt-1 text-center text-xs opacity-70">Tap another muscle to jump to it.</p>
