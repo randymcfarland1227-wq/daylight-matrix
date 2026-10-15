@@ -4,9 +4,10 @@ import type { SubId, View } from "./muscles";
 
 export const IMG_W = 896;
 export const IMG_H = 1200;
-export const GYMKEE_PACK = "https://s3.eu-west-3.amazonaws.com/gymkee.exercices/categories/muscle-map/pack";
-export const imgBase = (view: View) => `${GYMKEE_PACK}/base/male-${view}.webp`;
-export const imgOverlay = (key: string, view: View) => `${GYMKEE_PACK}/overlay/${key}-male-${view}.webp`;
+/** Gymkee muscle-map renders, copied into the site (public/muscle-map) so the map works offline. Credit shown under the map. */
+export const GYMKEE_PACK = `${import.meta.env?.BASE_URL ?? "/"}muscle-map`;
+export const imgBase = (view: View) => `${GYMKEE_PACK}/male-${view}.webp`;
+export const imgOverlay = (key: string, view: View) => `${GYMKEE_PACK}/${key}-male-${view}.webp`;
 export type ImgRegion = { sub: SubId; d: string; key: string | null };
 export const IMAGE_MAP: Record<View, ImgRegion[]> = {
   front: [
