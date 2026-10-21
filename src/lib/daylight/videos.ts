@@ -171,6 +171,7 @@ export const VIDEOS: Record<string, VideoEntry> = {
   "sl-glute-bridge": v("388227392", "Glute Bridge - Single-leg", 14, 426, 240, "exact", true),
   "ball-leg-curl": v("441078130", "Swiss ball leg curls", 10, 426, 240, "exact", true),
   "nordic-curl": v("512608356", "Nordic curl - toes under machine", 21, 426, 240, "exact", true),
+  "leg-press-seated": {"host": "vimeo", "id": "1201071131", "title": "Seated Leg Press", "author": "Jonathan Crawford", "authorUrl": "https://vimeo.com/coachjayci", "duration": 29, "width": 426, "height": 240, "match": "close", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2168329854-f5a21b8934ddf70c92f75cd8a67e3762fa028d0e2c0a164dedf5053c4bd6ec15-d_295x166?region=us", "verifiedAt": VERIFIED_AT},
   "leg-press-narrow": v("683465388", "Narrow stance leg press", 8, 240, 320, "exact", true),
   "assisted-dip": v("1141626909", "Dips", 19, 240, 300, "close", false),
   "sl-calf-raise-press": v("393286127", "Calf raise on leg press", 8, 426, 240, "close", true),
@@ -183,8 +184,6 @@ export const VIDEOS: Record<string, VideoEntry> = {
   "pushup": v("382073397", "Push ups", 15, 426, 240, "exact", true),
   "reverse-hyper-light": v("453350047", "Reverse hypers", 23, 426, 240, "exact", true),
 
-  "ppt": {"host": "vimeo", "id": "397719849", "title": "Posterior Pelvic Tilt Video", "author": "Hip Pain Help", "authorUrl": "https://vimeo.com/hippainhelp", "duration": 14, "width": 240, "height": 240, "match": "exact", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/865048469-b3ccbcf12c4059efbea20ae7328aee4d39eedfd2b5d43363c3aa9eef2ccdcfb4-d_200x150?region=us", "verifiedAt": VERIFIED_AT},
-  "pt-shoulder-flexion": {"host": "vimeo", "id": "397719849", "title": "Posterior Pelvic Tilt Video", "author": "Hip Pain Help", "authorUrl": "https://vimeo.com/hippainhelp", "duration": 14, "width": 240, "height": 240, "match": "close", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/865048469-b3ccbcf12c4059efbea20ae7328aee4d39eedfd2b5d43363c3aa9eef2ccdcfb4-d_200x150?region=us", "matchNote": "Shows the pelvic tilt only. Your PDF adds a shoulder-flexion hold; that combined movement is not demonstrated here.", "verifiedAt": VERIFIED_AT},
   "bird-dog": {"host": "vimeo", "id": "1113711375", "title": "Bird Dog", "author": "Justin Brink", "authorUrl": "https://vimeo.com/user230832661", "duration": 48, "width": 426, "height": 240, "match": "exact", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2177804734-639aa0073b85f079eb166b95c21d4258da44dcb05bedaca1da5dd6804fde085d-d_295x166?region=us", "verifiedAt": VERIFIED_AT},
   "bird-dog-hold": {"host": "vimeo", "id": "1077244849", "title": "Bird-Dog with Isometric Hold", "author": "T C", "authorUrl": "https://vimeo.com/user228346924", "duration": 16, "width": 426, "height": 240, "match": "exact", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2007230845-27775436c8dd615835700e12481b5f05843260d99ec09b5a009fb55044e7da25-d_295x166?region=us", "verifiedAt": VERIFIED_AT},
   "bracing-marches": {"host": "vimeo", "id": "1078481512", "title": "Supine March with pelvic tilt", "author": "Amanda", "authorUrl": "https://vimeo.com/user213497696", "duration": 15, "width": 240, "height": 426, "match": "close", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2008719796-3fcf858efa7ec798227676a5d21d6783e204bab1dfbf4dcc666ac73f24ab24be-d_200x150?region=us", "matchNote": "Demonstrates supine marching with a pelvic tilt. Your plan specifies abdominal bracing; follow your plan’s cues.", "verifiedAt": VERIFIED_AT},
@@ -201,7 +200,24 @@ export const VIDEOS: Record<string, VideoEntry> = {
 };
 
 /** Moves with no clip, and why. Real photographs are used where available; otherwise written cues remain visible. */
+/* R18 audit: clips that show a different variant from the written steps are labelled, not passed off as exact. */
+const VARIANT_NOTES: Record<string, string> = {
+  "chest-supported-row": "This clip’s setup is not clearly chest-supported. Keep your chest on the incline bench as in the animation above and the steps below.",
+  "seated-cable-row": "This clip shows a low cable row from a different stance. Sit on the seated row machine as in the steps below.",
+  "hanging-knee-raise": "This clip hangs from a bar. Your steps use a captain’s chair (forearms on pads, back on the pad); the knee drive is the same.",
+  "close-grip-pushup": "This clip does the push-up with hands on kettlebells. Hands on the floor works the same way.",
+  "incline-shrug": "This clip shrugs seated with the back on the incline. Your plan cue says chest-supported (face down on the incline); follow the steps below.",
+  "standing-calf-raise": "This clip uses a dumbbell on a step. A standing calf raise machine works the same way.",
+  "leg-press-seated": "Community clip of a plate-loaded seated leg press. Your machine may be a selectorized version; seat and foot setup are the same.",
+};
+for (const [id, note] of Object.entries(VARIANT_NOTES)) {
+  const e = VIDEOS[id];
+  if (e) { e.match = "close"; e.matchNote = note; }
+}
+
 export const NO_VIDEO: Record<string, string> = {
+  "ppt": "The only library clip showed a standing pelvic tilt; your plan is lying on your back, which the Lyfta animation shows.",
+  "pt-shoulder-flexion": "The only library clip showed a standing pelvic tilt, not lying shoulder flexion; follow the written steps.",
   "mobility-flow": "A multi-move warm-up flow, not one movement; no single clip fits.",
   "zone2": "Steady cardio block (any machine), not a lift; no clip needed.",
   "tuesday-cardio": "Cardio block, not a lift; no clip needed.",

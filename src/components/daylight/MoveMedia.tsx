@@ -81,6 +81,7 @@ function LyftaDemo({ exerciseId, online }: { exerciseId: string; online: boolean
         <a href={lyftaUrl(entry)} target="_blank" rel="noreferrer noopener" className="inline-flex min-h-10 items-center gap-1 font-semibold text-accent underline" data-testid="lyfta-link">View on Lyfta<ExternalLink className="size-3 shrink-0" /></a>
         <span>Demo and muscle info: Lyfta exercise library</span>
       </figcaption>
+      {entry.shows ? <p className="rounded-lg border border-warn/30 bg-warn/10 p-3 text-xs leading-relaxed" data-testid="lyfta-variant-note"><b>Different variant.</b> This animation shows {entry.shows}</p> : null}
     </figure>
   );
 }

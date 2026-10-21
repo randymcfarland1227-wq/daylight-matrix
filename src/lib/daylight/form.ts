@@ -507,18 +507,31 @@ add("bulgarian-split-squat", {
   back: "Keep a slight forward lean and stable pelvis. Hold light weights on tender days.",
 });
 add("leg-press", {
-  s: ["Sit with your back and hips flat on the pad. Place your feet mid-platform, shoulder-width, toes slightly out.", "Release the safeties and lower the platform until your knees bend to about 90°, hips staying flat on the pad.", "Press through your whole foot until the legs are almost straight (soft knees)."],
-  base: "Back and hips flat; feet mid-platform, shoulder-width.",
+  s: ["Sit in the 45° sled: back and hips flat on the reclined pad, which sits low behind you with the platform angled up in front. Place your feet mid-platform, shoulder-width, toes slightly out.", "Press the sled up off the stops and turn the safety handles out. Lower the sled toward you until your knees bend to about 90°, hips staying flat on the pad.", "Press through your whole foot until the legs are almost straight (soft knees). Turn the safeties back in before getting out."],
+  base: "Back and hips flat on the reclined pad; feet mid-platform, shoulder-width.",
   brace: "Brace the abs; head back on the pad. Don’t let the hips lift or tuck.",
   grip: "Hold the side handles lightly.",
-  rom: "Stop the descent when your hips are about to tuck up off the pad. Often about 90° at the knee.",
+  rom: "Stop the descent when your hips are about to tuck up off the pad. Often about 90° at the knee; the sled angle makes the tuck come sooner than on a seated press.",
   tempo: "3 sec down, 1 sec pause, 2 sec up.",
   feel: "Quads and glutes. Knees and back feel comfortable.",
-  err: ["Hips curling up off the pad at the bottom", "Locking the knees at the top", "Bouncing at the bottom", "Knees caving", "Feet too low so heels lift"],
+  err: ["Hips curling up off the pad at the bottom", "Locking the knees at the top", "Bouncing at the bottom", "Knees caving", "Feet too low so heels lift", "Getting out without turning the safeties back in"],
   back: "“Don’t let hips tuck hard” in your plan cue is the most important point: stop shallower so your pelvis and lower back stay flat on the pad.",
+  clarify: "This is the 45° sled (you sit low and press the platform up at an angle). If your gym has the upright seated machine that pushes straight out, use “Seated Leg Press (horizontal)”.",
+});
+add("leg-press-seated", {
+  s: ["Sit upright in the seated (horizontal) leg press with your back and hips flat on the pad. Move the seat so your knees start at about 90°. Place your feet mid-platform, shoulder-width, toes slightly out.", "Press the platform straight out (or push yourself back on a moving-seat machine) until the legs are almost straight (soft knees).", "Return under control to the start bend without letting the weight stack touch down or your hips tuck."],
+  base: "Seated upright; back and hips flat; feet mid-platform, shoulder-width.",
+  brace: "Brace the abs; head back on the pad if there is one.",
+  grip: "Hold the side handles lightly.",
+  rom: "Set the seat so the deepest point is where your hips still stay flat, often about 90° at the knee.",
+  tempo: "3 sec back, 1 sec pause, 2 sec press.",
+  feel: "Quads and glutes. Knees and back feel comfortable.",
+  err: ["Seat too close so the hips tuck at the start", "Locking the knees at the end", "Letting the stack slam between reps", "Knees caving", "Feet too low so heels lift"],
+  back: "“Don’t let hips tuck hard”: if your pelvis curls up at the start, move the seat back.",
+  clarify: "This is the seated, horizontal machine (you sit upright and push straight out). For the angled sled, use “Leg Press (45° sled)”.",
 });
 add("leg-press-narrow", {
-  s: ["Set up as for the leg press but with feet about hip-width, mid-to-low on the platform.", "Lower until the knees reach ~90° with the hips flat.", "Press up through the whole foot."],
+  s: ["Set up in the 45° sled leg press, but with feet about hip-width, mid-to-low on the platform.", "Lower until the knees reach ~90° with the hips flat.", "Press up through the whole foot."],
   base: "Back and hips flat, feet hip-width.",
   brace: "Abs braced; hips stay down.",
   grip: "Handles, lightly.",

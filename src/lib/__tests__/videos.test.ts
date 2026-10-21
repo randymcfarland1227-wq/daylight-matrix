@@ -149,9 +149,9 @@ test("every photograph returned to the interface exists in the offline bundle", 
 });
 
 test("custom PT combination and cable variant are explicitly related", () => {
-  const combined = videoFor("pt-shoulder-flexion")!;
-  assert.equal(combined.match, "close");
-  assert.match(combined.matchNote!, /combined movement is not demonstrated/);
+  // R18: the only clip showed a standing pelvic tilt, so the lying PT moves fall back to Lyfta + written steps.
+  assert.equal(videoFor("pt-shoulder-flexion"), undefined);
+  assert.match(NO_VIDEO["pt-shoulder-flexion"]!, /standing pelvic tilt/);
   assert.equal(videoFor("cross-body-cable-ext")?.match, "close");
   assert.match(videoFor("cross-body-cable-ext")!.matchNote!, /single-cable/);
 });

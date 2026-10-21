@@ -263,11 +263,17 @@ export const exercises: ExerciseDef[] = [
     uni: true,
     eq: "Bench + dumbbells",
   }),
-  ex("leg-press", "Leg Press, Mid Stance", "strength", {
+  ex("leg-press", "Leg Press (45° sled), Mid Stance", "strength", {
     m: { "quad-vl": P, "quad-vm": P, "quad-rf": S, "glute-max": S, "adductors-sub": S },
     back: "friendly",
     backNote: "Back is supported. Stop the range before the hips tuck hard (PDF cue).",
-    eq: "Leg press",
+    eq: "45° sled leg press",
+  }),
+  ex("leg-press-seated", "Seated Leg Press (horizontal), Mid Stance", "strength", {
+    m: { "quad-vl": P, "quad-vm": P, "quad-rf": S, "glute-max": S, "adductors-sub": S },
+    back: "friendly",
+    backNote: "Back is supported and upright. Stop the range before the hips tuck (PDF cue).",
+    eq: "Seated (horizontal) leg press",
   }),
   ex("leg-extension", "Leg Extension", "strength", {
     m: { "quad-rf": P, "quad-vl": P, "quad-vm": P, "quad-vi": P },
@@ -479,9 +485,9 @@ export const exercises: ExerciseDef[] = [
   ex("sl-glute-bridge", "Single-Leg Glute Bridge", "strength", { m: { "glute-max": P, "ham-medial": S, "ham-lateral": S, "glute-med": S }, back: "friendly", backNote: SUP, eq: "Floor", extra: true, uni: true }),
   ex("ball-leg-curl", "Stability-Ball Leg Curl", "strength", { m: { "ham-medial": P, "ham-lateral": P, "glute-max": S, "abs-lower": M }, back: "friendly", backNote: SUP, eq: "Stability ball", extra: true }),
   ex("nordic-curl", "Assisted Nordic Curl", "strength", { m: { "ham-medial": P, "ham-lateral": P, gastroc: M }, back: "neutral", eq: "Pad / partner / band", extra: true }),
-  ex("leg-press-narrow", "Leg Press, Narrow Stance", "strength", { m: { "quad-vl": P, "quad-rf": P, "quad-vm": P, "glute-max": M }, back: "friendly", backNote: SUP, eq: "Leg press", extra: true }),
+  ex("leg-press-narrow", "Leg Press (45° sled), Narrow Stance", "strength", { m: { "quad-vl": P, "quad-rf": P, "quad-vm": P, "glute-max": M }, back: "friendly", backNote: SUP, eq: "45° sled leg press", extra: true }),
   ex("wall-sit", "Wall Sit", "timed", { m: { "quad-vl": P, "quad-vm": P, "quad-rf": P, "glute-max": S }, back: "friendly", backNote: "Back against the wall.", eq: "Wall", extra: true, factor: 0.5 }),
-  ex("sl-calf-raise-press", "Single-Leg Calf Raise on Leg Press", "strength", { m: { gastroc: P, soleus: S }, back: "friendly", backNote: SUP, eq: "Leg press", extra: true, uni: true }),
+  ex("sl-calf-raise-press", "Single-Leg Calf Raise on Leg Press (45° sled)", "strength", { m: { gastroc: P, soleus: S }, back: "friendly", backNote: SUP, eq: "Leg press", extra: true, uni: true }),
   ex("skull-crusher", "EZ-Bar Skull Crusher", "strength", { m: { "triceps-long": P, "triceps-lateral": S, "triceps-medial": S }, back: "friendly", backNote: "Lying on a bench.", eq: "EZ bar + bench", extra: true }),
   ex("close-grip-pushup", "Close-Grip Push-Up", "strength", { m: { "triceps-lateral": P, "triceps-medial": P, "chest-sternal": S, "delt-front": S, "abs-upper": M }, back: "neutral", eq: "Bodyweight", extra: true }),
   ex("preacher-curl", "Machine / Preacher Curl", "strength", { m: { "biceps-short": P, brachialis: S, "forearm-flexors": M }, back: "friendly", backNote: "Arm-supported.", eq: "Preacher bench / machine", extra: true }),

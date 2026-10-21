@@ -121,7 +121,7 @@ export function buildPdfDays(): DayTemplate[] {
     [
       W({ ex: "hack-squat", alt: ["heel-elevated-goblet"], sets: 4, reps: "6–8", cue: "brace hard, knees track forward, torso stacked." }),
       W({ ex: "bulgarian-split-squat", sets: 3, reps: "8", side: true, cue: "slight forward lean, pelvis stable, full foot planted." }),
-      W({ ex: "leg-press", sets: 3, reps: "10–12", cue: "controlled depth, don’t bounce, don’t let hips tuck hard." }),
+      W({ ex: "leg-press", alt: ["leg-press-seated"], sets: 3, reps: "10–12", cue: "controlled depth, don’t bounce, don’t let hips tuck hard." }),
       W({ ex: "leg-extension", sets: 2, setsMax: 3, reps: "12–15", cue: "squeeze top, slow lower, don’t swing reps." }),
       W({ ex: "standing-calf-raise", sets: 4, reps: "10–12", cue: "full stretch, full lift, pause at peak." }),
       W({ ex: "tibialis-raise", sets: 3, reps: "15–20", cue: "lift toes hard, control down, don’t rush." }),

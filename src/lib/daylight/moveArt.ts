@@ -457,7 +457,7 @@ export const ART_MAP: Record<string, keyof typeof P> = {
   "half-kneeling-pulldown": "halfKneelPulldown", "face-pull": "facePull", "incline-shrug": "inclineShrug", "cable-shrug": "inclineShrug", "straight-arm-pulldown": "straightArm",
   "cable-crunch": "cableCrunch", "cable-woodchop": "woodchop",
   "hack-squat": "hackSquat", "heel-elevated-goblet": "goblet", "sumo-goblet": "goblet", "battle-rope-squat": "battleRope", "bulgarian-split-squat": "bulgarian",
-  "leg-press": "legPress", "leg-press-narrow": "legPress", "leg-extension": "legExtension", "leg-curl": "legCurl", "lying-leg-curl": "lyingLegCurl", "ball-leg-curl": "lyingLegCurl", "nordic-curl": "nordic",
+  "leg-press": "legPress", "leg-press-seated": "legPress", "leg-press-narrow": "legPress", "leg-extension": "legExtension", "leg-curl": "legCurl", "lying-leg-curl": "lyingLegCurl", "ball-leg-curl": "lyingLegCurl", "nordic-curl": "nordic",
   "standing-calf-raise": "calfStanding", "sl-calf-raise-press": "legPress", "seated-calf-raise": "calfSeated", "tibialis-raise": "tibRaise", "wall-sit": "wallSit",
   "bstance-rdl": "rdl", "cable-pull-through": "rdl", "reverse-hyper-light": "backExt45", "reverse-lunge": "reverseLunge", "box-step-up": "stepUp",
   "hip-thrust": "hipThrust", "machine-hip-thrust": "hipThrust", "glute-bridge": "glutBridge", "sl-glute-bridge": "glutBridge", "back-extension-45": "backExt45", "cable-hip-abduction": "cableHipAbd",

@@ -18,7 +18,6 @@ import { photosFor } from "@/lib/daylight/exImages";
 import { noteArea, observationsForArea } from "@/lib/daylight/bodyNotes";
 import { muscleName } from "@/lib/daylight/muscles";
 import { useFoodNumbers } from "./Food";
-import { MapFigure } from "./MapFigure";
 import { Badge, Button, Eyebrow } from "./ui";
 
 export function Today() {
