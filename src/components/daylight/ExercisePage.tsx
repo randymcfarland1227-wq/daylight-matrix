@@ -193,7 +193,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </div>
                   {g.clarify ? (
                     <p className="rounded-[12px] border border-warn/40 bg-warn/10 p-3 text-sm">
-                      <b className="text-warn">About the PDF entry:</b> {g.clarify}
+                      <b className="text-warn">{exerciseId === "leg-press" || exerciseId === "leg-press-seated" ? "Other version:" : "About the PDF entry:"}</b> {g.clarify}
                     </p>
                   ) : null}
 
