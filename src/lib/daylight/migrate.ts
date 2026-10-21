@@ -10,11 +10,13 @@ import type { Observation, PlanVersion } from "./types";
  *  2: overhaul. Adds the full PDF plan version, notes flags, muscle ids, water/meal-plan/waste data, theme.
  *  3: round 2. Two-level muscle model (groups + sub-parts), session `extras` (swaps / off-plan work), dark default theme.
  *     Stored muscle ids from v2 are NOT rewritten; `resolveMuscle` understands them.
+ *  4: round 19. The PDF's "this or that" options: saved plan slots gain any missing PDF alternatives (matched by weekday +
+ *     listed move; additive, nothing removed or reordered), plus an empty `variantPrefs` map for remembered picks.
  *
  * Rules: never remove or retype an existing field. Only add. Old plan versions, sessions, logs, notes,
  * trials, food and inventory stay exactly as stored. Idempotent: running it twice changes nothing.
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const STORAGE_KEY = "daylight-matrix-v1";
 export const BACKUP_KEY = "daylight-matrix-v1.pre-v2-backup";
 export const BACKUP_KEY_V3 = "daylight-matrix-v1.pre-v3-backup";
@@ -39,9 +41,37 @@ export function migratePersisted(input: unknown, now = localDate()): AnyRec {
   const from = typeof state.schemaVersion === "number" ? state.schemaVersion : 1;
   if (from >= SCHEMA_VERSION) return state;
   if (from < 2) migrateToV2(state, now);
-  migrateToV3(state);
+  if (from < 3) migrateToV3(state);
+  migrateToV4(state, now);
   state.schemaVersion = SCHEMA_VERSION;
   return state;
+}
+
+/** v3 -> v4. Additive only: PDF either/or alternatives onto saved slots that list the same move on the same day. */
+export function addPdfAlternatives(plans: PlanVersion[], now = localDate()): PlanVersion[] {
+  const pdf = buildPdfPlan(1, now);
+  return plans.map((plan) => ({
+    ...plan,
+    days: (plan.days ?? []).map((day) => {
+      const ref = pdf.days.find((d) => d.weekday === day.weekday);
+      if (!ref) return day;
+      return {
+        ...day,
+        slots: (day.slots ?? []).map((slot) => {
+          const src = ref.slots.find((r) => r.exerciseId === slot.exerciseId && r.alternatives.length);
+          if (!src) return slot;
+          const have = new Set([slot.exerciseId, ...(slot.alternatives ?? []).map((a) => a.exerciseId)]);
+          const add = src.alternatives.filter((a) => !have.has(a.exerciseId)).map((a, i) => ({ id: `${slot.id}-pdfalt-${i}-${a.exerciseId}`, exerciseId: a.exerciseId }));
+          return add.length ? { ...slot, alternatives: [...(slot.alternatives ?? []), ...add] } : slot;
+        }),
+      };
+    }),
+  }));
+}
+
+function migrateToV4(state: AnyRec, now: string) {
+  if (Array.isArray(state.planVersions)) state.planVersions = addPdfAlternatives(state.planVersions as PlanVersion[], now);
+  if (!isObj(state.variantPrefs)) state.variantPrefs = {};
 }
 
 /** v2 -> v3. Additive only. */

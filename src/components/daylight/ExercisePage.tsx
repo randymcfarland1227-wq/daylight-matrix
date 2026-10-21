@@ -58,6 +58,8 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   const meta = metaFor(exerciseId);
   const plan = activePlan(state.planVersions, localDate());
   const uses = planUses(exerciseId, plan);
+  /** The plan's "this or that" partners for this move: every other option in a slot that lists it. */
+  const otherOptions = [...new Set(plan.days.flatMap((d) => d.slots).filter((sl) => sl.exerciseId === exerciseId || sl.alternatives.some((x) => x.exerciseId === exerciseId)).flatMap((sl) => [sl.exerciseId, ...sl.alternatives.map((x) => x.exerciseId)]))].filter((id) => id !== exerciseId);
   const mainUse = uses.find((u) => !u.alt) ?? uses[0];
   const name = exerciseLabel(exerciseId);
   const inGym = Boolean(state.gymMode);
@@ -147,6 +149,21 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
             <div className="min-w-0 space-y-6">
               <MoveMedia key={exerciseId} exerciseId={exerciseId} />
 
+              {otherOptions.length ? (
+                <div className="rounded-lg border border-line bg-surface p-4" data-testid="other-option">
+                  <Eyebrow>Other option · your plan says either</Eyebrow>
+                  <ul className="mt-2 space-y-2">
+                    {otherOptions.map((id) => (
+                      <li key={id}>
+                        <button type="button" className="tap flex min-h-11 w-full items-center gap-2 rounded-[8px] border border-line px-3 text-left font-semibold hover:bg-surface-2" onClick={() => state.setOverlay({ type: "form", exerciseId: id })} data-testid="other-option-link">
+                          <span className="flex-1">{exerciseLabel(id)}</span>
+                          <ChevronRight className="size-4 shrink-0" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               {uses.length ? (
                 <div className="space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-4" data-testid="plan-context">
                   <Eyebrow className="text-warn">In your plan</Eyebrow>
@@ -193,7 +210,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </div>
                   {g.clarify ? (
                     <p className="rounded-[12px] border border-warn/40 bg-warn/10 p-3 text-sm">
-                      <b className="text-warn">{exerciseId === "leg-press" || exerciseId === "leg-press-seated" ? "Other version:" : "About the PDF entry:"}</b> {g.clarify}
+                      <b className="text-warn">{otherOptions.length ? "Other version:" : "About the PDF entry:"}</b> {g.clarify}
                     </p>
                   ) : null}
 

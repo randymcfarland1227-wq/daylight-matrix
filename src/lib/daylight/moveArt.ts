@@ -450,7 +450,7 @@ export const ART_MAP: Record<string, keyof typeof P> = {
   ppt: "ppt", "pt-shoulder-flexion": "pptShoulder", "bracing-marches": "march", "dead-bug": "deadBug", "reverse-crunch": "reverseCrunch",
   "bird-dog": "birdDog", "bird-dog-hold": "birdDog", clamshell: "sideLying", "side-lying-abduction": "sideLying",
   "band-walks": "bandWalk", "single-leg-stand": "singleLegStand", "seated-pigeon": "seatedPigeon",
-  "suitcase-carry": "suitcase", "farmer-carry": "farmer", plank: "plank", "side-plank": "sidePlank", pallof: "pallof",
+  "suitcase-carry": "suitcase", "farmer-carry": "farmer", plank: "plank", "side-plank": "sidePlank", pallof: "pallof", "band-pallof": "pallof",
   "mobility-flow": "mobility", zone2: "walk", "tuesday-cardio": "incline", "wednesday-cardio": "walk", "saturday-cardio": "bike",
   "assisted-pullup": "pullup", "neutral-pullup": "neutralPullup", "dead-hang": "deadHang", "chest-supported-row": "supportedRow",
   "tbar-chest-supported": "supportedRow", "chest-supported-rear-fly": "supportedRow", "seated-cable-row": "seatedRow", "lat-pulldown": "latPulldown",
@@ -465,7 +465,7 @@ export const ART_MAP: Record<string, keyof typeof P> = {
   "weighted-pushup": "pushup", pushup: "pushup", "close-grip-pushup": "pushup", "low-high-fly": "lowHighFly", "high-low-fly": "highLowFly",
   "cable-lateral-raise": "lateralRaise", "machine-lateral-raise": "lateralRaise", "btb-lateral-raise": "btbLateral", "cable-front-raise": "lowHighFly",
   "overhead-rope-triceps": "overheadTri", "assisted-dip": "dipMachine", "shoulder-press": "shoulderPress", "machine-shoulder-press": "machineShoulder",
-  "reverse-pec-deck": "reversePecDeck", "y-raise": "yRaise", "band-pull-apart": "yRaise", "cable-external-rotation": "yRaise",
+  "reverse-pec-deck": "reversePecDeck", "y-raise": "yRaise", "scaption-raise": "yRaise", "band-pull-apart": "yRaise", "cable-external-rotation": "yRaise",
   "ez-curl": "curl", "hammer-curl": "curl", "wrist-curl": "curl", "incline-db-curl": "inclineCurl", "preacher-curl": "preacher",
   "rope-pressdown": "pressdown", "cross-body-cable-ext": "crossBodyExt", "skull-crusher": "skull", "adductor-machine": "adductorMachine", "hanging-knee-raise": "hang",
 };

@@ -165,7 +165,7 @@ export function buildPdfDays(): DayTemplate[] {
     ],
     [
       W({ ex: "zone2", dur: "25–35 min", cue: "conversational pace; you should not feel cooked after." }, "cardio"),
-      W({ ex: "pallof", sets: 3, reps: "20 sec", side: true, dur: "20 sec", cue: "stay tall, resist rotation, ribs down." }),
+      W({ ex: "pallof", alt: ["band-pallof"], sets: 3, reps: "20 sec", side: true, dur: "20 sec", cue: "stay tall, resist rotation, ribs down." }),
       W({ ex: "mobility-flow", dur: "5–8 min", cue: "gentle hips, hamstrings, glutes; no aggressive spinal stretching." }, "mobility"),
     ],
     [],
@@ -215,7 +215,7 @@ export function buildPdfDays(): DayTemplate[] {
       W({ ex: "shoulder-press", alt: ["machine-shoulder-press"], sets: 3, reps: "8–10", cue: "don’t overarch; press from stacked ribs/pelvis." }),
       W({ ex: "btb-lateral-raise", sets: 3, reps: "12–15", cue: "let side delt stretch, raise with control, traps stay down." }),
       W({ ex: "reverse-pec-deck", sets: 3, reps: "12–15", cue: "lead with elbows, don’t shrug, pause behind body." }),
-      W({ ex: "y-raise", sets: 2, setsMax: 3, reps: "12", cue: "raise in a V path, light weight, feel lower trap/shoulder control." }),
+      W({ ex: "y-raise", alt: ["scaption-raise"], sets: 2, setsMax: 3, reps: "12", cue: "raise in a V path, light weight, feel lower trap/shoulder control." }),
       W({ ex: "ez-curl", sets: 3, reps: "10", cue: "elbows fixed, no torso swing, full squeeze." }),
       W({ ex: "incline-db-curl", sets: 2, setsMax: 3, reps: "10–12", cue: "full biceps stretch, slow lower, don’t turn it into a shoulder raise." }),
       W({ ex: "rope-pressdown", sets: 3, reps: "10–12", cue: "elbows pinned, spread rope at bottom, full lockout." }),

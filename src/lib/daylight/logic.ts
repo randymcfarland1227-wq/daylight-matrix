@@ -155,6 +155,31 @@ export function chosenExerciseId(slot: Prescription, chosen: Record<string, stri
   return chosen[slot.id] ?? slot.exerciseId;
 }
 
+/** Move a logged set belongs to: stamped at log time, else the session's pick for that slot, else the listed move. */
+export function logExerciseId(log: SetLog, session: WorkoutSession): string {
+  if (log.exerciseId) return log.exerciseId;
+  const slot = session.snapshot.find((item) => item.id === log.prescriptionId);
+  return session.chosenExercise[log.prescriptionId] ?? slot?.exerciseId ?? "";
+}
+
+/** The plan's own either/or options for a slot: the listed move first, then its alternatives. */
+export function slotOptions(slot: Prescription): string[] {
+  return [slot.exerciseId, ...slot.alternatives.map((a) => a.exerciseId)];
+}
+
+/** Key for remembering the last either/or pick: weekday + the slot's listed move (stable across plan edits). */
+export function variantKey(weekday: number, slot: Prescription): string {
+  return `${weekday}:${slot.exerciseId}`;
+}
+
+/** The move this slot will use: this session's pick, else the last pick remembered for the slot, else the listed move. */
+export function effectiveExerciseId(slot: Prescription, weekday: number, prefs: Record<string, string> | undefined, chosen?: Record<string, string>): string {
+  const picked = chosen?.[slot.id];
+  if (picked) return picked;
+  const remembered = prefs?.[variantKey(weekday, slot)];
+  return remembered && slotOptions(slot).includes(remembered) ? remembered : slot.exerciseId;
+}
+
 export function targetLine(slot: Prescription): string {
   if (slot.durationLabel && slot.sets) {
     return `${slot.sets} × ${slot.repLabel}${slot.perSide ? " / side" : ""}`;
@@ -238,8 +263,7 @@ export function lastPerformance(
     .reverse();
   for (const session of previous) {
     for (const slot of session.snapshot) {
-      if (chosenExerciseId(slot, session.chosenExercise) !== exerciseId) continue;
-      const done = slotLogs(session, slot.id).filter((log) => log.status === "done");
+      const done = slotLogs(session, slot.id).filter((log) => log.status === "done" && logExerciseId(log, session) === exerciseId);
       const last = done[done.length - 1];
       if (!last) continue;
       const bits = [`${session.localDate}`];
@@ -268,8 +292,7 @@ export function lastSet(sessions: WorkoutSession[], exerciseId: string, excludeS
   for (const session of sessions.slice().reverse()) {
     if (session.id === excludeSessionId) continue;
     for (const slot of session.snapshot) {
-      if (chosenExerciseId(slot, session.chosenExercise) !== exerciseId) continue;
-      const done = slotLogs(session, slot.id).filter((log) => log.status === "done");
+      const done = slotLogs(session, slot.id).filter((log) => log.status === "done" && logExerciseId(log, session) === exerciseId);
       const last = done[done.length - 1];
       if (last) return { set: last, date: session.localDate };
     }

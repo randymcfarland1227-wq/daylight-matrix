@@ -204,7 +204,7 @@ add("side-plank", {
   back: "A well-known back-friendly option. Use bent knees to make it easier.",
 });
 add("pallof", {
-  s: ["Set a cable at chest height (or anchor a band). Stand sideways to the anchor, feet hip-width, soft knees.", "Hold the handle at your chest with both hands. Step away until there is tension on the line.", "Brace and press the handle straight out in front of your chest. The cable tries to twist you: don’t let it.", "Hold the press for the time, breathing steadily, then bring the hands back in. Do all reps/time and switch sides."],
+  s: ["Set a cable at chest height. Stand sideways to the stack, feet hip-width, soft knees.", "Hold the handle at your chest with both hands. Step away until there is tension on the line.", "Brace and press the handle straight out in front of your chest. The cable tries to twist you: don’t let it.", "Hold the press for the time, breathing steadily, then bring the hands back in. Do all reps/time and switch sides."],
   base: "Athletic stance, side-on to the cable, feet hip-width, knees soft, tall chest.",
   brace: "Brace and square the hips and shoulders to the front. Think of your torso as a wall.",
   grip: "Both hands cupped around the handle at the sternum, then pressed out.",
@@ -213,6 +213,18 @@ add("pallof", {
   feel: "Obliques and deep abs resisting the pull. Not in the low back.",
   err: ["Letting the torso rotate toward the anchor", "Leaning away from the cable", "Locking the knees", "Using a load that makes the form shake"],
   back: "A strong back-friendly core choice: the spine stays still. Keep the load modest.",
+});
+add("band-pallof", {
+  s: ["Anchor a band at chest height (rack post or door anchor). Stand sideways to the anchor, feet hip-width, soft knees.", "Hold the band at your chest with both hands. Step away until the band is taut.", "Brace and press your hands straight out in front of your chest. The band tries to twist you toward the anchor: don’t let it.", "Hold the press for the time, breathing steadily, then bring the hands back in. Switch sides."],
+  base: "Athletic stance, side-on to the anchor, feet hip-width, knees soft, tall chest.",
+  brace: "Square hips and shoulders to the front. Think of your torso as a wall.",
+  grip: "Both hands wrapped around the band at the sternum, then pressed out.",
+  rom: "Press out until arms are straight, then back to the chest.",
+  tempo: "Press for 2 sec, hold 20 sec, return 2 sec.",
+  feel: "Obliques and deep abs resisting the pull. Not in the low back.",
+  err: ["Rotating toward the anchor", "Leaning away from the band", "Standing so close the band goes slack", "Locking the knees"],
+  back: "Back-friendly: the spine stays still. Step closer to the anchor to make it easier.",
+  clarify: "Your plan says cable or band. This is the band version; the cable version is “Cable Pallof Press Hold”.",
 });
 add("mobility-flow", {
   s: ["Move through a short, gentle sequence on a mat: cat–cow in a small range, hip circles on hands and knees, a half-kneeling hip flexor stretch, and a supine knee-to-chest.", "Spend 30–45 seconds on each, breathing slowly.", "Add a hamstring stretch lying on your back with a strap or towel, and a figure-4 glute stretch.", "Keep each position easy. Stop at mild stretch."],
@@ -1006,8 +1018,8 @@ add("chest-supported-rear-fly", {
   back: "Supported chest.",
 });
 add("y-raise", {
-  s: ["Set a cable low (or use light dumbbells on an incline bench, chest-down). Hold handles with thumbs up.", "Start with arms low and slightly in front of the thighs.", "Raise your arms diagonally up and out so your body makes a Y, thumbs pointing up.", "Stop around ear height. Pause and lower slowly. Use a very light weight."],
-  base: "Standing tall (or chest-down on an incline bench), ribs down.",
+  s: ["Set both cable pulleys low and stand between them (or use one side at a time). Hold the handles with thumbs up.", "Start with arms low and slightly in front of the thighs.", "Raise your arms diagonally up and out so your body makes a Y, thumbs pointing up.", "Stop around ear height. Pause and lower slowly. Use a very light weight."],
+  base: "Standing tall between the pulleys, ribs down.",
   brace: "Ribs down, abs braced; don’t arch to lift.",
   grip: "Handles with thumbs up, light grip.",
   rom: "Arms low to about ear height in a V (the “raise in a V path” in your plan).",
@@ -1037,6 +1049,18 @@ add("cable-external-rotation", {
   feel: "Back of the shoulder, deep rotator cuff muscles.",
   err: ["Letting the elbow leave the side", "Too heavy", "Twisting the torso"],
   back: "Standing; low load.",
+});
+add("scaption-raise", {
+  s: ["Stand tall with a light dumbbell in each hand, arms by your sides, thumbs pointing up.", "Raise both arms straight (soft elbows) at about 30° in front of your sides, halfway between a front and a side raise.", "Lift to about shoulder or eye height without shrugging. Pause.", "Lower slowly to your sides."],
+  base: "Standing tall, feet hip-width, ribs down.",
+  brace: "Abs braced; don’t lean back to lift.",
+  grip: "Light grip, thumbs up.",
+  rom: "Sides to about shoulder/eye height in the scapular plane (your plan’s “V path”).",
+  tempo: "2 sec up, 1 sec pause, 3 sec down.",
+  feel: "Side and front of the shoulder plus the muscles around the shoulder blade. Not the upper traps.",
+  err: ["Shrugging", "Too heavy a weight", "Arching the back", "Raising straight out to the side"],
+  back: "Stand tall or sit on a bench with back support if standing makes you arch.",
+  clarify: "Your plan says Cable Y-Raise / Scaption Raise. This is the dumbbell scaption; the cable version is “Cable Y-Raise”.",
 });
 add("ez-curl", {
   s: ["Stand tall, feet hip-width. Hold an EZ-bar with an underhand grip on the angled sections, arms by your sides.", "Pin your elbows to your sides. Brace the abs.", "Curl the bar up toward the shoulders without moving your elbows forward.", "Squeeze at the top, then lower slowly until the arms are almost straight."],

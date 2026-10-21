@@ -171,6 +171,7 @@ export const VIDEOS: Record<string, VideoEntry> = {
   "sl-glute-bridge": v("388227392", "Glute Bridge - Single-leg", 14, 426, 240, "exact", true),
   "ball-leg-curl": v("441078130", "Swiss ball leg curls", 10, 426, 240, "exact", true),
   "nordic-curl": v("512608356", "Nordic curl - toes under machine", 21, 426, 240, "exact", true),
+  "scaption-raise": {"host": "vimeo", "id": "1230342027", "title": "Scaption with Dumbbell", "author": "PT Wired", "authorUrl": "https://vimeo.com/ptwired", "duration": 18, "width": 426, "height": 240, "match": "close", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2205227825-c117c1d47f8a7143d22375687d30c7c4b807dce79474105aeebd160c340c9a64-d_295x166?region=us", "matchNote": "Community clip titled “Scaption with Dumbbell”; we couldn’t frame-check it. Follow the steps below.", "verifiedAt": VERIFIED_AT},
   "leg-press-seated": {"host": "vimeo", "id": "1201071131", "title": "Seated Leg Press", "author": "Jonathan Crawford", "authorUrl": "https://vimeo.com/coachjayci", "duration": 29, "width": 426, "height": 240, "match": "close", "playerChecked": false, "thumbnail": "https://i.vimeocdn.com/video/2168329854-f5a21b8934ddf70c92f75cd8a67e3762fa028d0e2c0a164dedf5053c4bd6ec15-d_295x166?region=us", "verifiedAt": VERIFIED_AT},
   "leg-press-narrow": v("683465388", "Narrow stance leg press", 8, 240, 320, "exact", true),
   "assisted-dip": v("1141626909", "Dips", 19, 240, 300, "close", false),
@@ -202,6 +203,7 @@ export const VIDEOS: Record<string, VideoEntry> = {
 /** Moves with no clip, and why. Real photographs are used where available; otherwise written cues remain visible. */
 /* R18 audit: clips that show a different variant from the written steps are labelled, not passed off as exact. */
 const VARIANT_NOTES: Record<string, string> = {
+  "y-raise": "This clip does the Y-raise chest-down on an incline bench with dumbbells. Same V path; your steps use low cables.",
   "chest-supported-row": "This clip’s setup is not clearly chest-supported. Keep your chest on the incline bench as in the animation above and the steps below.",
   "seated-cable-row": "This clip shows a low cable row from a different stance. Sit on the seated row machine as in the steps below.",
   "hanging-knee-raise": "This clip hangs from a bar. Your steps use a captain’s chair (forearms on pads, back on the pad); the knee drive is the same.",
@@ -216,6 +218,7 @@ for (const [id, note] of Object.entries(VARIANT_NOTES)) {
 }
 
 export const NO_VIDEO: Record<string, string> = {
+  "band-pallof": "No band-specific Pallof clip verified in the library; the Lyfta animation shows the band version.",
   "ppt": "The only library clip showed a standing pelvic tilt; your plan is lying on your back, which the Lyfta animation shows.",
   "pt-shoulder-flexion": "The only library clip showed a standing pelvic tilt, not lying shoulder flexion; follow the written steps.",
   "mobility-flow": "A multi-move warm-up flow, not one movement; no single clip fits.",
@@ -225,7 +228,7 @@ export const NO_VIDEO: Record<string, string> = {
   "saturday-cardio": "Cardio block, not a lift; no clip needed.",
   "assisted-pullup": "No assisted pull-up machine clip in the library; real photos available.",
   "machine-chest-press": "No seated machine chest press clip found in the library; real photos available.",
-  "machine-shoulder-press": "No machine shoulder press clip in the library; real photos available.",
+  "machine-shoulder-press": "No machine shoulder press Vimeo clip in the library; the Lyfta animation and real photos show it.",
   "ez-curl": "No EZ-bar curl clip found in the library; real photos available.",
   "pec-deck": "No forward pec-deck fly clip found in the library; real photos available.",
   "incline-machine-press": "Library clip found was a plate-press (holding a weight plate), not the machine; real photos available.",

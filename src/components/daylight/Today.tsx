@@ -10,10 +10,12 @@ import {
   Utensils,
 } from "lucide-react";
 import { localDate, prettyDate, recordDate } from "@/lib/daylight/dates";
-import { progressLabel, sessionProgress } from "@/lib/daylight/logic";
+import { effectiveExerciseId, progressLabel, sessionProgress } from "@/lib/daylight/logic";
+import { VariantSwitch } from "./VariantSwitch";
 import { activePlan, dayBlocks, dayTemplate } from "@/lib/daylight/plan";
 import { useDaylight } from "@/lib/daylight/store";
 import { exerciseById } from "@/lib/daylight/exercises";
+import { exerciseLabel } from "@/lib/daylight/names";
 import { photosFor } from "@/lib/daylight/exImages";
 import { noteArea, observationsForArea } from "@/lib/daylight/bodyNotes";
 import { muscleName } from "@/lib/daylight/muscles";
@@ -34,8 +36,10 @@ export function Today() {
     slots.find(
       (slot) => slot.section === "main" && photosFor(slot.exerciseId)?.match === "exact",
     ) ?? slots.find((slot) => photosFor(slot.exerciseId)?.match === "exact");
-  const featuredExercise = featured ? exerciseById(featured.exerciseId) : null;
-  const featuredPhoto = featured ? photosFor(featured.exerciseId) : undefined;
+  const featuredId = featured ? effectiveExerciseId(featured, weekday, s.variantPrefs, session?.chosenExercise) : null;
+  const featuredExercise = featuredId ? exerciseById(featuredId) : null;
+  const featuredPhoto = featuredId ? photosFor(featuredId) ?? photosFor(featured!.exerciseId) : undefined;
+  const orSlots = slots.filter((slot) => slot.alternatives.length);
   const food = useFoodNumbers();
   const latest = observationsForArea(s.observations)[0];
   const flagged = s.observations.filter((x) => x.forNextPlan).length;
@@ -165,7 +169,7 @@ export function Today() {
             <button
               type="button"
               className="daily-form-reference"
-              onClick={() => s.setOverlay({ type: "form", exerciseId: featured.exerciseId })}
+              onClick={() => s.setOverlay({ type: "form", exerciseId: featuredId! })}
             >
               <img
                 src={featuredPhoto.images[0]}
@@ -178,6 +182,20 @@ export function Today() {
               </span>
               <Play className="size-5 ml-auto shrink-0" />
             </button>
+          ) : null}
+          {orSlots.length ? (
+            <div className="today-options" data-testid="today-options">
+              <small>This or that, from your plan</small>
+              {orSlots.map((slot) => {
+                const cur = effectiveExerciseId(slot, weekday, s.variantPrefs, session?.chosenExercise);
+                return (
+                  <div key={slot.id} className="today-option">
+                    <b>{exerciseLabel(cur)}</b>
+                    <VariantSwitch weekday={weekday} slot={slot} current={cur} label={false} tone="session" />
+                  </div>
+                );
+              })}
+            </div>
           ) : null}
           <div className="session-links">
             <button

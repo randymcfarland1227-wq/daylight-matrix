@@ -99,6 +99,8 @@ export type SetStatus = "done" | "skipped" | "pending";
 export type SetLog = {
   id: string;
   prescriptionId: string;
+  /** Move actually done when this set was logged (the plan's either/or pick). Older logs lack it: fall back to the session pick. */
+  exerciseId?: string;
   setIndex: number;
   side: Side;
   status: Exclude<SetStatus, "pending">;

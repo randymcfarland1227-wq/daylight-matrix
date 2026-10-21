@@ -334,6 +334,10 @@
 .daily-form-reference { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border-top: 1px solid var(--line); padding: 16px 0 4px; margin-top: 24px; min-height: 44px; }
 .daily-form-reference img { width: 76px; height: 64px; object-fit: contain; border-radius: 5px; background: #fff; }
 .daily-form-reference > span { display: grid; gap: 3px; }
+.today-options { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+.today-options > small { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+.today-option { display: grid; gap: 6px; }
+.today-option > b { font-size: 15px; }
 .daily-form-reference small { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 650; }
 .daily-form-reference b { font-size: 16px; font-weight: 600; }
 .daily-form-reference span span { font-size: 14px; color: var(--ink-soft); }

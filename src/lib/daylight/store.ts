@@ -5,7 +5,7 @@ import { SEED_INVENTORY, SEED_MEALS, SEED_PREP, SEED_RECIPES, INGREDIENT_PREP_ID
 import { SCHEMA_VERSION, STORAGE_KEY, BACKUP_KEY, BACKUP_KEY_V3, migratePersisted } from "./migrate";
 import { ingredientKey, prepIngredients, upgradeFoodWorkspace } from "./kitchen";
 import { exerciseById } from "./exercises";
-import { lastSet, newId, prescribedDefaults } from "./logic";
+import { effectiveExerciseId, lastSet, newId, prescribedDefaults, slotOptions, variantKey } from "./logic";
 import { activePlan, dayTemplate, seedPlan } from "./plan";
 import type {
   JointLog,
@@ -170,6 +170,8 @@ type Data = {
   openExerciseId: string | null;
   /** Open the Train tab straight into gym mode for today. Persisted. */
   gymDefault: boolean;
+  /** Last either/or pick per plan slot (key: variantKey), so the next session starts on the version you used. */
+  variantPrefs: Record<string, string>;
   /** Full-screen gym mode for this weekday. Not persisted. */
   gymMode: { weekday: number } | null;
   /** Set after leaving gym mode so the Train tab shows the overview instead of re-opening it. Not persisted. */
@@ -241,6 +243,8 @@ type Actions = {
   removeLog: (logId: string) => void;
   undoLast: () => void;
   chooseVariant: (weekday: number, prescriptionId: string, exerciseId: string) => void;
+  /** Pick one of a slot's either/or options: remembered for next time and applied to today's session if one exists (never starts one). */
+  pickOption: (weekday: number, slot: Prescription, exerciseId: string) => void;
   setGymMode: (weekday: number | null) => void;
   setGymDefault: (value: boolean) => void;
   bulkComplete: (weekday: number, slotIds: string[], adjust?: BulkAdjust) => number;
@@ -331,8 +335,13 @@ function clonePlan(plan: PlanVersion): PlanVersion {
   return JSON.parse(JSON.stringify(plan)) as PlanVersion;
 }
 
-function sessionFromDay(plan: PlanVersion, weekday: number, chosen: boolean): WorkoutSession {
+function sessionFromDay(plan: PlanVersion, weekday: number, chosen: boolean, prefs: Record<string, string> = {}): WorkoutSession {
   const day = dayTemplate(plan, weekday);
+  const chosenExercise: Record<string, string> = {};
+  for (const slot of day.slots) {
+    const id = effectiveExerciseId(slot, weekday, prefs);
+    if (id !== slot.exerciseId) chosenExercise[slot.id] = id;
+  }
   const today = localDate();
   return {
     id: newId(),
@@ -346,7 +355,7 @@ function sessionFromDay(plan: PlanVersion, weekday: number, chosen: boolean): Wo
     finishedAt: null,
     status: "active",
     snapshot: JSON.parse(JSON.stringify(day.slots)) as Prescription[],
-    chosenExercise: {},
+    chosenExercise,
     logs: [],
     focusSlot: 0,
     note: "",
@@ -404,6 +413,7 @@ const seed = (): Data => ({
   gymMode: null,
   gymAutoSkip: false,
   gymDefault: true,
+  variantPrefs: {},
   rest: null,
   restDefault: 90,
   toast: null,
@@ -451,7 +461,7 @@ export const useDaylight = create<Data & Actions>()(
           return;
         }
         const plan = activePlan(state.planVersions, today);
-        const session = sessionFromDay(plan, weekday, chosen);
+        const session = sessionFromDay(plan, weekday, chosen, state.variantPrefs);
         set(
           saved({
             sessions: [...state.sessions, session],
@@ -506,6 +516,7 @@ export const useDaylight = create<Data & Actions>()(
         const log: SetLog = {
           id: newId(),
           prescriptionId: slotId,
+          exerciseId: session.chosenExercise[slotId] ?? slot.exerciseId,
           setIndex,
           side,
           status: "done",
@@ -589,11 +600,28 @@ export const useDaylight = create<Data & Actions>()(
         }
         if (!session) return;
         const sid = session.id;
+        const slot = session.snapshot.find((item) => item.id === prescriptionId);
+        const prefs = slot && slotOptions(slot).includes(exerciseId) ? { ...get().variantPrefs, [variantKey(weekday, slot)]: exerciseId } : get().variantPrefs;
         set(
           saved({
+            variantPrefs: prefs,
             sessions: get().sessions.map((item) =>
               item.id === sid ? { ...item, chosenExercise: { ...item.chosenExercise, [prescriptionId]: exerciseId } } : item,
             ),
+          }),
+        );
+      },
+      pickOption: (weekday, slot, exerciseId) => {
+        if (!slotOptions(slot).includes(exerciseId)) return;
+        const today = localDate();
+        const session = get().sessions.find((s) => s.localDate === today && s.weekday === weekday);
+        const target = session?.snapshot.find((item) => item.id === slot.id || (item.exerciseId === slot.exerciseId && item.section === slot.section));
+        set(
+          saved({
+            variantPrefs: { ...get().variantPrefs, [variantKey(weekday, slot)]: exerciseId },
+            sessions: session && target
+              ? get().sessions.map((item) => (item.id === session.id ? { ...item, chosenExercise: { ...item.chosenExercise, [target.id]: exerciseId } } : item))
+              : get().sessions,
           }),
         );
       },
@@ -629,6 +657,7 @@ export const useDaylight = create<Data & Actions>()(
             if (have.has(i)) continue;
             const base = {
               prescriptionId: slotId,
+              exerciseId,
               setIndex: i,
               status: "done" as const,
               reps: adjust && "reps" in adjust ? adjust.reps ?? null : def.reps,

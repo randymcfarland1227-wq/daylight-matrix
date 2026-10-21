@@ -5,12 +5,13 @@ import { DAY_STYLE } from "@/lib/daylight/theme";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayBlocks, dayTemplate } from "@/lib/daylight/plan";
-import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, setSummary, slotFinished, slotLogs, sessionProgress } from "@/lib/daylight/logic";
+import { chosenExerciseId, doneSetCount, effectiveExerciseId, formatSeconds, lastSet, setSummary, slotFinished, slotLogs, sessionProgress } from "@/lib/daylight/logic";
 import { lessonsForExercise } from "@/lib/daylight/learn";
 import { useDaylight } from "@/lib/daylight/store";
 import type { DayTemplate, Prescription, TrainingTab, WorkoutSession } from "@/lib/daylight/types";
 import { dayMuscles } from "@/lib/daylight/volume";
 import { muscleName } from "@/lib/daylight/muscles";
+import { VariantSwitch } from "./VariantSwitch";
 import { Badge, Button, Card, Chip, Eyebrow, PageHead, Ring, Segmented, Stepper, cn, haptic, useNow } from "./ui";
 import { MuscleChips, useGoToMuscle } from "./MuscleChips";
 import { Moves, PlanEditor, PtBoard } from "./TrainExtras";
@@ -212,7 +213,7 @@ function SessionScreen() {
 function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Prescription; session: WorkoutSession | null }) {
   const state = useDaylight();
   const open = state.openSlotId === slot.id;
-  const exerciseId = session ? chosenExerciseId(slot, session.chosenExercise) : slot.exerciseId;
+  const exerciseId = effectiveExerciseId(slot, weekday, state.variantPrefs, session?.chosenExercise);
   const ex = exerciseById(exerciseId);
   const name = exerciseLabel(exerciseId);
   const logs = session ? slotLogs(session, slot.id).filter((l) => l.status === "done") : [];
@@ -246,7 +247,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
             <span className="font-bold text-ink">{dose || "Open"}</span>
             {slot.optional ? <Badge>optional</Badge> : null}
             {replaced.length ? <Badge tone="sun">swapped: {replaced[0]!.name}</Badge> : null}
-            {slot.alternatives.length ? <Badge tone="sun">or {slot.alternatives.length} swap</Badge> : null}
+            {slot.alternatives.length ? <Badge tone="sun">either/or</Badge> : null}
             {ex?.back === "caution" ? <Badge tone="copper">back: go easy</Badge> : null}
             {noteCount ? <Badge tone="teal">{noteCount} note{noteCount > 1 ? "s" : ""}</Badge> : null}
           </span>
@@ -260,6 +261,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
         </span>
         <ChevronDown className={cn("size-5 shrink-0 text-ink-faint transition-transform", open && "rotate-180")} />
       </button>
+      {slot.alternatives.length && !open ? <VariantSwitch weekday={weekday} slot={slot} current={exerciseId} className="px-3.5 pb-3" /> : null}
 
       {open ? (
         <div className="animate-rise border-t border-line px-3.5 pb-4 pt-3">
@@ -307,7 +309,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
               <Eyebrow>Swap — the plan allows either</Eyebrow>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 {[slot.exerciseId, ...slot.alternatives.map((a) => a.exerciseId)].map((id) => (
-                  <Chip key={id} active={id === exerciseId} tone="sun" onClick={() => state.chooseVariant(weekday, slot.id, id)}>
+                  <Chip key={id} active={id === exerciseId} tone="sun" onClick={() => state.pickOption(weekday, slot, id)}>
                     <Repeat2 className="size-3.5" /> {exerciseLabel(id)}
                   </Chip>
                 ))}

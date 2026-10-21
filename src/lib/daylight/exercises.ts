@@ -152,13 +152,22 @@ export const exercises: ExerciseDef[] = [
     pdfNote: "Buttt down",
     factor: 0.5,
   }),
-  ex("pallof", "Cable or Band Pallof Press Hold", "timed", {
+  ex("pallof", "Cable Pallof Press Hold", "timed", {
     m: { obliques: P, transverse: S, "abs-upper": S, "glute-med": M },
     back: "friendly",
     uni: true,
-    eq: "Cable / band",
+    eq: "Cable",
     factor: 0.5,
-    eduCue: "Hold the band or cable at your chest and resist the twist. It is a hold, not a punch.",
+    eduCue: "Hold the cable at your chest and resist the twist. It is a hold, not a punch.",
+    eduSource: "General education named for the Pallof press. Not a cue from the PDF.",
+  }),
+  ex("band-pallof", "Band Pallof Press Hold", "timed", {
+    m: { obliques: P, transverse: S, "abs-upper": S, "glute-med": M },
+    back: "friendly",
+    uni: true,
+    eq: "Resistance band + anchor",
+    factor: 0.5,
+    eduCue: "Hold the band at your chest and resist the twist. It is a hold, not a punch.",
     eduSource: "General education named for the Pallof press. Not a cue from the PDF.",
   }),
   ex("mobility-flow", "Back-Friendly Mobility Flow", "mobility", {
@@ -427,10 +436,15 @@ export const exercises: ExerciseDef[] = [
     backNote: "Chest-supported.",
     eq: "Pec deck machine",
   }),
-  ex("y-raise", "Cable Y-Raise / Scaption Raise", "strength", {
+  ex("y-raise", "Cable Y-Raise", "strength", {
     m: { "traps-lower": P, "delt-side": S, "rotator-cuff": S, "delt-rear": M, rhomboids: M },
     back: "neutral",
-    eq: "Cable / light dumbbells",
+    eq: "Cable (low pulleys)",
+  }),
+  ex("scaption-raise", "Dumbbell Scaption Raise", "strength", {
+    m: { "delt-side": P, "delt-front": S, "traps-lower": S, "rotator-cuff": S, serratus: M },
+    back: "neutral",
+    eq: "Light dumbbells",
   }),
   ex("ez-curl", "EZ-Bar Curl", "strength", {
     m: { "biceps-short": P, "biceps-long": P, brachialis: S, "forearm-flexors": S },

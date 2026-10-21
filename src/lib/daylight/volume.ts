@@ -158,7 +158,7 @@ export function loggedVolume(sessions: WorkoutSession[], win: LoggedWindow): { m
       if (log.status !== "done") continue;
       const slot = session.snapshot.find((item) => item.id === log.prescriptionId);
       if (!slot) continue;
-      const exerciseId = session.chosenExercise[slot.id] ?? slot.exerciseId;
+      const exerciseId = log.exerciseId ?? session.chosenExercise[slot.id] ?? slot.exerciseId;
       const sets = slot.perSide && (log.side === "left" || log.side === "right") ? 0.5 : 1;
       totalSets += sets;
       addHit(map, exerciseId, sets, weekday);

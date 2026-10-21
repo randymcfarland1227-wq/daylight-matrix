@@ -58,9 +58,8 @@ function noteLine(n: Observation): string {
 export function lastLogged(sessions: WorkoutSession[], exerciseId: string, units: string): string | null {
   for (const session of sessions.slice().reverse()) {
     for (const slot of session.snapshot) {
-      const id = session.chosenExercise[slot.id] ?? slot.exerciseId;
-      if (id !== exerciseId) continue;
-      const done = session.logs.filter((l) => l.prescriptionId === slot.id && l.status === "done");
+      const pick = session.chosenExercise[slot.id] ?? slot.exerciseId;
+      const done = session.logs.filter((l) => l.prescriptionId === slot.id && l.status === "done" && (l.exerciseId ?? pick) === exerciseId);
       if (!done.length) continue;
       const sets = done.map((l) => {
         const parts: string[] = [];

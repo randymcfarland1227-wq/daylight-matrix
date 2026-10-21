@@ -4,7 +4,7 @@ import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
 import { exerciseById } from "@/lib/daylight/exercises";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { activePlan, dayTemplate } from "@/lib/daylight/plan";
-import { chosenExerciseId, doneSetCount, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine, sessionProgress } from "@/lib/daylight/logic";
+import { chosenExerciseId, doneSetCount, effectiveExerciseId, formatSeconds, lastSet, prescribedDefaults, slotFinished, slotLogs, targetLine, sessionProgress } from "@/lib/daylight/logic";
 import { useDaylight } from "@/lib/daylight/store";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import type { Prescription, WorkoutSession } from "@/lib/daylight/types";
@@ -12,6 +12,7 @@ import { MoveThumb } from "./MoveArt";
 import { MoveMedia, prefetchPhotos } from "./MoveMedia";
 import { Overlays } from "./Overlays";
 import { Toast } from "./Toast";
+import { VariantSwitch } from "./VariantSwitch";
 import { Badge, Button, Eyebrow, Stepper, cn, haptic, useNow } from "./ui";
 
 type Step = { key: string; type: "pt" | "move" | "end"; slot?: Prescription; slots?: Prescription[] };
@@ -277,7 +278,7 @@ function PtBlock({ slots, session, weekday, onDone, onEach, onFlow }: { slots: P
 
 function MoveStep({ slot, weekday, session, onDone, onFlow, pos, of }: { slot: Prescription; weekday: number; session: WorkoutSession | null; onDone: () => void; onFlow: () => void; pos: number; of: number }) {
   const state = useDaylight();
-  const exerciseId = session ? chosenExerciseId(slot, session.chosenExercise) : slot.exerciseId;
+  const exerciseId = effectiveExerciseId(slot, weekday, state.variantPrefs, session?.chosenExercise);
   const ex = exerciseById(exerciseId);
   const kind = ex?.kind ?? "strength";
   const prev = lastSet(state.sessions, exerciseId, session?.id ?? "")?.set;
@@ -356,6 +357,7 @@ function MoveStep({ slot, weekday, session, onDone, onFlow, pos, of }: { slot: P
       </div>
       <h1 className="mt-2 font-display text-[40px] font-extrabold uppercase leading-[.95] text-white" data-testid="gym-move-name">{exerciseLabel(exerciseId)}</h1>
       <p className="mt-1 text-[15px] text-fog" data-testid="gym-dose">{dose || "Open slot"}</p>
+      {slot.alternatives.length && !done ? <VariantSwitch weekday={weekday} slot={slot} current={exerciseId} tone="session" className="mt-3" /> : null}
       {slot.sourceCue ? <p className="mt-2 text-[15px] leading-snug text-lime-mist">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p> : null}
       <div className="mt-4 grid grid-cols-2 gap-2" data-testid="gym-stats">
         <div className="rounded-[12px] bg-deep p-3">
