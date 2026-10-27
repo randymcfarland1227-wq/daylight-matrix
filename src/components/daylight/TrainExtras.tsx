@@ -12,6 +12,8 @@ import { exerciseById } from "@/lib/daylight/exercises";
 import { DAY_STYLE } from "@/lib/daylight/theme";
 import { cn } from "./ui";
 import { MoveThumb } from "./MoveArt";
+import { isFs3Plan } from "@/lib/daylight/fs3";
+import { Fs3PlanNotes, WarmUpMenu } from "./Fs3Notes";
 
 export function Moves() {
   const state = useDaylight();
@@ -41,7 +43,7 @@ export function Moves() {
         <Chip active={only === "extras"} onClick={() => setOnly("extras")} tone="sun">Not in plan (ideas)</Chip>
         <Chip active={only === "all"} onClick={() => setOnly("all")}>All</Chip>
       </div>
-      <p className="mt-3 text-sm text-ink-soft">{UNSCHEDULED.note}</p>
+      {isFs3Plan(plan) ? null : <p className="mt-3 text-sm text-ink-soft">{UNSCHEDULED.note}</p>}
       <ul className="stagger mt-4 grid gap-3 md:grid-cols-2">
         {list.map((e) => (
           <li key={e.id}>
@@ -87,6 +89,22 @@ export function Moves() {
 }
 
 export function PtBoard() {
+  const planVersions = useDaylight((s) => s.planVersions);
+  if (!isFs3Plan(activePlan(planVersions, localDate()))) return <OldPtBoard />;
+  return (
+    <div>
+      <WarmUpMenu />
+      <details className="mt-8">
+        <summary className="cursor-pointer t-title text-ink-soft">Fine Shyte 2 PT board (history)</summary>
+        <div className="mt-3">
+          <OldPtBoard />
+        </div>
+      </details>
+    </div>
+  );
+}
+
+function OldPtBoard() {
   const notes = useDaylight((s) => s.ptNotes);
   const setPtNote = useDaylight((s) => s.setPtNote);
   const setOpenLesson = useDaylight((s) => s.setOpenLesson);
@@ -215,7 +233,8 @@ export function PlanEditor() {
             </li>
           ))}
       </ul>
-      <h2 className="mt-8 t-title">What was imported from the PDF</h2>
+      {isFs3Plan(activePlan(state.planVersions, localDate())) ? <Fs3PlanNotes /> : null}
+      <h2 className="mt-8 t-title">What was imported from the Fine Shyte 2 PDF</h2>
       <ul className="mt-2 grid list-disc gap-1.5 pl-5 text-sm text-ink-soft">
         {IMPORT_NOTES.map((n) => (
           <li key={n}>{n}</li>

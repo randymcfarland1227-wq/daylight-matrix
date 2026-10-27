@@ -278,7 +278,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           </div>
           {slot.sourceCue ? (
             <div className="rounded-[12px] bg-accent/20 p-3">
-              <Eyebrow className="text-warn">Your plan cue · from your PDF</Eyebrow>
+              <Eyebrow className="text-warn">Your plan cue</Eyebrow>
               <p className="mt-0.5 text-base font-semibold leading-snug">{slot.sourceCue[0]!.toUpperCase() + slot.sourceCue.slice(1)}</p>
             </div>
           ) : null}
@@ -289,7 +289,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
           ) : null}
           {ex?.eduCue ? (
             <p className="mt-2 text-sm text-ink-soft">
-              <span className="font-bold">General education (not from the PDF):</span> {ex.eduCue}
+              <span className="font-bold">General education (not your plan cue):</span> {ex.eduCue}
             </p>
           ) : null}
           {ex?.backNote ? (

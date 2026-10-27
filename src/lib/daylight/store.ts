@@ -7,6 +7,7 @@ import { ingredientKey, prepIngredients, upgradeFoodWorkspace } from "./kitchen"
 import { exerciseById } from "./exercises";
 import { effectiveExerciseId, lastSet, newId, prescribedDefaults, slotOptions, variantKey } from "./logic";
 import { activePlan, dayTemplate, seedPlan } from "./plan";
+import { buildFs3Plan } from "./fs3";
 import type {
   JointLog,
   ExtraLog,
@@ -367,7 +368,7 @@ const seed = (): Data => ({
   purposeIsProposal: true,
   units: "lb",
   drinkSizes: [],
-  planVersions: [seedPlan()],
+  planVersions: [seedPlan(), buildFs3Plan(2)],
   planDraft: null,
   sessions: [],
   activeSessionId: null,

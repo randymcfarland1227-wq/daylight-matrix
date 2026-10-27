@@ -169,7 +169,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   <Eyebrow className="text-warn">In your plan</Eyebrow>
                   {mainUse?.psa ? (
                     <p className="text-sm" data-testid="exercise-psa">
-                      <b className="text-warn">{mainUse.dayName} PSA · from your PDF:</b> {mainUse.psa}
+                      <b className="text-warn">{mainUse.dayName} PSA · from your plan:</b> {mainUse.psa}
                     </p>
                   ) : null}
                   <ul className="space-y-1 text-sm">
@@ -182,7 +182,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </ul>
                   {mainUse?.cue ? (
                     <div className="pt-1">
-                      <Eyebrow className="text-warn">Your plan cue · from your PDF</Eyebrow>
+                      <Eyebrow className="text-warn">Your plan cue</Eyebrow>
                       <p className="mt-0.5 text-base font-semibold leading-snug">{mainUse.cue[0]!.toUpperCase() + mainUse.cue.slice(1)}</p>
                     </div>
                   ) : null}
@@ -205,7 +205,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
               {g ? (
                 <>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="teal">General education, not from the PDF</Badge>
+                    <Badge tone="teal">General education, not your plan cue</Badge>
                     {ex?.back === "friendly" ? <Badge tone="teal">back-friendly</Badge> : ex?.back === "caution" ? <Badge tone="copper">go easy on the back</Badge> : null}
                   </div>
                   {g.clarify ? (

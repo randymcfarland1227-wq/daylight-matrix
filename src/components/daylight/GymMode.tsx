@@ -124,7 +124,7 @@ export function GymMode({ weekday }: { weekday: number }) {
         <div className="mx-auto max-w-xl px-4 pb-10 pt-3">
           {day.psa ? (
             <button type="button" onClick={() => setPsaOpen((v) => !v)} className="mb-3 w-full rounded-lg border border-line bg-surface-2 px-4 py-3 text-left" data-testid="gym-psa" aria-expanded={psaOpen}>
-              <Eyebrow>{WEEKDAY_NAMES[weekday]} PSA · from your PDF</Eyebrow>
+              <Eyebrow>{WEEKDAY_NAMES[weekday]} PSA · from your plan</Eyebrow>
               <p className={cn("t-caption mt-1 text-ink", !psaOpen && "line-clamp-2")}>{day.psa}</p>
             </button>
           ) : null}
