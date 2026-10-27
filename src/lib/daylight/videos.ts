@@ -239,7 +239,7 @@ export const NO_VIDEO: Record<string, string> = {
   "lying-cable-pullover": "No embeddable lying cable pullover clip found; the Lyfta animation shows the move.",
   "kneeling-cable-pullaround": "No embeddable pullaround clip found; the Lyfta animation shows a close variant.",
   "underhand-pulldown": "No embeddable underhand pulldown clip found; the Lyfta animation shows the move.",
-  "bench-db-row": "No embeddable bench-supported one-arm row clip found; the Lyfta animation shows the move.",
+  "landmine-meadows-row": "No embeddable Meadows row clip found; the Lyfta animation shows a close variant.",
   "neutral-flat-db-press": "No embeddable neutral-grip press clip found; the Lyfta still image shows the move.",
   "cable-press-around": "No embeddable press-around clip found; the Lyfta still image shows a close variant.",
   "stir-the-pot": "No embeddable stir-the-pot clip found (the ones online are private to their sites).",
@@ -268,7 +268,7 @@ export const NO_VIDEO: Record<string, string> = {
   "concentration-curl": "No embeddable concentration curl clip found; the Lyfta animation shows the move.",
   "reverse-grip-pressdown": "No embeddable reverse-grip pressdown clip found; the Lyfta animation shows a close variant.",
   "half-kneeling-cable-lift": "No embeddable half-kneeling lift clip found; the Lyfta animation shows a close variant.",
-  "sl-rdl-db": "No embeddable single-leg RDL clip found; the Lyfta animation shows the move.",
+  "sl-rdl-kb": "No embeddable single-leg RDL clip found; the Lyfta animation shows the move.",
   "sl-ball-curl": "No embeddable single-leg ball curl clip found; the Lyfta animation shows a close variant.",
   "prone-hip-ext": "No embeddable prone hip extension clip found; the Lyfta still image shows a close variant.",
   "cable-kickback-30": "No embeddable cable kickback clip found; the Lyfta animation shows the move.",
@@ -276,7 +276,7 @@ export const NO_VIDEO: Record<string, string> = {
   "side-bridge-abduction": "No embeddable side bridge abduction clip found; the Lyfta animation shows the move.",
   "cable-hip-adduction": "No embeddable cable adduction clip found; the Lyfta animation shows the move.",
   "sl-calf-step": "No embeddable single-leg calf raise clip found; the Lyfta animation shows the move.",
-  "offset-front-rack-carry": "No embeddable front-rack carry clip found; follow the written steps.",
+  "bottoms-up-kb-carry": "No embeddable bottoms-up carry clip found; the Lyfta animation shows the bottoms-up hold.",
 };
 
 export function videoFor(exerciseId: string): VideoEntry | undefined {

@@ -60,7 +60,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "lying-cable-pullover", sets: 3, reps: "12–15", cue: "Goes first. Bench lengthwise in front of a low cable, rope or bar overhead, arms nearly straight. Pull to your hips. Lats work in the stretch with no biceps involved.", why: "Lats load in the stretch with no biceps help, so you can feel them before the heavier pulls (stretch-position training)." },
     { ex: "kneeling-cable-pullaround", sets: 3, reps: "10–12", side: true, cue: "One arm, cable up and across. Pull the elbow down and around to the hip. One extra set on the left.", why: `Isolates the weak left lat. ${CHAIN}` },
     { ex: "underhand-pulldown", sets: 4, reps: "8–10", cue: "Shoulder-width grip. 3-second lower. Shoulders down before the elbows bend.", why: "The main vertical pull. Underhand is an easier position for the left shoulder and lets the biceps help you feel the lats." },
-    { ex: "bench-db-row", sets: 3, reps: "8–10", side: true, cue: "Hand and knee on the bench. Let the DB hang for a full stretch, then drive the elbow back to the hip. One extra set on the left.", why: "Big stretch at the bottom, bench support for the L4. Planet Fitness swap for the landmine Meadows row." },
+    { ex: "landmine-meadows-row", sets: 3, reps: "8–10", side: true, cue: "Stand side-on to the bar, overhand grip on the sleeve. Big stretch at the bottom.", why: "Big stretch at the bottom for the lats and upper back, with the free forearm on your thigh to spare the L4." },
     { ex: "neutral-flat-db-press", sets: 3, reps: "8–10", cue: "Palms facing in. Easier on the left shoulder than a flared press.", why: "Main chest press, chosen for the left shoulder." },
     { ex: "cable-press-around", sets: 3, reps: "12", side: true, cue: "Press across your body past the midline. Hits the inner chest.", why: "Finishes the chest through the inner range a dumbbell can't load." },
     { ex: "stir-the-pot", sets: 3, reps: "6 each way", cue: "Forearms on the ball, plank position, small circles. Spine stays still.", why: "Abs work hard while the spine stays still: right for the L4.", section: FIN },
@@ -78,7 +78,7 @@ export function buildFs3Days(): DayTemplate[] {
   ]);
 
   const wednesday = day(3, "wed", "Legs A · quads + side glute + knee", "Legs land right before Thursday off. Right leg first on single-leg work. Nothing loads your spine: the weight hangs at your hips.", "Right knee / foot + Side glutes asleep", [
-    { ex: "kb-foot-flex", sets: 2, reps: "15", side: true, cue: "The one carryover. Kettlebell (or a DB) on the foot, pull toes up, tense the whole leg.", why: "Your own move; you've said it helps the right knee." },
+    { ex: "kb-foot-flex", sets: 2, reps: "15", side: true, cue: "The one carryover. Kettlebell on the foot, pull toes up, tense the whole leg.", why: "Your own move; you've said it helps the right knee." },
     { ex: "db-suitcase-squat", sets: 4, reps: "8–10", cue: "Plates under the heels, a DB hanging at each side. The load hangs at your hips, not on your back, so the L4 stays unloaded. Torso upright, knees forward.", why: "The main quad lift with no bar on the spine. Planet Fitness swap for the belt squat." },
     { ex: "sl-leg-press", sets: 3, reps: "10", side: true, cue: "Right leg first. Knee tracks over the 2nd toe the whole way.", why: "Quad volume one leg at a time, training right-knee tracking." },
     { ex: "sl-box-squat", sets: 3, reps: "6", side: true, cue: "Sit back to a box on one leg, light DB in the opposite hand. One of the top side-glute exercises in EMG studies.", why: `Ranks among the highest side-glute activation in EMG reviews. ${CHAIN}` },
@@ -112,7 +112,7 @@ export function buildFs3Days(): DayTemplate[] {
   ]);
 
   const saturday = day(6, "sat", "Legs B · glutes + hamstrings", "Legs land right before Sunday off. Every hinge pulls you backward instead of loading down on the spine.", "Low back / L4 + Side glutes asleep", [
-    { ex: "sl-rdl-db", sets: 3, reps: "8", side: true, cue: "Right leg working = DB in the left hand. Hand on a rack for balance is fine.", why: `One-sided hinge with a light load. ${CHAIN}` },
+    { ex: "sl-rdl-kb", sets: 3, reps: "8", side: true, cue: "Right leg working = KB in the left hand. Hand on a rack for balance is fine.", why: `One-sided hinge with a light load. ${CHAIN}` },
     { ex: "cable-pull-through", sets: 3, reps: "12", cue: "Hinge with the load pulling you backward, not down on the spine. Squeeze hard at lockout.", why: "Glute hinge without compressing the L4." },
     { ex: "sl-ball-curl", sets: 3, reps: "8", side: true, cue: "On your back, one heel on the ball, hips up. Curl the ball in and roll it out slowly. Hips stay high the whole set.", why: "Hamstrings with no spinal load. Planet Fitness swap for the band-assisted Nordic curl." },
     { ex: "prone-hip-ext", sets: 3, reps: "12", side: true, cue: "Lie face-down on a bench, knee at 90° and slightly out. This version made the opposite lat work harder in an EMG study.", why: `EMG study: this version made the opposite lat work harder. ${CHAIN}` },
@@ -121,7 +121,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "side-bridge-abduction", sets: 2, reps: "8", side: true, cue: "Side plank, lift the top leg. Among the highest side-glute activation in the reviews.", why: "Among the highest side-glute activation in the reviews." },
     { ex: "cable-hip-adduction", sets: 2, reps: "15", side: true, cue: "Inner thighs keep the pelvis level under the side glutes.", why: "Keeps the pelvis level under the side glutes." },
     { ex: "sl-calf-step", sets: 3, reps: "12", side: true, cue: "2-second pause in the bottom stretch.", why: "Second weekly calf hit, in the stretch." },
-    { ex: "offset-front-rack-carry", sets: 3, reps: "20 m", side: true, dur: "20 m", cue: "One DB held at the shoulder, elbow in front. The core resists the lean and the left shoulder has to stabilize.", why: "Loaded carry for the core and the left shoulder. Planet Fitness swap for the bottoms-up KB carry.", section: FIN },
+    { ex: "bottoms-up-kb-carry", sets: 3, reps: "20 m", side: true, dur: "20 m", cue: "Kettlebell upside down at shoulder height. The left shoulder has to stabilize or it tips.", why: "Loaded carry: the core holds the spine still and the upside-down bell trains the left shoulder to stabilize.", section: FIN },
   ]);
 
   const sunday: DayTemplate = {
@@ -204,7 +204,7 @@ export const FS3_STRIP: { title: string; body: string }[] = [
   { title: "No load on the spine", body: "DB suitcase squats instead of a bar on your back, pull-throughs and single-leg hinges, no loaded crunching. Built around the L4." },
   { title: "Traps kept quiet", body: "Shoulder and posture work lying face-down or on your side, where studies show the upper traps stay least active." },
   { title: "Stretch-biased picks", body: "Overhead triceps, pullovers, Bayesian curls and stretch-position partials, where the research shows the most growth." },
-  { title: "Planet Fitness gear", body: "Swapped to what Planet Fitness has: cable pullover, DB rows, lean-away lateral, DB suitcase squat, ball hamstring curl, backward treadmill walk. Bring your own ankle strap." },
+  { title: "Planet Fitness gear", body: "Your gym has kettlebells and a landmine, so those moves stay. Swapped for missing machines: cable pullover, lean-away lateral, DB suitcase squat, kneeling cable high row, ball hamstring curl, backward treadmill walk, reverse cable curl. Bring your own ankle strap." },
 ];
 
 export const FS3_CHAIN = [
@@ -235,7 +235,7 @@ export const FS3_LOG: { date: string; text: string }[] = [
   { date: "Oct 21", text: "Left lat weakness keeps the left shoulder from retracting; limits upper chest and front-delt range." },
   { date: "Oct 23", text: "Back of right knee extending the shin down stabilizes the upper right glute shelf. It only fires with hip space." },
   { date: "Oct 27", text: "Keep Thursday off. Legs not on scattered days. PT by feel, floor work not helping. L4 bulge, old left-shoulder hook injury, tight traps. Hard to feel lats, biceps, triceps, abs. Want side delts, side glutes, defined abs, better posture. KB foot flex has helped. New movements, not a reshuffle. One plan for about 6 months." },
-  { date: "Oct 27", text: "Training at Planet Fitness, no machine lateral raise. Swapped to PF gear: cable pullover, DB rows, lean-away lateral, DB suitcase squat, ball hamstring curl, backward treadmill walk. Bring an ankle strap." },
+  { date: "Oct 27", text: "Training at Planet Fitness, no machine lateral raise. There are kettlebells and a landmine, so the Meadows row and KB moves stay. Swapped: cable pullover, lean-away lateral, DB suitcase squat, kneeling cable high row, ball hamstring curl, backward treadmill walk, reverse cable curl. Bring an ankle strap." },
 ];
 
 export const FS3_RESEARCH: { label: string; url: string; finding: string }[] = [

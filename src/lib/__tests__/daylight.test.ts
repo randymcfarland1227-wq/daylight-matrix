@@ -101,7 +101,7 @@ const OLD_STATE = {
 test("migration keeps every old record and adds the PDF plan", () => {
   const before = JSON.stringify(OLD_STATE);
   const out = migratePersisted(structuredClone(OLD_STATE), "2026-10-01") as typeof OLD_STATE & { schemaVersion: number; planVersions: { id: string; version: number; days: { weekday: number; slots: { exerciseId: string }[] }[] }[]; observations: { forNextPlan: boolean; context: { muscleId?: string } }[] };
-  assert.equal(out.schemaVersion, 5);
+  assert.equal(out.schemaVersion, 6);
   // untouched (sessions only gain an empty `extras` list)
   assert.deepEqual((out.sessions as unknown as { extras?: unknown[] }[]).map(({ extras, ...rest }) => (assert.deepEqual(extras, []), rest)), OLD_STATE.sessions);
   assert.deepEqual(out.foodLogs, OLD_STATE.foodLogs);

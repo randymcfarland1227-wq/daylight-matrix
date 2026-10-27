@@ -126,10 +126,10 @@ test("prescribed defaults come from the plan dose", () => {
 });
 
 test("migration v1 -> v3 and v2 -> v3 keep data, add extras, theme auto -> dark, explicit light kept", () => {
-  assert.equal(SCHEMA_VERSION, 5);
+  assert.equal(SCHEMA_VERSION, 6);
   const base = { schemaVersion: 2, theme: "auto", sessions: [{ id: "a", logs: [], note: "keep" }], observations: [{ id: "n", text: "x", tags: [], status: "open", context: { date: "2026-09-01", muscleId: "biceps" }, forNextPlan: false, kind: "gym" }], planVersions: [seedPlan()], units: "kg" };
   const out = migratePersisted(structuredClone(base)) as typeof base & { sessions: { extras: unknown[] }[] };
-  assert.equal(out.schemaVersion, 5);
+  assert.equal(out.schemaVersion, 6);
   assert.equal(out.theme, "dark");
   assert.deepEqual(out.sessions[0]!.extras, []);
   assert.equal(out.observations[0]!.context.muscleId, "biceps", "stored muscle ids are kept as stored");

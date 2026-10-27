@@ -42,7 +42,7 @@ test("a blob saved by the live main build (original v1 store + region-attached n
     selectedRegionId: "abs",
   };
   const out = migratePersisted(structuredClone(main)) as { observations: Observation[]; sessions: { extras: unknown[] }[]; schemaVersion: number };
-  assert.equal(out.schemaVersion, 5);
+  assert.equal(out.schemaVersion, 6);
   assert.equal(out.sessions.length, 1);
   assert.deepEqual(out.sessions[0]!.extras, []);
   assert.equal(out.observations[0]!.context.muscleId, OLD_REGION_TO_MUSCLE["abs"]);

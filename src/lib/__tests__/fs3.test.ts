@@ -9,6 +9,7 @@ import { NO_VIDEO, VIDEOS } from "../daylight/videos.ts";
 import { NO_PHOTO, EX_IMAGES } from "../daylight/exImages.ts";
 import { ART_MAP } from "../daylight/moveArt.ts";
 import { addFs3Plan, migratePersisted } from "../daylight/migrate.ts";
+import type { PlanVersion } from "../daylight/types.ts";
 import { activePlan, buildPdfDays, buildPdfPlan } from "../daylight/plan.ts";
 import { FS3_WARMUP, buildFs3Days, buildFs3Plan, isFs3Plan } from "../daylight/fs3.ts";
 
@@ -56,4 +57,15 @@ test("fs3: migration adds Fine Shyte 3 as the newest version and keeps history",
   assert.ok(isFs3Plan(activePlan(plans, "2026-10-27")));
   assert.ok(!isFs3Plan(activePlan(plans, "2026-10-26")));
   assert.equal(addFs3Plan(plans).length, 2);
+});
+
+test("fs3: v5 saves with the first Fine Shyte 3 get the corrected days; user-saved versions untouched", () => {
+  const stale = buildFs3Plan(2);
+  stale.days = stale.days.map((d) => ({ ...d, slots: d.slots.map((s) => ({ ...s, exerciseId: s.exerciseId === "landmine-meadows-row" ? "bench-db-row" : s.exerciseId })) }));
+  const mine = { ...buildFs3Plan(3), id: "user-123", days: [] };
+  const out = migratePersisted({ schemaVersion: 5, planVersions: [buildPdfPlan(1, "2000-01-01"), stale, mine] });
+  const plans = out.planVersions as PlanVersion[];
+  const ids = plans[1]!.days.flatMap((d) => d.slots.map((s) => s.exerciseId));
+  assert.ok(ids.includes("landmine-meadows-row") && !ids.includes("bench-db-row"));
+  assert.equal(plans[2]!.days.length, 0);
 });

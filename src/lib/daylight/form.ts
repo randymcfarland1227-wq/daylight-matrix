@@ -1185,16 +1185,16 @@ add("underhand-pulldown", {
   err: ["Leaning far back and rowing it", "Shoulders shrugging up at the top", "Cutting the stretch short", "Yanking with momentum"],
   back: "Seated and braced, so no load on the L4. Shoulders down before the elbows bend keeps the traps out. Underhand is an easier position for the left shoulder than a wide grip.",
 });
-add("bench-db-row", {
-  s: ["Put the same-side knee and hand on a flat bench; the other foot is on the floor out to the side.", "Pick up the dumbbell and let it hang straight down so the shoulder blade stretches forward.", "Flat back, neck long, chest square to the floor.", "Drive the elbow back toward your hip (not up toward your ear), then squeeze.", "Lower slowly back to the full hang. Finish the side, then switch. One extra set on the left."],
-  base: "One knee and one hand on the bench, back flat like a table, other foot planted.",
-  brace: "Push the bench hand down and brace the abs so the torso doesn't twist as you row.",
-  grip: "Neutral grip (palm facing in), wrist straight.",
-  rom: "Full hang with the blade stretched to elbow at the hip.",
+add("landmine-meadows-row", {
+  s: ["Load the far end of a barbell set in a landmine. Stand side-on to the bar's end, a staggered stance with the leg nearest the bar back.", "Hinge forward from the hips with a flat back and rest the free forearm on your front thigh.", "Take the bar's sleeve (the thick end) with an overhand grip and let it hang for a big stretch.", "Drive the elbow up and back toward your hip, then squeeze.", "Lower under control to the full stretch. Finish the side, then switch. One extra set on the left."],
+  base: "Staggered stance side-on to the bar end, hips hinged, back flat, free forearm on the front thigh.",
+  brace: "Brace the abs and keep the back flat; the forearm on the thigh takes load off the low back.",
+  grip: "Overhand on the bar sleeve, wrist straight. Straps are fine.",
+  rom: "Arm hanging in a full stretch to elbow past the torso.",
   tempo: "1–2 sec up, 1 sec squeeze, 3 sec down.",
-  feel: "The lat and middle back on the working side.",
-  err: ["Twisting the torso to lift it", "Rowing to the chest instead of the hip", "Shrugging", "Rounding the low back"],
-  back: "Bench support unloads the L4; keep the back flat and don't twist. Elbow-to-hip keeps the upper traps out of it. Swapped in for the landmine Meadows row (no landmine at Planet Fitness).",
+  feel: "Lat and upper back on the working side.",
+  err: ["Rounding the low back", "Jerking the weight up", "Twisting the torso open", "Shrugging"],
+  back: "The forearm on the thigh and a flat back keep the L4 safe; drop the weight if the back starts to round. Elbow toward the hip keeps the upper traps out.",
 });
 add("neutral-flat-db-press", {
   s: ["Sit on the end of a flat bench with the dumbbells on your thighs. Lie back and bring them to your chest, palms facing each other.", "Feet flat, shoulder blades pulled slightly back and down into the bench.", "Press up until the arms are straight over your chest.", "Lower slowly until the dumbbells are beside your chest and you feel a stretch, elbows tucked about 30° from your body."],
@@ -1318,7 +1318,7 @@ add("fs3-easy-cardio", {
   back: "Walking is one of the best things for a disc. Stay tall; don't hang on the rails.",
 });
 add("kb-foot-flex", {
-  s: ["Sit on a bench with the working leg long and the heel resting on the floor or the bench edge.", "Hang a kettlebell (or wedge a dumbbell) over the top of the foot.", "Pull the toes up toward your shin against the weight.", "At the top, tense the whole leg (quad, back of the knee, calf) for 2 seconds.", "Lower slowly and repeat. Do 15, then switch legs."],
+  s: ["Sit on a bench with the working leg long and the heel resting on the floor or the bench edge.", "Hang a kettlebell over the top of the foot.", "Pull the toes up toward your shin against the weight.", "At the top, tense the whole leg (quad, back of the knee, calf) for 2 seconds.", "Lower slowly and repeat. Do 15, then switch legs."],
   base: "Seated, working heel resting, leg long.",
   brace: "Sit tall; nothing else moves.",
   grip: "The handle rests over the top of the foot; a hand can steady it.",
@@ -1504,16 +1504,16 @@ add("half-kneeling-cable-lift", {
   err: ["Twisting the torso", "Arching back at the top", "Going too heavy"],
   back: "Anti-rotation work that keeps the L4 still; don't twist through the low back to finish.",
 });
-add("sl-rdl-db", {
-  s: ["Stand on the working leg with a soft knee. Hold a dumbbell in the opposite hand; rest the other hand on a rack if you want.", "Push the hips back and tip forward, letting the free leg float back in line with your body.", "Keep the back flat and the hips square to the floor; the dumbbell travels down close to the standing leg.", "Stop when you feel a big hamstring stretch or the back starts to round.", "Drive the hip forward to stand tall and squeeze the glute."],
+add("sl-rdl-kb", {
+  s: ["Stand on the working leg with a soft knee. Hold a kettlebell in the opposite hand; rest the other hand on a rack if you want.", "Push the hips back and tip forward, letting the free leg float back in line with your body.", "Keep the back flat and the hips square to the floor; the kettlebell travels down close to the standing leg.", "Stop when you feel a big hamstring stretch or the back starts to round.", "Drive the hip forward to stand tall and squeeze the glute."],
   base: "Standing on one leg, soft knee, other leg floating back.",
   brace: "Brace the abs and keep the spine long from head to free heel.",
-  grip: "Dumbbell in the hand opposite the standing leg.",
+  grip: "Kettlebell in the hand opposite the standing leg.",
   rom: "Standing to torso about parallel, or until the hamstring stretch.",
   tempo: "3 sec down, 1–2 sec up.",
   feel: "Hamstring and glute on the standing leg.",
   err: ["Rounding the back", "Hips opening toward the ceiling", "Bending the standing knee a lot", "Going too heavy"],
-  back: "Stop at the point the back would round; that's what loads the L4. Right leg working = left hand loaded, training the left lat–right glute line. Kettlebell swapped for a dumbbell.",
+  back: "Stop at the point the back would round; that's what loads the L4. Right leg working = left hand loaded, training the left lat–right glute line.",
 });
 add("sl-ball-curl", {
   s: ["Lie on your back with one heel on top of a stability ball and the other leg up. Arms out on the floor.", "Lift your hips so your body is straight from shoulders to heel.", "Keeping the hips up, curl the ball in toward your butt with the heel.", "Pause, then roll it back out slowly until the leg is straight. The hips stay high.", "Use both feet on the ball if one leg is too hard at first."],
@@ -1592,16 +1592,16 @@ add("sl-calf-step", {
   err: ["Bouncing", "Bending the knee", "Rushing the stretch"],
   back: "Standing bodyweight; nothing on the L4.",
 });
-add("offset-front-rack-carry", {
-  s: ["Lift one dumbbell to the front of your shoulder, elbow pointing forward and down, one end resting on the shoulder.", "Stand tall, ribs down, the other arm relaxed at your side.", "Walk 20 m with short, controlled steps without leaning away from the weight.", "Set it down, switch sides, and walk back."],
-  base: "Standing tall, dumbbell at one shoulder.",
-  brace: "Brace the abs on both sides so you stay perfectly upright.",
-  grip: "Firm grip, wrist straight, elbow in front.",
+add("bottoms-up-kb-carry", {
+  s: ["Pick up a light kettlebell and flip it upside down, bell above the handle, at shoulder height. Elbow under the wrist, upper arm by your side.", "Squeeze the handle hard so the bell stays balanced; stand tall with the ribs down.", "Walk 20 m with short, smooth steps. If the bell starts to tip, slow down and re-centre it.", "Set it down safely, switch sides, and walk back."],
+  base: "Standing tall, kettlebell upside down at one shoulder.",
+  brace: "Brace the abs on both sides so you stay upright.",
+  grip: "Crush grip on the handle, wrist straight, elbow under the wrist.",
   rom: "Static hold while walking.",
   tempo: "Slow, controlled steps.",
-  feel: "Obliques on the opposite side, and the shoulder holding the weight steady.",
-  err: ["Leaning away from the weight", "Shrugging the loaded shoulder", "Elbow flaring out", "Rushing"],
-  back: "Loaded carries are a McGill favourite: the spine stays still while the core works. Keep the loaded shoulder down so the trap doesn't hike. Left shoulder: start light. Swapped in for the bottoms-up kettlebell carry.",
+  feel: "The shoulder working to keep the bell balanced, forearm squeeze, obliques.",
+  err: ["Going too heavy", "Wrist bending back", "Elbow drifting out", "Shrugging the loaded shoulder"],
+  back: "Loaded carries are a McGill favourite: the spine stays still while the core works. The upside-down bell makes the left shoulder stabilize; start light, keep the shoulder down so the trap doesn't hike.",
 });
 export const FORM_GUIDES = G;
 export function formFor(id: string): FormGuide | undefined {

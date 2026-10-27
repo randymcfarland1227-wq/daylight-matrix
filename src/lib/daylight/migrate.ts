@@ -2,7 +2,7 @@ import { localDate } from "./dates";
 import { SEED_INVENTORY, SEED_MEALS, SEED_STARTER_INVENTORY, SEED_STARTER_MEALS } from "./food-seed";
 import { OLD_REGION_TO_MUSCLE } from "./muscles";
 import { buildPdfPlan } from "./plan";
-import { FS3_ID_PREFIX, buildFs3Plan } from "./fs3";
+import { FS3_ID_PREFIX, buildFs3Days, buildFs3Plan } from "./fs3";
 import type { Observation, PlanVersion } from "./types";
 
 /**
@@ -17,7 +17,7 @@ import type { Observation, PlanVersion } from "./types";
  * Rules: never remove or retype an existing field. Only add. Old plan versions, sessions, logs, notes,
  * trials, food and inventory stay exactly as stored. Idempotent: running it twice changes nothing.
  */
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 export const STORAGE_KEY = "daylight-matrix-v1";
 export const BACKUP_KEY = "daylight-matrix-v1.pre-v2-backup";
 export const BACKUP_KEY_V3 = "daylight-matrix-v1.pre-v3-backup";
@@ -44,7 +44,8 @@ export function migratePersisted(input: unknown, now = localDate()): AnyRec {
   if (from < 2) migrateToV2(state, now);
   if (from < 3) migrateToV3(state);
   if (from < 4) migrateToV4(state, now);
-  migrateToV5(state);
+  if (from < 5) migrateToV5(state);
+  migrateToV6(state);
   state.schemaVersion = SCHEMA_VERSION;
   return state;
 }
@@ -76,6 +77,15 @@ export function addFs3Plan(plans: PlanVersion[]): PlanVersion[] {
   if (plans.some((p) => typeof p.id === "string" && p.id.startsWith(FS3_ID_PREFIX))) return plans;
   const maxVersion = plans.reduce((m, p) => Math.max(m, typeof p.version === "number" ? p.version : 0), 0);
   return [...plans, buildFs3Plan(maxVersion + 1)];
+}
+
+/** v5 -> v6. The gym has kettlebells and a landmine: the generated Fine Shyte 3 version gets the corrected days. Saved edits (new ids) are untouched. */
+export function refreshFs3Days(plans: PlanVersion[]): PlanVersion[] {
+  return plans.map((p) => (typeof p.id === "string" && p.id === `${FS3_ID_PREFIX}-v${p.version}` ? { ...p, days: buildFs3Days() } : p));
+}
+
+function migrateToV6(state: AnyRec) {
+  if (Array.isArray(state.planVersions)) state.planVersions = refreshFs3Days(state.planVersions as PlanVersion[]);
 }
 
 function migrateToV5(state: AnyRec) {

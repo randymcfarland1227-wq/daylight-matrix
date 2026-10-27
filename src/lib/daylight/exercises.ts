@@ -533,11 +533,11 @@ export const exercises: ExerciseDef[] = [
     backNote: "Seated with the thighs locked under the pads; no load on the spine.",
     eq: "Lat pulldown machine, straight bar",
   }),
-  ex("bench-db-row", "Bench-Supported 1-Arm DB Row", "strength", {
-    m: { lats: P, rhomboids: S, "traps-mid": S, "delt-rear": S, "teres-major": S, "biceps-long": M, brachialis: M },
-    back: "friendly",
-    backNote: "The hand and knee on the bench take load off the low back.",
-    eq: "Dumbbell + flat bench",
+  ex("landmine-meadows-row", "Landmine Meadows Row", "strength", {
+    m: { lats: P, rhomboids: S, "traps-mid": S, "delt-rear": S, "teres-major": S, "biceps-long": M, "forearm-flexors": M, erectors: M },
+    back: "neutral",
+    backNote: "A staggered-stance hinge; the free forearm rests on the front thigh so the low back isn't holding you up alone.",
+    eq: "Landmine + barbell (plates on the far end)",
     uni: true,
   }),
   ex("neutral-flat-db-press", "Neutral-Grip Flat DB Press", "strength", {
@@ -614,7 +614,7 @@ export const exercises: ExerciseDef[] = [
     m: { tibialis: P, "quad-vm": S, "quad-rf": S, "ham-medial": M, gastroc: M },
     back: "friendly",
     backNote: "Seated; nothing on the back.",
-    eq: "Kettlebell (or a dumbbell)",
+    eq: "Kettlebell",
     uni: true,
   }),
   ex("db-suitcase-squat", "Heel-Elevated DB Suitcase Squat", "strength", {
@@ -724,11 +724,11 @@ export const exercises: ExerciseDef[] = [
     eq: "Low cable, rope",
     uni: true,
   }),
-  ex("sl-rdl-db", "Single-Leg RDL, DB opposite hand", "strength", {
+  ex("sl-rdl-kb", "Single-Leg RDL, KB opposite hand", "strength", {
     m: { "glute-max": P, "ham-lateral": P, "ham-medial": S, "ham-semimem": S, "glute-med": S, erectors: M, lats: M },
     back: "neutral",
     backNote: "A hinge: keep the back flat. The load is light and one-sided.",
-    eq: "Dumbbell (+ a rack for balance)",
+    eq: "Kettlebell (+ a rack for balance)",
     uni: true,
   }),
   ex("sl-ball-curl", "Single-Leg Stability Ball Hamstring Curl", "strength", {
@@ -779,11 +779,11 @@ export const exercises: ExerciseDef[] = [
     eq: "Step (+ dumbbell optional)",
     uni: true,
   }),
-  ex("offset-front-rack-carry", "Offset DB Front-Rack Carry", "distance", {
-    m: { obliques: P, transverse: P, "rotator-cuff": S, "delt-front": S, "glute-med": S, "traps-upper": M },
+  ex("bottoms-up-kb-carry", "Bottoms-Up KB Carry", "distance", {
+    m: { "rotator-cuff": P, "forearm-flexors": P, obliques: S, transverse: S, "delt-front": S, serratus: S, "traps-upper": M },
     back: "friendly",
     backNote: "The core resists the lean; the spine stays tall.",
-    eq: "Dumbbell",
+    eq: "Kettlebell",
     uni: true,
   }),
 ];

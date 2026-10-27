@@ -119,7 +119,7 @@ const META: Record<string, Meta> = {
   "lying-cable-pullover": m(N, "Pull", "Isolation", "Rope or straight bar, overhand"),
   "kneeling-cable-pullaround": m(N, "Pull", "Isolation", "Neutral, one hand"),
   "underhand-pulldown": m(N, "Pull", "Compound", "Underhand (palms toward you), shoulder-width"),
-  "bench-db-row": m(N, "Pull", "Compound", "Neutral (palm in)"),
+  "landmine-meadows-row": m(I, "Pull", "Compound", "Overhand on the bar sleeve, one hand"),
   "neutral-flat-db-press": m(N, "Push", "Compound", "Neutral (palms facing in)"),
   "cable-press-around": m(I, "Push", "Isolation", "Single handle, neutral"),
   "stir-the-pot": m(I, "Hold", "Isometric", "Forearms on the ball"),
@@ -148,7 +148,7 @@ const META: Record<string, Meta> = {
   "concentration-curl": m(B, "Pull", "Isolation", "Underhand"),
   "reverse-grip-pressdown": m(N, "Push", "Isolation", "Underhand (palm up)"),
   "half-kneeling-cable-lift": m(N, "Anti-rotation", "Compound", "Both hands on the rope"),
-  "sl-rdl-db": m(I, "Hinge", "Compound", "Dumbbell in the opposite hand"),
+  "sl-rdl-kb": m(I, "Hinge", "Compound", "Kettlebell in the opposite hand"),
   "sl-ball-curl": m(I, "Pull", "Isolation", "None (palms on the floor)"),
   "prone-hip-ext": m(B, "Push", "Isolation", "Hands holding the bench"),
   "cable-kickback-30": m(N, "Push", "Isolation", "Hands on the machine frame"),
@@ -156,7 +156,7 @@ const META: Record<string, Meta> = {
   "side-bridge-abduction": m(I, "Hold", "Compound", "Forearm down"),
   "cable-hip-adduction": m(B, "Pull", "Isolation", "Hand on the frame"),
   "sl-calf-step": m(N, "Push", "Isolation", "Hand on a rail; dumbbell optional"),
-  "offset-front-rack-carry": m(N, "Carry", "Compound", "Dumbbell held at the shoulder"),
+  "bottoms-up-kb-carry": m(I, "Carry", "Compound", "Crush grip, kettlebell upside down"),
 };
 
 export function metaFor(id: string): Meta {
