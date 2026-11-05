@@ -1,3 +1,4 @@
+import { plannedIds } from "@/lib/daylight/backups";
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { WEEKDAY_NAMES, localDate, prettyDate } from "@/lib/daylight/dates";
@@ -24,7 +25,7 @@ export function Moves() {
     const m = new Map<string, number[]>();
     for (const day of plan.days)
       for (const slot of day.slots)
-        for (const id of [slot.exerciseId, ...slot.alternatives.map((a) => a.exerciseId)]) m.set(id, [...(m.get(id) ?? []).filter((d) => d !== day.weekday), day.weekday]);
+        for (const id of plannedIds(slot)) m.set(id, [...(m.get(id) ?? []).filter((d) => d !== day.weekday), day.weekday]);
     return m;
   }, [plan]);
   const list = exercises

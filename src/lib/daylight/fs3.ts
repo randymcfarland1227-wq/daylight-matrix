@@ -1,3 +1,4 @@
+import { fs3BackupsFor } from "./fs3Backups";
 import type { DayTemplate, PlanVersion, Prescription, SlotSection } from "./types";
 
 /**
@@ -26,7 +27,7 @@ function slots(key: string, list: In[]): Prescription[] {
   return list.map((s, i) => ({
     id: `fs3-${key}-${i + 1}`,
     exerciseId: s.ex,
-    alternatives: [],
+    alternatives: fs3BackupsFor(s.ex).map(([exerciseId, match], n) => ({ id: `fs3-${key}-${i + 1}-b${n + 1}`, exerciseId, match })),
     sets: s.sets ?? null,
     repLabel: s.reps ?? "",
     perSide: Boolean(s.side),

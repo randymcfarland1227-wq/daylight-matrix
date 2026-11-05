@@ -14,6 +14,7 @@ import { activePlan, buildPdfDays, buildPdfPlan } from "../daylight/plan.ts";
 import { FS3_WARMUP, buildFs3Days, buildFs3Plan, isFs3Plan } from "../daylight/fs3.ts";
 
 const fs3Ids = [...new Set(buildFs3Days().flatMap((d) => d.slots.map((s) => s.exerciseId)))];
+const backupIds = [...new Set(buildFs3Days().flatMap((d) => d.slots.flatMap((s) => s.alternatives.map((a) => a.exerciseId))))];
 
 test("fs3: six training days, Thursday and Sunday off", () => {
   const days = buildFs3Days();
@@ -25,10 +26,33 @@ test("fs3: six training days, Thursday and Sunday off", () => {
 test("fs3: no move carries over from Fine Shyte 2", () => {
   const fs2 = new Set(buildPdfDays().flatMap((d) => d.slots.flatMap((s) => [s.exerciseId, ...s.alternatives.map((a) => a.exerciseId)])));
   assert.deepEqual(fs3Ids.filter((id) => fs2.has(id)), []);
+  assert.deepEqual(backupIds.filter((id) => fs2.has(id)), [], "backups are brand-new, not Fine Shyte 2 moves");
 });
 
-test("fs3: every move has full data (def, muscles, form, meta, art, demo or reason, photos or reason)", () => {
-  for (const id of fs3Ids) {
+test("fs3: every slot has 4 ranked backups with a match %, none repeating the plan move", () => {
+  for (const d of buildFs3Days())
+    for (const s of d.slots) {
+      assert.equal(s.alternatives.length, 4, `${s.exerciseId} has 4 backups`);
+      const m = s.alternatives.map((a) => a.match);
+      for (const x of m) assert.ok(typeof x === "number" && x > 0 && x <= 100, `${s.exerciseId} match ${x}`);
+      assert.deepEqual(m, [...m].sort((a, b) => b! - a!), `${s.exerciseId} ranked high to low`);
+      const ids = s.alternatives.map((a) => a.exerciseId);
+      assert.equal(new Set(ids).size, 4, `${s.exerciseId} backups unique`);
+      assert.ok(!ids.includes(s.exerciseId) && !ids.some((id) => fs3Ids.includes(id)), `${s.exerciseId} backups are new moves`);
+      assert.equal(new Set(s.alternatives.map((a) => a.id)).size, 4);
+    }
+});
+
+test("fs3: backups stay off Planet Fitness gear it doesn't have and the banned loads", () => {
+  const banned = /pullover machine|machine pullover|machine lateral|belt squat|sled|machine high row|nordic|ez[- ]bar|shrug|barbell|crunch|sit-up/i;
+  for (const id of backupIds) {
+    const ex = exerciseById(id)!;
+    assert.ok(!banned.test(`${ex.name} ${ex.equipment}`), `${id}: ${ex.name} / ${ex.equipment}`);
+  }
+});
+
+test("fs3: every move and backup has full data (def, muscles, form, meta, art, demo or reason, photos or reason)", () => {
+  for (const id of [...fs3Ids, ...backupIds]) {
     const ex = exerciseById(id);
     assert.ok(ex, `${id} def`);
     assert.ok(ex!.muscles && Object.keys(ex!.muscles).length, `${id} muscles`);
@@ -68,4 +92,14 @@ test("fs3: v5 saves with the first Fine Shyte 3 get the corrected days; user-sav
   const ids = plans[1]!.days.flatMap((d) => d.slots.map((s) => s.exerciseId));
   assert.ok(ids.includes("landmine-meadows-row") && !ids.includes("bench-db-row"));
   assert.equal(plans[2]!.days.length, 0);
+});
+
+test("fs3: v6 saves pick up the backups (schema bump refreshes the generated version only)", () => {
+  const old = buildFs3Plan(2);
+  old.days = old.days.map((d) => ({ ...d, slots: d.slots.map((s) => ({ ...s, alternatives: [] })) }));
+  const mine = { ...buildFs3Plan(3), id: "user-9", days: old.days };
+  const out = migratePersisted({ schemaVersion: 6, planVersions: [buildPdfPlan(1, "2000-01-01"), old, mine] });
+  const plans = out.planVersions as PlanVersion[];
+  assert.ok(plans[1]!.days.flatMap((d) => d.slots).every((s) => s.alternatives.length === 4));
+  assert.ok(plans[2]!.days.flatMap((d) => d.slots).every((s) => s.alternatives.length === 0));
 });

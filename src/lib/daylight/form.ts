@@ -1,3 +1,4 @@
+import { FS3_BACKUP_MOVES } from "./fs3Backups";
 import { exerciseById, exercises } from "./exercises";
 
 /**
@@ -1604,6 +1605,9 @@ add("bottoms-up-kb-carry", {
   back: "Loaded carries are a McGill favourite: the spine stays still while the core works. The upside-down bell makes the left shoulder stabilize; start light, keep the shoulder down so the trap doesn't hike.",
 });
 export const FORM_GUIDES = G;
+/* Fine Shyte 3 ranked backups (Nov 4, 2026); guides live with the move data in fs3Backups.ts. */
+for (const b of FS3_BACKUP_MOVES) add(b.id, b.form);
+
 export function formFor(id: string): FormGuide | undefined {
   return G[id];
 }

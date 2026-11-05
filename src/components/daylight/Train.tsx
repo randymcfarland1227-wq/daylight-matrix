@@ -1,3 +1,4 @@
+import { backupsOf, eitherOrOf, matchOf } from "@/lib/daylight/backups";
 import { useState } from "react";
 import { CalendarDays, ChevronDown, Flag, Info, ListChecks, Pencil, Play, PlayCircle, Plus, Repeat2, Shuffle, SkipForward, Timer, Trash2, Undo2, Check } from "lucide-react";
 import { WEEKDAY_NAMES, localDate } from "@/lib/daylight/dates";
@@ -247,7 +248,7 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
             <span className="font-bold text-ink">{dose || "Open"}</span>
             {slot.optional ? <Badge>optional</Badge> : null}
             {replaced.length ? <Badge tone="sun">swapped: {replaced[0]!.name}</Badge> : null}
-            {slot.alternatives.length ? <Badge tone="sun">either/or</Badge> : null}
+            {eitherOrOf(slot).length ? <Badge tone="sun">either/or</Badge> : null}
             {ex?.back === "caution" ? <Badge tone="copper">back: go easy</Badge> : null}
             {noteCount ? <Badge tone="teal">{noteCount} note{noteCount > 1 ? "s" : ""}</Badge> : null}
           </span>
@@ -306,11 +307,13 @@ function ExerciseCard({ weekday, slot, session }: { weekday: number; slot: Presc
 
           {slot.alternatives.length ? (
             <div className="mt-4">
-              <Eyebrow>Swap — the plan allows either</Eyebrow>
-              <div className="mt-1.5 flex flex-wrap gap-2">
-                {[slot.exerciseId, ...slot.alternatives.map((a) => a.exerciseId)].map((id) => (
+              <Eyebrow>{backupsOf(slot).length ? "Backups · ranked by how close they are to the plan move" : "Swap — the plan allows either"}</Eyebrow>
+              <div className="mt-1.5 flex flex-wrap gap-2" data-testid="slot-options">
+                {[slot.exerciseId, ...eitherOrOf(slot).map((a) => a.exerciseId), ...backupsOf(slot).map((a) => a.exerciseId)].map((id) => (
                   <Chip key={id} active={id === exerciseId} tone="sun" onClick={() => state.pickOption(weekday, slot, id)}>
                     <Repeat2 className="size-3.5" /> {exerciseLabel(id)}
+                    {id === slot.exerciseId && backupsOf(slot).length ? <span className="opacity-70"> · plan</span> : null}
+                    {matchOf(slot, id) != null ? <span className="opacity-70"> · {matchOf(slot, id)}%</span> : null}
                   </Chip>
                 ))}
               </div>

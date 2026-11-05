@@ -1,4 +1,5 @@
 import { exerciseById } from "./exercises";
+import { FS3_BACKUP_MOVES } from "./fs3Backups";
 import { groupInfo, groupOfSub, subInfo, type SubId } from "./muscles";
 
 /**
@@ -158,6 +159,8 @@ const META: Record<string, Meta> = {
   "sl-calf-step": m(N, "Push", "Isolation", "Hand on a rail; dumbbell optional"),
   "bottoms-up-kb-carry": m(I, "Carry", "Compound", "Crush grip, kettlebell upside down"),
 };
+
+for (const b of FS3_BACKUP_MOVES) META[b.id] = m(...b.meta);
 
 export function metaFor(id: string): Meta {
   const known = META[id];

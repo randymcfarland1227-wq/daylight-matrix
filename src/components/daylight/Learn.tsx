@@ -1,3 +1,4 @@
+import { plannedIds } from "@/lib/daylight/backups";
 import { useState } from "react";
 import { localDate } from "@/lib/daylight/dates";
 import { LESSONS, lessonsForPlan } from "@/lib/daylight/learn";
@@ -11,7 +12,7 @@ export function Learn() {
   const setOpen = useDaylight((s) => s.setOpenLesson);
   const [all, setAll] = useState(false);
   const plan = activePlan(planVersions, localDate());
-  const ids = plan.days.flatMap((day) => day.slots.flatMap((slot) => [slot.exerciseId, ...slot.alternatives.map((alt) => alt.exerciseId)]));
+  const ids = plan.days.flatMap((day) => day.slots.flatMap((slot) => plannedIds(slot)));
   const list = all ? LESSONS : lessonsForPlan(ids);
   const open = LESSONS.find((lesson) => lesson.id === openId) ?? LESSONS.find((lesson) => lesson.exerciseIds.includes(openId ?? ""));
 

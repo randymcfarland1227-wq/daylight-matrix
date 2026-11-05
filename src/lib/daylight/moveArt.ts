@@ -1,3 +1,4 @@
+import { FS3_BACKUP_MOVES } from "./fs3Backups";
 import type { ArtSpec, Pose, Prop, V2 } from "./moveArtEngine";
 
 /**
@@ -470,6 +471,8 @@ export const ART_MAP: Record<string, keyof typeof P> = {
   "rope-pressdown": "pressdown", "cross-body-cable-ext": "crossBodyExt", "skull-crusher": "skull", "adductor-machine": "adductorMachine", "hanging-knee-raise": "hang",
   "lying-cable-pullover": "straightArm", "kneeling-cable-pullaround": "halfKneelPulldown", "underhand-pulldown": "latPulldown", "landmine-meadows-row": "supportedRow", "neutral-flat-db-press": "inclinePress", "cable-press-around": "highLowFly", "stir-the-pot": "plank", "side-lying-incline-lateral": "lateralRaise", "lean-away-lateral": "lateralRaise", "bayesian-curl": "curl", "spider-curl": "preacher", "seated-db-overhead-tri": "overheadTri", "smith-jm-press": "skull", "reverse-cable-curl": "curl", "fs3-easy-cardio": "incline", "kb-foot-flex": "tibRaise", "db-suitcase-squat": "goblet", "sl-leg-press": "legPress", "sl-box-squat": "stepUp", "poliquin-step-up": "stepUp", "leg-press-calf-partials": "legPress", "copenhagen-side-plank": "sidePlank", "prone-y-t-raise": "yRaise", "side-lying-er": "sideLying", "cable-1arm-shoulder-press": "shoulderPress", "kneeling-cable-high-row": "seatedRow", "cable-rear-delt-fly": "reversePecDeck", "db-lateral-drop": "lateralRaise", "serratus-punch": "inclinePress", "concentration-curl": "curl", "reverse-grip-pressdown": "pressdown", "half-kneeling-cable-lift": "woodchop", "sl-rdl-kb": "rdl", "sl-ball-curl": "lyingLegCurl", "prone-hip-ext": "backExt45", "cable-kickback-30": "cableHipAbd", "backward-treadmill": "incline", "side-bridge-abduction": "sidePlank", "cable-hip-adduction": "cableHipAbd", "sl-calf-step": "calfStanding", "bottoms-up-kb-carry": "suitcase",
 };
+
+for (const b of FS3_BACKUP_MOVES) if (b.art in P) ART_MAP[b.id] = b.art as keyof typeof P;
 
 export function artFor(exerciseId: string): ArtSpec | null {
   const key = ART_MAP[exerciseId];

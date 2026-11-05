@@ -1,3 +1,4 @@
+import { eitherOrOf } from "./backups";
 import { shiftDate } from "./dates";
 import { exerciseById, volumeFactorFor } from "./exercises";
 import { GROUPS, MUSCLE_IDS, REGIONS, REGION_IDS, groupOfSub, isGroup, isRegion, regionOfSub, resolveMuscle, subsOf, type AnyMuscleId, type GroupId, type MuscleId, type SubId } from "./muscles";
@@ -104,7 +105,7 @@ export function plannedVolume(plan: PlanVersion, opts: { weekday?: number } = {}
       if (slot.optional) continue;
       const sets = plannedSets(slot);
       addHit(map, slot.exerciseId, sets, day.weekday);
-      for (const alt of slot.alternatives) addHit(map, alt.exerciseId, sets, day.weekday, true);
+      for (const alt of eitherOrOf(slot)) addHit(map, alt.exerciseId, sets, day.weekday, true);
     }
   }
   sortHits(map);
@@ -285,7 +286,7 @@ export function planExerciseIdSet(plan: PlanVersion): Set<string> {
   for (const day of plan.days)
     for (const slot of day.slots) {
       set.add(slot.exerciseId);
-      for (const alt of slot.alternatives) set.add(alt.exerciseId);
+      for (const alt of eitherOrOf(slot)) set.add(alt.exerciseId);
     }
   return set;
 }

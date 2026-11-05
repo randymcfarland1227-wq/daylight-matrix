@@ -1,3 +1,4 @@
+import { FS3_BACKUP_MOVES } from "./fs3Backups";
 import { withSplits } from "./muscles";
 import type { BackFlag, ExerciseDef, ExerciseKind, MuscleWeights } from "./types";
 
@@ -786,6 +787,8 @@ export const exercises: ExerciseDef[] = [
     eq: "Kettlebell",
     uni: true,
   }),
+  // ---- Fine Shyte 3 ranked backups (Nov 4, 2026); data in fs3Backups.ts ----
+  ...FS3_BACKUP_MOVES.map((b) => ex(b.id, b.name, b.kind ?? "strength", { m: b.m, back: b.back, backNote: b.backNote, eq: b.eq, uni: b.uni, assist: b.assist })),
 ];
 
 export function exerciseById(id: string): ExerciseDef | undefined {

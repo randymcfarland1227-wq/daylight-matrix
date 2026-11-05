@@ -1,3 +1,4 @@
+import { eitherOrOf } from "@/lib/daylight/backups";
 import { ImageFigure } from "./ImageFigure";
 import {
   ArrowRight,
@@ -39,7 +40,7 @@ export function Today() {
   const featuredId = featured ? effectiveExerciseId(featured, weekday, s.variantPrefs, session?.chosenExercise) : null;
   const featuredExercise = featuredId ? exerciseById(featuredId) : null;
   const featuredPhoto = featuredId ? photosFor(featuredId) ?? photosFor(featured!.exerciseId) : undefined;
-  const orSlots = slots.filter((slot) => slot.alternatives.length);
+  const orSlots = slots.filter((slot) => eitherOrOf(slot).length);
   const food = useFoodNumbers();
   const latest = observationsForArea(s.observations)[0];
   const flagged = s.observations.filter((x) => x.forNextPlan).length;

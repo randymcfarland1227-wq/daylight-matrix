@@ -7,6 +7,7 @@ import { metaFor, muscleWikiUrl, tagsFor } from "@/lib/daylight/exmeta";
 import { demoUrl, formFor } from "@/lib/daylight/form";
 import { FIG_SKIN, GROUP_HUE, roleColor, roleOfWeight, ROLE_LABEL, type Role } from "@/lib/daylight/figureColors";
 import { targetLine } from "@/lib/daylight/logic";
+import { backupsOf, matchOf, plannedIds } from "@/lib/daylight/backups";
 import { exerciseLabel } from "@/lib/daylight/names";
 import { groupInfo, groupOfSub, muscleName, subInfo, type AnyMuscleId, type SubId } from "@/lib/daylight/muscles";
 import { activePlan } from "@/lib/daylight/plan";
@@ -18,7 +19,7 @@ import { videoFor, vimeoPageUrl } from "@/lib/daylight/videos";
 import { DIFF_TONE } from "./MusclePage";
 import { Badge, Button, Eyebrow, cn } from "./ui";
 
-type PlanUse = { weekday: number; dayName: string; psa?: string; dose: string; cue: string | null; alt: boolean };
+type PlanUse = { weekday: number; dayName: string; psa?: string; dose: string; cue: string | null; alt: boolean; match?: number; of?: string };
 
 function planUses(exerciseId: string, plan: ReturnType<typeof activePlan>): PlanUse[] {
   const out: PlanUse[] = [];
@@ -26,7 +27,7 @@ function planUses(exerciseId: string, plan: ReturnType<typeof activePlan>): Plan
     for (const s of d.slots) {
       const main = s.exerciseId === exerciseId;
       const alt = s.alternatives.some((a) => a.exerciseId === exerciseId);
-      if (main || alt) out.push({ weekday: d.weekday, dayName: d.name, psa: d.psa, dose: targetLine(s), cue: s.sourceCue, alt: !main });
+      if (main || alt) out.push({ weekday: d.weekday, dayName: d.name, psa: d.psa, dose: targetLine(s), cue: s.sourceCue, alt: !main, match: main ? undefined : matchOf(s, exerciseId), of: s.exerciseId });
     }
   }
   return out;
@@ -59,7 +60,9 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
   const plan = activePlan(state.planVersions, localDate());
   const uses = planUses(exerciseId, plan);
   /** The plan's "this or that" partners for this move: every other option in a slot that lists it. */
-  const otherOptions = [...new Set(plan.days.flatMap((d) => d.slots).filter((sl) => sl.exerciseId === exerciseId || sl.alternatives.some((x) => x.exerciseId === exerciseId)).flatMap((sl) => [sl.exerciseId, ...sl.alternatives.map((x) => x.exerciseId)]))].filter((id) => id !== exerciseId);
+  const otherOptions = [...new Set(plan.days.flatMap((d) => d.slots).filter((sl) => plannedIds(sl).includes(exerciseId)).flatMap((sl) => plannedIds(sl)))].filter((id) => id !== exerciseId);
+  /** Ranked backups: for a plan move, its 4 backups; for a backup, the plan move it stands in for and its siblings. */
+  const backupSlots = [...new Map(plan.days.flatMap((d) => d.slots).filter((sl) => backupsOf(sl).length && (sl.exerciseId === exerciseId || backupsOf(sl).some((a) => a.exerciseId === exerciseId))).map((sl) => [sl.exerciseId, sl] as const)).values()];
   const mainUse = uses.find((u) => !u.alt) ?? uses[0];
   const name = exerciseLabel(exerciseId);
   const inGym = Boolean(state.gymMode);
@@ -164,6 +167,34 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                   </ul>
                 </div>
               ) : null}
+              {backupSlots.map((sl) => {
+                const mine = matchOf(sl, exerciseId);
+                const rows = [{ id: sl.exerciseId, match: undefined as number | undefined }, ...backupsOf(sl).map((a) => ({ id: a.exerciseId, match: a.match }))].filter((r) => r.id !== exerciseId);
+                return (
+                  <div key={sl.exerciseId} className="rounded-lg border border-line bg-surface p-4" data-testid="ranked-backups">
+                    <Eyebrow>{mine == null ? "Backups · ranked by how close they are" : `Backup for ${exerciseLabel(sl.exerciseId)} · ${mine}% match`}</Eyebrow>
+                    <p className="mt-1 text-xs text-ink-soft">Match % = same muscles, movement and feel as the plan move. Swap from the session screen when a machine is taken or something hurts.</p>
+                    <ol className="mt-2 space-y-2">
+                      {rows.map((r) => (
+                        <li key={r.id}>
+                          <button type="button" className="tap flex min-h-11 w-full items-center gap-2 rounded-[8px] border border-line px-3 text-left font-semibold hover:bg-surface-2" onClick={() => state.setOverlay({ type: "form", exerciseId: r.id })} data-testid="ranked-backup-link">
+                            <span className="min-w-0 flex-1">{exerciseLabel(r.id)}</span>
+                            {r.match != null ? (
+                              <span className="flex shrink-0 items-center gap-1.5 text-sm" aria-label={`${r.match}% match`}>
+                                <span className="h-1.5 w-14 overflow-hidden rounded-full bg-surface-2"><span className="block h-full rounded-full bg-accent" style={{ width: `${r.match}%` }} /></span>
+                                <span className="w-9 text-right tabular-nums">{r.match}%</span>
+                              </span>
+                            ) : (
+                              <span className="shrink-0 text-xs text-ink-soft">plan move</span>
+                            )}
+                            <ChevronRight className="size-4 shrink-0" />
+                          </button>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                );
+              })}
               {uses.length ? (
                 <div className="space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-4" data-testid="plan-context">
                   <Eyebrow className="text-warn">In your plan</Eyebrow>
@@ -176,7 +207,7 @@ export function ExercisePage({ exerciseId, muscle, onClose }: { exerciseId: stri
                     {uses.map((u, i) => (
                       <li key={i}>
                         <b style={{ color: DAY_STYLE[u.weekday] ? undefined : undefined }}>{DAY_STYLE[u.weekday]!.short}</b> · {u.dose}
-                        {u.alt ? <span className="text-ink-soft"> (swap option)</span> : null}
+                        {u.alt ? <span className="text-ink-soft">{u.match != null ? ` (backup for ${exerciseLabel(u.of ?? "")} · ${u.match}% match)` : " (swap option)"}</span> : null}
                       </li>
                     ))}
                   </ul>

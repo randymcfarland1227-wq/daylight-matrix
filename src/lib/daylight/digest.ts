@@ -1,3 +1,4 @@
+import { eitherOrOf } from "./backups";
 import { WEEKDAY_NAMES, localDate } from "./dates";
 import { noteArea } from "./bodyNotes";
 import { exerciseById } from "./exercises";
@@ -95,7 +96,7 @@ export function buildDigest(input: DigestInput): string {
     L.push(`### ${WEEKDAY_NAMES[day.weekday]} · ${day.name}`);
     for (const block of dayBlocks(day)) {
       const rows = block.slots.map((s) => {
-        const alt = s.alternatives.map((a) => nameOf(a.exerciseId));
+        const alt = eitherOrOf(s).map((a) => nameOf(a.exerciseId));
         const dose = s.sets ? `${s.sets}${s.setsMax ? `–${s.setsMax}` : ""}×${s.repLabel}${s.perSide ? "/side" : ""}` : s.durationLabel ?? "";
         return `${nameOf(s.exerciseId)}${alt.length ? ` (or ${alt.join(" / ")})` : ""} ${dose}`.trim();
       });

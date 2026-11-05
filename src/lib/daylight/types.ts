@@ -46,6 +46,8 @@ export type SlotSection = "activation" | "main" | "finisher" | "cardio" | "mobil
 export type Alternative = {
   id: string;
   exerciseId: string;
+  /** How close this backup is to the slot's plan move, 0–100 (editorial). Missing on plain either/or options. */
+  match?: number;
 };
 
 export type Prescription = {
