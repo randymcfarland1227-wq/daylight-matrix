@@ -13,6 +13,8 @@ const SRC = "Fine Shyte 3 plan (Oct 27, 2026).";
 
 type In = {
   ex: string;
+  /** Fixed slot id suffix for moves added after launch, so older slots keep their ids (saved swaps and logs point at them). */
+  key?: string;
   sets?: number | null;
   reps?: string;
   side?: boolean;
@@ -24,10 +26,13 @@ type In = {
 };
 
 function slots(key: string, list: In[]): Prescription[] {
-  return list.map((s, i) => ({
-    id: `fs3-${key}-${i + 1}`,
+  let n = 0;
+  return list.map((s) => {
+    const id = s.key ? `fs3-${key}-${s.key}` : `fs3-${key}-${++n}`;
+    return {
+    id,
     exerciseId: s.ex,
-    alternatives: fs3BackupsFor(s.ex).map(([exerciseId, match], n) => ({ id: `fs3-${key}-${i + 1}-b${n + 1}`, exerciseId, match })),
+    alternatives: fs3BackupsFor(s.ex).map(([exerciseId, match], b) => ({ id: `${id}-b${b + 1}`, exerciseId, match })),
     sets: s.sets ?? null,
     repLabel: s.reps ?? "",
     perSide: Boolean(s.side),
@@ -37,7 +42,8 @@ function slots(key: string, list: In[]): Prescription[] {
     sourceCue: s.cue,
     why: s.why,
     whySource: SRC,
-  }));
+    };
+  });
 }
 
 function day(weekday: number, key: string, name: string, psa: string, warmUp: string, list: In[]): DayTemplate {
@@ -55,6 +61,8 @@ function day(weekday: number, key: string, name: string, psa: string, warmUp: st
 
 const CHAIN = "Chain move: trains the left lat, right glute and right knee as one line.";
 const FIN: SlotSection = "finisher";
+/** Nov 17, 2026 adds (R22), from the photo check at the start of the cut: upper chest, quad sweep, lower abs / pelvic tilt. */
+const ADD = "Added Nov 17, 2026 for the cut.";
 
 export function buildFs3Days(): DayTemplate[] {
   const monday = day(1, "mon", "Lats + Chest", "Pullover first, so the lats are working before any pulldown. Shoulder down first, then the elbow. Drop lat weights about 20% for the first two weeks.", "Lats asleep + Traps / left shoulder", [
@@ -62,6 +70,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "kneeling-cable-pullaround", sets: 3, reps: "10–12", side: true, cue: "One arm, cable up and across. Pull the elbow down and around to the hip. One extra set on the left.", why: `Isolates the weak left lat. ${CHAIN}` },
     { ex: "underhand-pulldown", sets: 4, reps: "8–10", cue: "Shoulder-width grip. 3-second lower. Shoulders down before the elbows bend.", why: "The main vertical pull. Underhand is an easier position for the left shoulder and lets the biceps help you feel the lats." },
     { ex: "landmine-meadows-row", sets: 3, reps: "8–10", side: true, cue: "Stand side-on to the bar, overhand grip on the sleeve. Big stretch at the bottom.", why: "Big stretch at the bottom for the lats and upper back, with the free forearm on your thigh to spare the L4." },
+    { ex: "neutral-incline-db-press", key: "n1", sets: 3, reps: "8–12", cue: "First chest move. Bench at 30°, palms facing in, elbows about 30° from your sides. Lower to the upper chest, press up and slightly in.", why: `Upper chest is the #1 gap from the photos, so it goes first while you're fresh. Palms-in protects the left shoulder. ${ADD}` },
     { ex: "neutral-flat-db-press", sets: 3, reps: "8–10", cue: "Palms facing in. Easier on the left shoulder than a flared press.", why: "Main chest press, chosen for the left shoulder." },
     { ex: "cable-press-around", sets: 3, reps: "12", side: true, cue: "Press across your body past the midline. Hits the inner chest.", why: "Finishes the chest through the inner range a dumbbell can't load." },
     { ex: "stir-the-pot", sets: 3, reps: "6 each way", cue: "Forearms on the ball, plank position, small circles. Spine stays still.", why: "Abs work hard while the spine stays still: right for the L4.", section: FIN },
@@ -75,6 +84,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "seated-db-overhead-tri", sets: 3, reps: "10–12", cue: "One dumbbell, both hands, back supported. Overhead builds about 1.4× more triceps than pressdowns.", why: "Maeo 2023: overhead triceps work grew the triceps about 1.4× more than pressdowns." },
     { ex: "smith-jm-press", sets: 3, reps: "8–10", cue: "Close grip. Lower the bar toward your chin by bending at the elbows. Heavy triceps work.", why: "Heavy triceps work with a fixed bar path and safeties." },
     { ex: "reverse-cable-curl", sets: 2, reps: "12", cue: "Straight bar on a low cable, palms down. Brachialis and forearms make the arm look thicker.", why: "Brachialis and forearms add arm thickness. Planet Fitness swap for the reverse EZ curl." },
+    { ex: "band-dead-bug", key: "n1", sets: 3, reps: "8", side: true, cue: "Band anchored behind your head, arms straight over the chest. Low back flat, one leg reaches out on a full exhale.", why: `Lower abs with a still spine, and the pelvic tilt counters a forward-tilting pelvis. L4-safe. ${ADD}`, section: FIN },
     { ex: "fs3-easy-cardio", dur: "20–30 min", cue: "Easy pace. You can talk.", why: "Optional easy cardio.", optional: true, section: FIN },
   ]);
 
@@ -86,6 +96,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "poliquin-step-up", sets: 2, reps: "12", side: true, cue: "Heel elevated on a small plate, knee drives forward over the toes. Right-knee control.", why: "Builds the inner quad that steadies the right knee." },
     { ex: "side-lying-abduction", sets: 3, reps: "15", side: true, cue: "Bring your own ankle strap for the low cable, or ankle weights. Leg slightly behind you, toes forward. The highest side-glute activation tested (81% MVIC).", why: "Highest side-glute activation tested in the glute EMG review (81% MVIC)." },
     { ex: "leg-press-calf-partials", sets: 4, reps: "12", cue: "Half reps in the bottom stretch only. Produced about 2× the calf growth of full reps in a 2023 study.", why: "Stretch partials roughly doubled calf growth versus full reps in a 2023 study." },
+    { ex: "reclined-leg-extension", key: "n1", sets: 3, reps: "12–15", cue: "Last lift of the day. Back pad tilted back, 1-second squeeze at the top, slow 3-second lower.", why: `Quad sweep (outer quad and rectus femoris), with no spinal load. ${ADD}` },
     { ex: "copenhagen-side-plank", sets: 2, reps: "20 sec", side: true, dur: "20 sec", cue: "Top leg on a bench. Obliques and inner thigh together. Knee on the bench to make it easier.", why: "Obliques and inner thighs with the spine still.", section: FIN },
   ]);
 
@@ -106,6 +117,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "kneeling-cable-high-row", sets: 3, reps: "10", side: true, cue: "Kneel facing a high cable. Row the handle to your upper chest with the elbow out about 45° (not down to the hip like a pulldown). One extra set on the left.", why: "Mid-back for posture. Planet Fitness swap for the machine high row." },
     { ex: "cable-rear-delt-fly", sets: 3, reps: "15", cue: "Cross the cables at shoulder height, sweep out wide. Rear delts pull the shoulders back.", why: "Rear delts pull the shoulders back for posture." },
     { ex: "db-lateral-drop", sets: 2, reps: "12 → 10 → to failure", cue: "12 reps, drop 30%, 10 reps, drop again, go until you can't.", why: "Second weekly hit for the side delts." },
+    { ex: "sa-low-high-cable-fly", key: "n1", sets: 3, reps: "12–15", side: true, cue: "Low cable, one arm. Sweep up and across to chin height with a soft elbow, squeeze 1 second, lower slowly.", why: `Second weekly chest session, aimed at the upper chest. One arm at a time keeps the left shoulder in its own range. ${ADD}` },
     { ex: "serratus-punch", sets: 2, reps: "12", side: true, cue: "Reach the fist past lockout. Serratus holds the shoulder blade flat on the ribs.", why: "Serratus keeps the blade on the ribs, taking load off the left shoulder and traps." },
     { ex: "concentration-curl", sets: 2, reps: "12", side: true, cue: "Back to back with the reverse-grip pressdown, one arm at a time. Second weekly hit for arms.", why: "Second weekly biceps hit." },
     { ex: "reverse-grip-pressdown", sets: 2, reps: "12", side: true, cue: "Straight after the concentration curl, same arm. Second weekly hit for arms.", why: "Second weekly triceps hit." },
@@ -122,6 +134,7 @@ export function buildFs3Days(): DayTemplate[] {
     { ex: "side-bridge-abduction", sets: 2, reps: "8", side: true, cue: "Side plank, lift the top leg. Among the highest side-glute activation in the reviews.", why: "Among the highest side-glute activation in the reviews." },
     { ex: "cable-hip-adduction", sets: 2, reps: "15", side: true, cue: "Inner thighs keep the pelvis level under the side glutes.", why: "Keeps the pelvis level under the side glutes." },
     { ex: "sl-calf-step", sets: 3, reps: "12", side: true, cue: "2-second pause in the bottom stretch.", why: "Second weekly calf hit, in the stretch." },
+    { ex: "incline-reverse-crunch", key: "n1", sets: 3, reps: "10–12", cue: "Bench one notch up, head high. Tilt the pelvis first, then curl the hips up toward the ribs. No leg swing; slow down.", why: `Lower abs plus posterior pelvic tilt. Bodyweight only, no loaded crunching, so it fits the L4. ${ADD}`, section: FIN },
     { ex: "bottoms-up-kb-carry", sets: 3, reps: "20 m", side: true, dur: "20 m", cue: "Kettlebell upside down at shoulder height. The left shoulder has to stabilize or it tips.", why: "Loaded carry: the core holds the spine still and the upside-down bell trains the left shoulder to stabilize.", section: FIN },
   ]);
 
@@ -237,6 +250,7 @@ export const FS3_LOG: { date: string; text: string }[] = [
   { date: "Oct 23", text: "Back of right knee extending the shin down stabilizes the upper right glute shelf. It only fires with hip space." },
   { date: "Oct 27", text: "Keep Thursday off. Legs not on scattered days. PT by feel, floor work not helping. L4 bulge, old left-shoulder hook injury, tight traps. Hard to feel lats, biceps, triceps, abs. Want side delts, side glutes, defined abs, better posture. KB foot flex has helped. New movements, not a reshuffle. One plan for about 6 months." },
   { date: "Oct 27", text: "Training at Planet Fitness, no machine lateral raise. There are kettlebells and a landmine, so the Meadows row and KB moves stay. Swapped: cable pullover, lean-away lateral, DB suitcase squat, kneeling cable high row, ball hamstring curl, backward treadmill walk, reverse cable curl. Bring an ankle strap." },
+  { date: "Nov 17", text: "Starting a cut (2,450 kcal, 205 g protein). Photo check: upper chest, delt caps and waist are the gaps; possible slight forward pelvic tilt. Added: 30° neutral incline DB press first on Monday, single-arm low-to-high cable fly Friday, reclined leg extension last on Wednesday, band dead bug Tuesday and incline reverse crunch Saturday." },
 ];
 
 export const FS3_RESEARCH: { label: string; url: string; finding: string }[] = [

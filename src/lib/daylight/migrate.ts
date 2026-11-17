@@ -17,7 +17,7 @@ import type { Observation, PlanVersion } from "./types";
  * Rules: never remove or retype an existing field. Only add. Old plan versions, sessions, logs, notes,
  * trials, food and inventory stay exactly as stored. Idempotent: running it twice changes nothing.
  */
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 export const STORAGE_KEY = "daylight-matrix-v1";
 export const BACKUP_KEY = "daylight-matrix-v1.pre-v2-backup";
 export const BACKUP_KEY_V3 = "daylight-matrix-v1.pre-v3-backup";
@@ -79,7 +79,7 @@ export function addFs3Plan(plans: PlanVersion[]): PlanVersion[] {
   return [...plans, buildFs3Plan(maxVersion + 1)];
 }
 
-/** v5 -> v6 (kettlebells + landmine) and v6 -> v7 (4 ranked backups per move): the generated Fine Shyte 3 version gets the current days. Saved edits (new ids) are untouched. */
+/** v5 -> v6 (kettlebells + landmine), v6 -> v7 (4 ranked backups per move) and v7 -> v8 (Nov 17 cut adds: incline press, Friday fly, leg extension, dead bug, reverse crunch): the generated Fine Shyte 3 version gets the current days. Saved edits (new ids) are untouched. */
 export function refreshFs3Days(plans: PlanVersion[]): PlanVersion[] {
   return plans.map((p) => (typeof p.id === "string" && p.id === `${FS3_ID_PREFIX}-v${p.version}` ? { ...p, days: buildFs3Days() } : p));
 }

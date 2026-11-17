@@ -103,3 +103,17 @@ test("fs3: v6 saves pick up the backups (schema bump refreshes the generated ver
   assert.ok(plans[1]!.days.flatMap((d) => d.slots).every((s) => s.alternatives.length === 4));
   assert.ok(plans[2]!.days.flatMap((d) => d.slots).every((s) => s.alternatives.length === 0));
 });
+
+test("fs3: v7 saves pick up the Nov 17 cut adds; older slot ids stay put", () => {
+  const before = new Map([["fs3-mon-5", "neutral-flat-db-press"], ["fs3-mon-7", "stir-the-pot"], ["fs3-fri-7", "serratus-punch"], ["fs3-sat-10", "bottoms-up-kb-carry"]]);
+  const old = buildFs3Plan(2);
+  const adds = ["neutral-incline-db-press", "sa-low-high-cable-fly", "reclined-leg-extension", "band-dead-bug", "incline-reverse-crunch"];
+  old.days = old.days.map((d) => ({ ...d, slots: d.slots.filter((s) => !adds.includes(s.exerciseId)) }));
+  const out = migratePersisted({ schemaVersion: 7, planVersions: [buildPdfPlan(1, "2000-01-01"), old] });
+  const slots = (out.planVersions as PlanVersion[])[1]!.days.flatMap((d) => d.slots);
+  for (const a of adds) assert.ok(slots.some((s) => s.exerciseId === a), a);
+  for (const [id, ex] of before) assert.equal(slots.find((s) => s.id === id)?.exerciseId, ex, id);
+  assert.equal(new Set(slots.map((s) => s.id)).size, slots.length, "slot ids unique");
+  const mon = buildFs3Days().find((d) => d.weekday === 1)!.slots.map((s) => s.exerciseId);
+  assert.ok(mon.indexOf("neutral-incline-db-press") < mon.indexOf("neutral-flat-db-press"), "incline is the first chest move");
+});

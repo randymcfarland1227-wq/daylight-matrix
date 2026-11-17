@@ -130,6 +130,12 @@ export const EX_IMAGES: Record<string, ExImage> = {
   "side-bridge-abduction": { dbId: "Side_Bridge", name: "Side Bridge", equipment: "body only", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
   "cable-hip-adduction": { dbId: "Cable_Hip_Adduction", name: "Cable Hip Adduction", equipment: "cable", match: "exact", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Hip_Adduction/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Hip_Adduction/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
   "sl-calf-step": { dbId: "Standing_Dumbbell_Calf_Raise", name: "Standing Dumbbell Calf Raise", equipment: "dumbbell", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
+  /* R22 adds (Nov 17, 2026) */
+  "sa-low-high-cable-fly": { dbId: "Low_Cable_Crossover", name: "Low Cable Crossover", equipment: "cable", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Low_Cable_Crossover/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Low_Cable_Crossover/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
+  "reclined-leg-extension": { dbId: "Leg_Extensions", name: "Leg Extensions", equipment: "machine", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
+  "band-dead-bug": { dbId: "Dead_Bug", name: "Dead Bug", equipment: "body only", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dead_Bug/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dead_Bug/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
+  "incline-reverse-crunch": { dbId: "Reverse_Crunch", name: "Reverse Crunch", equipment: "body only", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Crunch/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Crunch/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
+  "captains-chair-knee-raise": { dbId: "Knee_Hip_Raise_On_Parallel_Bars", name: "Knee/Hip Raise On Parallel Bars", equipment: "other", match: "exact", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Hip_Raise_On_Parallel_Bars/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Hip_Raise_On_Parallel_Bars/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
   /* Fine Shyte 3 ranked backups (Nov 4, 2026) */
   "db-pullover": { dbId: "Straight-Arm_Dumbbell_Pullover", name: "Straight-Arm Dumbbell Pullover", equipment: "dumbbell", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Straight-Arm_Dumbbell_Pullover/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Straight-Arm_Dumbbell_Pullover/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
   "kneeling-1arm-straight-pulldown": { dbId: "Straight-Arm_Pulldown", name: "Straight-Arm Pulldown", equipment: "cable", match: "close", images: ["https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Straight-Arm_Pulldown/0.jpg", "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Straight-Arm_Pulldown/1.jpg"], source: "free-exercise-db", license: "Unlicense", verifiedAt: VERIFIED_AT },
@@ -216,6 +222,16 @@ export const NO_PHOTO: Record<string, string> = {
   "serratus-punch": "No serratus punch photo in the open dataset.",
   "prone-hip-ext": "No face-down bent-knee hip extension photo in the open dataset.",
   "bottoms-up-kb-carry": "No bottoms-up kettlebell carry photo in the open dataset.",
+  /* R22 adds (Nov 17, 2026) */
+  "incline-smith-press": "No matching photo in the open dataset; follow the written steps.",
+  "incline-cable-press": "No matching photo in the open dataset; follow the written steps.",
+  "feet-elevated-pushup": "No matching photo in the open dataset; follow the written steps.",
+  "standing-cable-chest-press": "No matching photo in the open dataset; follow the written steps.",
+  "incline-cable-fly": "No matching photo in the open dataset; follow the written steps.",
+  "incline-db-fly": "No matching photo in the open dataset; follow the written steps.",
+  "ball-dead-bug": "No matching photo in the open dataset; follow the written steps.",
+  "hollow-tuck-hold": "No matching photo in the open dataset; follow the written steps.",
+  "hanging-knee-raise-ppt": "No matching photo in the open dataset; follow the written steps.",
   /* Fine Shyte 3 ranked backups (Nov 4, 2026) */
   "ball-db-pullover": "No matching photo in the open dataset; the Lyfta animation shows the move.",
   "seated-cable-pullover": "No matching photo in the open dataset; the Lyfta animation shows the move.",
