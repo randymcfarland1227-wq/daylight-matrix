@@ -636,3 +636,16 @@ a { text-underline-offset: 3px; }
 .level-chips { padding-block: 2px; }
 .level-chip { flex-shrink: 0; min-height: 36px; padding: 0 12px; border-radius: 6px; border: 1.5px solid var(--color-line); background: var(--color-paper); color: var(--color-pine); font-family: var(--font-display); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; }
 .level-chip[aria-selected="true"] { background: var(--color-kforest); border-color: var(--color-kforest); color: var(--color-wheat); }
+
+/* Cut plan tab (Food) */
+.cut-macros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.cut-macro { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--tone) 14%, var(--surface)); border-left: 4px solid var(--tone); min-width: 0; }
+.cut-meals { display: grid; gap: 8px; }
+.cut-meal { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.cut-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 640px) {
+  .cut-macros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cut-meal { grid-template-columns: minmax(0, 1fr) auto; }
+  .cut-meal > :first-child { grid-column: 1 / -1; justify-self: start; }
+  .cut-two { grid-template-columns: 1fr; }
+}

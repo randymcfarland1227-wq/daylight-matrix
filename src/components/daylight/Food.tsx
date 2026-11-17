@@ -5,15 +5,16 @@ import { dayKind, isUseSoon, sumProtein, waterToday } from "@/lib/daylight/foodp
 import { ingredientKey, kitchenStock, readyIngredients } from "@/lib/daylight/kitchen";
 import { useDaylight } from "@/lib/daylight/store";
 import { useHashTab } from "@/lib/daylight/hashRoute";
+import { CutPlan } from "./CutPlan";
 import { IngredientPrep } from "./IngredientPrep";
 import { KitchenInventory } from "./KitchenInventory";
 import { KitchenShopping } from "./KitchenShopping";
 import { Badge, Button, Eyebrow, PageHead, Ring, Segmented } from "./ui";
 
-type Tab = "options" | "prep" | "inventory" | "shopping";
+type Tab = "options" | "plan" | "prep" | "inventory" | "shopping";
 export function Food() {
   const s = useDaylight();
-  const [tab, setTab] = useHashTab<Tab>("food", ["options", "prep", "inventory", "shopping"] as const, "options");
+  const [tab, setTab] = useHashTab<Tab>("food", ["options", "plan", "prep", "inventory", "shopping"] as const, "options");
   const [review, setReview] = useState(false);
   const need = s.shopping.filter((i) => !i.checked).length;
   return (
@@ -26,12 +27,13 @@ export function Food() {
         onChange={setTab}
         options={[
           { id: "options", label: "Food options" },
+          { id: "plan", label: "Cut plan" },
           { id: "prep", label: "Ingredient prep" },
           { id: "inventory", label: "Inventory" },
           { id: "shopping", label: `Shopping${need ? ` · ${need}` : ""}` },
         ]}
       />
-      {tab !== "prep" && !s.inventory.some((i) => kitchenStock(i.name, s.inventory) === "available") && !readyIngredients(s.prepared, s.prep).length ? (
+      {tab !== "prep" && tab !== "plan" && !s.inventory.some((i) => kitchenStock(i.name, s.inventory) === "available") && !readyIngredients(s.prepared, s.prep).length ? (
         <div className="kit-note mt-4 flex flex-wrap items-center justify-between gap-3" data-testid="food-prep-first">
           <p className="min-w-0 flex-1 basis-[14rem]"><b>Prep ingredients first.</b> Once something is prepped or stocked, options show what you can make.</p>
           <Button tone="outline" size="sm" onClick={() => setTab("prep")}>Go to ingredient prep</Button>
@@ -40,6 +42,8 @@ export function Food() {
       <div className="mt-6">
         {tab === "options" ? (
           <FoodOptions prep={() => setTab("prep")} />
+        ) : tab === "plan" ? (
+          <CutPlan />
         ) : tab === "prep" ? (
           <IngredientPrep
             shop={() => {
